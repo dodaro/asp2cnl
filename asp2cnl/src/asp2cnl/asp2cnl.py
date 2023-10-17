@@ -69,3 +69,4 @@ def asp2cnlTranslate():
     #print(definitions)
     return results.getvalue()
 
+
