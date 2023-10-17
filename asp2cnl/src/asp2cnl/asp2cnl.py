@@ -44,6 +44,7 @@ def asp2cnlTranslate():
                 results.write(atom.terms[0].replace('"', '').capitalize()) 
                 results.write(" ")
                 results.write("is a") 
+                results.write(" ")
                 results.write(atom.name)                 
                 results.write(".")        
             
