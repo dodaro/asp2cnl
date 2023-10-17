@@ -1,0 +1,16 @@
+timeslot(1,"07:00").  
+timeslot(2,"07:30").  
+timeslot(3,"08:00").  
+timeslot(4,"08:30").  
+timeslot(5,"09:00").  
+%coldtemperature(minKelvinTemperature..acceptableTemperature).
+%day(1..365).
+drink(1,"alcoholic","blue").
+drink(2,"nonalcoholic","yellow").
+waiter("john").
+pub(1).
+patron("alice").
+close_to(1,2,3).
+close_to(1,2,4).
+work_in("john",1).
+serve("john","alcoholic").
