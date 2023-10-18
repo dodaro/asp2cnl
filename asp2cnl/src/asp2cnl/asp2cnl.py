@@ -7,16 +7,14 @@ import os.path
 from io import StringIO
 
 from asp2cnl.parser import ASPTransformer, ASPContentTree, ClassicalLiteral, Disjunction
+from asp2cnl.compiler import compile
 
 from cnl2asp.cnl2asp import Cnl2asp
 
+
 aspCoreParser = Lark(open(os.path.join(os.path.dirname(__file__), "asp_core_2_grammar/asp_grammar.lark"), "r").read())
 
-def get_symbol(symbols, symbol_name):
-    res: list = [symbols[i] for i in
-                            range(len(symbols)) if
-                            symbols[i].predicate == symbol_name]
-    return res[0]
+
 
 def asp2cnlTranslate():
     results = StringIO()
@@ -33,9 +31,10 @@ def asp2cnlTranslate():
     symbols = Cnl2asp(f).get_symbols()
     #print(symbols)
     #print(get_symbol(symbols, "work in"))
-
     
     for rule in definitions:
+        results.write(compile(rule, symbols))
+        '''
         if rule.isFact():
             atom = rule.head[0].atoms[0] 
             
@@ -64,7 +63,7 @@ def asp2cnlTranslate():
                     results.write(".")
 
                     results.write("\n")
-            
+            '''
 
     #print(definitions[0].isFact())
     #print(definitions)
