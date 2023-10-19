@@ -20,7 +20,7 @@ class TestFacts(unittest.TestCase):
     def test_with_all_symbols(self):
         results = StringIO()
         
-        program = open(os.path.join(os.path.dirname(__file__), "test.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "test_facts.asp"), "r").read()
         content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
 
@@ -30,37 +30,7 @@ class TestFacts(unittest.TestCase):
         #print(get_symbol(symbols, "work in"))
         
         for rule in definitions:
-            results.write(compile(rule, symbols))
-            '''
-            if rule.isFact():
-                atom = rule.head[0].atoms[0] 
-                
-                if len(atom.terms) == 1:
-                    #Eg. pub(1). --> 1 is a pub.
-                    results.write(atom.terms[0].replace('"', '').capitalize()) 
-                    results.write(" ")
-                    results.write("is a") 
-                    results.write(" ")
-                    results.write(atom.name)                 
-                    results.write(".")        
-                
-                    results.write("\n")
-
-                elif len(atom.terms) == 2:                
-                    #if "_" in atom.name:                               
-                        #Eg. work_in("john",1). --> Waiter John works in pub 1.
-                        symb = get_symbol(symbols, atom.name.replace("_", " "))
-                        results.write(symb.attributes[0].replace('"', '').capitalize())
-                        results.write(" ")
-                        results.write(atom.terms[0].replace('"', '').capitalize())
-                        results.write(" ")
-                        results.write(symb.predicate)
-                        results.write(" ")
-                        results.write(atom.terms[1].replace('"', ''))
-                        results.write(".")
-
-                        results.write("\n")
-                '''
+            results.write(compile(rule, symbols))            
         print(results.getvalue())
 
 if __name__ == '__main__':
