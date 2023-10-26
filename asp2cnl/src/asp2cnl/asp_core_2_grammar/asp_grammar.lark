@@ -121,6 +121,7 @@ terms : terms COMMA term
 |       classical_literal
 
 term : NUMBER
+|      ID
 |      STRING
 |      VARIABLE
 |      ANONYMOUS_VARIABLE

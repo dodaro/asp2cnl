@@ -22,7 +22,7 @@ def get_symbol(symbols, symbol_name):
 
 def compile(rule, symbols):
     results = StringIO()
-    if rule.isFact():
+    if rule.isFact():        
         atom = rule.head[0].atoms[0]       
         symb = get_symbol(symbols, atom.name)     
         if len(atom.terms) == 1:
@@ -36,15 +36,18 @@ def compile(rule, symbols):
             if symb is not None:
                 results.write(generate_there_is(atom, symb))   
                 results.write("\n")           
-            else:
-                results.write(generate_relation(atom)) 
-                results.write("\n")                                            
+            #else:
+            #    results.write(generate_relation(atom)) 
+            #    results.write("\n")
+    elif rule.isClassical():      
+        results.write(generate_classical_statement(rule, symbols))   
+        results.write("\n")      
     return results.getvalue()
 
 def generate_is_a(atom):
     #Eg. pub(1). --> 1 is a pub.
     results = StringIO()    
-    results.write(atom.terms[0].replace('"', '').capitalize()) 
+    results.write(atom.terms[0].name.replace('"', '').capitalize()) 
     results.write(" ")
     results.write("is a") 
     results.write(" ")
@@ -74,11 +77,12 @@ def generate_there_is(atom, symbol):
         results.write(" ")   
         results.write("equal to")
         results.write(" ")
-        results.write(atom.terms[i])
+        results.write(atom.terms[i].name)
     results.write(".")
     return results.getvalue()
 
 #TODO
+
 def generate_relation(atom):
     #Eg. work_in("john",1). 
     #--> Waiter John works in pub 1.
@@ -93,15 +97,15 @@ def generate_relation(atom):
     #if symb is not None: 
         #results.write(symb.predicate('"', '').capitalize())
         #results.write(" ")    
-    results.write(atom.terms[0].replace('"', ''))
+    results.write(atom.terms[0].name.replace('"', ''))
     results.write(" ")
     results.write(atom_name)
-    for i in range(1, len(atom.terms)):
-        if i > 1:
+    for i in range(len(atom.terms)):
+        if i > 0:
             results.write(" ")
             results.write("and")    
         results.write(" ")
-        results.write(atom.terms[i].replace('"', ''))
+        results.write(atom.terms[i].name.replace('"', ''))
         #symb2 = get_symbol(symbols, atom.terms[1])
 
     
@@ -118,3 +122,101 @@ def generate_relation(atom):
     results.write(".")
 
     return results.getvalue()
+
+def generate_classical_statement(rule, symbols):
+    # Eg. topmovie(X) :- movie(X,_,"spielberg",_).
+    # -->
+    # Whenever there is a movie with id X, with director equal to spielberg
+    # then we must have a topmovie with id X.    
+    results = StringIO()   
+    startedLits = False     
+    results.write(generate_body(rule.body, symbols))    
+    results.write("then") 
+    results.write(" ")
+    results.write("we") 
+    results.write(" ")
+    results.write("must") 
+    results.write(" ")
+    results.write("have") 
+    results.write(" ")
+
+    results.write(generate_head(rule.head, symbols))
+    results.write(".")
+    return results.getvalue()
+
+def generate_head(head, symbols):
+    results = StringIO() 
+    if (len(head[0].atoms) == 1):
+        results.write("a")
+        results.write(" ")
+        results.write(head[0].atoms[0].name)
+        results.write(" ")   
+        symbLit = get_symbol(symbols, head[0].atoms[0].name)
+
+        
+        for i in range(len(symbLit.attributes)):
+            if i > 0:
+                results.write(",")   
+                results.write(" ")
+            results.write("with")   
+            results.write(" ")
+            results.write(symbLit.attributes[i])
+            results.write(" ")
+
+            if not head[0].atoms[0].terms[i].isVariable():                                    
+                results.write("equal")   
+                results.write(" ")
+                results.write("to")   
+                results.write(" ")
+            results.write(head[0].atoms[0].terms[i].name)   
+            #results.write(" ")
+    else:
+        # TODO
+        print("TO BE IMPLEMENTED")
+    return results.getvalue()
+
+
+def generate_body(body, symbols):
+    results = StringIO()   
+    startedLits = False 
+    for lit in body.literals:        
+        if startedLits:
+            results.write(",")   
+            results.write(" ")
+            results.write("whenever")
+        else:            
+            results.write("Whenever")   
+            startedLits = True
+        results.write(" ")
+        results.write("there")   
+        results.write(" ")
+        results.write("is")   
+        results.write(" ")
+        #if type(lit.classical_literal) == ClassicalLiteral:
+        symbLit = get_symbol(symbols, lit[0].name)
+        results.write("a")   
+        results.write(" ")
+        results.write(lit[0].name)   
+        results.write(" ")
+        startedTerms = False
+        for i in range(len(symbLit.attributes)):
+            if not lit[0].terms[i].isUnderscore(): 
+                if startedTerms:
+                    results.write(",")   
+                    results.write(" ")
+                else:
+                    startedTerms = True
+                results.write("with")   
+                results.write(" ")
+                results.write(symbLit.attributes[i])
+                results.write(" ")
+                if not lit[0].terms[i].isVariable():                                    
+                    results.write("equal")   
+                    results.write(" ")
+                    results.write("to")   
+                    results.write(" ")
+
+                results.write(lit[0].terms[i].name)   
+    results.write(" ")
+    return results.getvalue()
+
