@@ -12,7 +12,8 @@ class ASPTransformer(Transformer):
 
     __lastConjunction = None
     __lastBodyLiterals = []
-    __thereIsOR = False
+    __thereIsOR = False    
+    __thereIsNaf = False
 
     def start(self, elem):
         return ASPContentTree(self.__rules_list)
@@ -31,15 +32,46 @@ class ASPTransformer(Transformer):
             classicalLit = ClassicalLiteral(elem[0].value, self.__last_termsList[:])             
             self.__last_termsList = []
             return classicalLit
-         
+
+    def NAF(self, elem):
+        self.__thereIsNaf = True        
+
     def naf_literal(self, elem):
-        self.__lastBodyLiterals.append(elem) 
-        #nafLit = NafLiteral(elem)
+        classical_lit = None
+        if len(elem) == 1:
+            classical_lit = elem[0]
+        else:
+            classical_lit = elem[1]
+        nafLit = NafLiteral(self.__thereIsNaf, classical_lit)
+        self.__lastBodyLiterals.append(nafLit) 
+        self.__thereIsNaf = False        
+        return elem
+
+    def binop(self, elem):
+        return elem[0]
+    
+    def EQUAL(self, elem):        
+        return elem.value
+    def GREATER(self, elem):
+        return elem.value
+    def GREATER_OR_EQ(self, elem):
+        return elem.value
+    def LOWER(self, elem):
+        return elem.value
+    def LOWER_OR_EQ(self, elem):
+        return elem.value
+    def UNEQUAL(self, elem):
+        return elem.value        
+
+    def builtin_atom(self, elem):          
+        return BuiltinAtom(elem[0][1], [elem[0][0], elem[1]])  
+
+    def b(self, elem):
         return elem
 
     def term(self, elem):         
         self.__last_termsList.append(Term(elem[0].value))
-        #self.__last_disjunction_list = []
+        return Term(elem[0].value)        
 
     def body(self, elem):  
        self.__lastConjunction = Conjunction(self.__lastBodyLiterals[:])             
@@ -47,9 +79,7 @@ class ASPTransformer(Transformer):
     def OR(self, elem):                    
         self.__thereIsOR = True
         
-    def statement(self, elem):
-        #print("ST " + elem)  
-        #print(self.__lastBody[:])
+    def statement(self, elem):        
         self.__rules_list.append(Rule(self.__last_disjunction_list[:], self.__lastConjunction))
         self.__last_disjunction_list = []                
         self.__lastBodyLiterals = []
@@ -71,13 +101,19 @@ class Term:
         return self.name == "_"
 
 @dataclass(frozen=True)
+class BuiltinAtom:
+    op: str
+    terms: list[Term]
+
+@dataclass(frozen=True)
 class ClassicalLiteral:
     name: str
     terms: list[Term]
 
 @dataclass(frozen=True)
 class NafLiteral:
-    classical_literal: ClassicalLiteral    
+    isNot: bool
+    literal: ClassicalLiteral | BuiltinAtom 
 
 @dataclass(frozen=True)
 class Conjunction:

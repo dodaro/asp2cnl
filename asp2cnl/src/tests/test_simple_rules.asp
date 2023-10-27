@@ -1,12 +1,8 @@
 %working(W) :- serve(W, X_574408ca_c2cd_43b2_a68a_0eae7285f99d).
 
-%%% topmovie(X) :- movie(X,_,"spielberg",_).
+%%% topmovie(X) :- movie(X,_,"spielberg",1990).
 
-movie(X,"jurassicPark",spielberg,Y) :- topmovie(X), director(ciccio). 
-
-%---> Whenever there is a movie with director equal to spielberg, 
-%     and with id X, whenever there is ____, then we must have a topmovie with id X, with name Y
-%     then 
+movie(X,"jurassicPark",spielberg,Y) :- Y <> 5, topmovie(X), not director(Y). 
 
 % a (X) :- b(X), c(Y).
 

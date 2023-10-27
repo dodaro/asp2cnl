@@ -5,6 +5,8 @@ ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl2asp/cnl2asp/'
 sys.path += [ROOT_CNL2ASP_PATH + 'src']
 from cnl2asp.cnl2asp import Symbol
 
+from asp2cnl.parser import ClassicalLiteral, BuiltinAtom
+
 def extract_name(name):
     if type(name) == Symbol:
         return extract_name(name.predicate)
@@ -179,44 +181,71 @@ def generate_head(head, symbols):
 def generate_body(body, symbols):
     results = StringIO()   
     startedLits = False 
-    for lit in body.literals:        
-        if startedLits:
-            results.write(",")   
+    # Find builtins
+    builtinAtoms = {}
+    
+    for lit in body.literals: 
+        if type(lit.literal) == BuiltinAtom:            
+            builtinAtoms[lit.literal.terms[0]] = lit.literal
+    
+    for lit in body.literals:    
+        if type(lit.literal) == ClassicalLiteral:    
+            if startedLits:
+                results.write(",")   
+                results.write(" ")
+                results.write("whenever")
+            else:            
+                results.write("Whenever")   
+                startedLits = True
             results.write(" ")
-            results.write("whenever")
-        else:            
-            results.write("Whenever")   
-            startedLits = True
-        results.write(" ")
-        results.write("there")   
-        results.write(" ")
-        results.write("is")   
-        results.write(" ")
-        #if type(lit.classical_literal) == ClassicalLiteral:
-        symbLit = get_symbol(symbols, lit[0].name)
-        results.write("a")   
-        results.write(" ")
-        results.write(lit[0].name)   
-        results.write(" ")
-        startedTerms = False
-        for i in range(len(symbLit.attributes)):
-            if not lit[0].terms[i].isUnderscore(): 
-                if startedTerms:
-                    results.write(",")   
-                    results.write(" ")
-                else:
-                    startedTerms = True
-                results.write("with")   
+            results.write("there")   
+            results.write(" ")
+            results.write("is")   
+            results.write(" ")
+            if lit.isNot:
+                results.write("not")   
                 results.write(" ")
-                results.write(symbLit.attributes[i])
-                results.write(" ")
-                if not lit[0].terms[i].isVariable():                                    
-                    results.write("equal")   
+            #if type(lit.classical_literal) == ClassicalLiteral:
+        
+            symbLit = get_symbol(symbols, lit.literal.name)
+            results.write("a")   
+            results.write(" ")
+            results.write(lit.literal.name)   
+            results.write(" ")
+            startedTerms = False
+            for i in range(len(symbLit.attributes)):
+                if not lit.literal.terms[i].isUnderscore():                         
+                    if startedTerms:
+                        results.write(",")   
+                        results.write(" ")
+                    else:
+                        startedTerms = True
+                    results.write("with")   
                     results.write(" ")
-                    results.write("to")   
+                    results.write(symbLit.attributes[i])
                     results.write(" ")
-
-                results.write(lit[0].terms[i].name)   
+                    if lit.literal.terms[i].isVariable(): 
+                        if lit.literal.terms[i] in builtinAtoms.keys():
+                            print("AAAA")
+                            print(lit.literal.terms[i])
+                            builtinAtom = builtinAtoms[lit.literal.terms[i]]
+                            if (builtinAtom.op == "!=" or builtinAtom.op == "<>" ):
+                                results.write("different")   
+                                results.write(" ")
+                                results.write("from")   
+                                results.write(" ")
+                                results.write(builtinAtom.terms[1].name)                                
+                        else:
+                            results.write(lit.literal.terms[i].name)  
+                    else:                                                        
+                        results.write("equal")   
+                        results.write(" ")
+                        results.write("to")   
+                        results.write(" ")
+                        results.write(lit.literal.terms[i].name)  
+                    
+        
+                 
     results.write(" ")
     return results.getvalue()
 
