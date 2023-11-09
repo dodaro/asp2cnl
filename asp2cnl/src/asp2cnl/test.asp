@@ -4,5 +4,5 @@
 
 % topmovie(X) :- movie(X,_,"spielberg",_).
 
-a(X) :- c(X), Y = 1, Z != 2.
+a(X, Y, Z) :- c(X, K), Y = 1, Z != 2.
 

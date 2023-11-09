@@ -2,13 +2,13 @@ import lark
 from lark import Transformer, Discard
 from dataclasses import dataclass
 
+from io import StringIO
+
 
 class ASPTransformer(Transformer):
     __rules_list = []
 
-    __last_disjunction_list = []
-    __last_termsList = []
-    __open_parenthetis = False 
+    __last_disjunction = []        
 
     __lastConjunction = None
     __lastBodyLiterals = []
@@ -22,16 +22,11 @@ class ASPTransformer(Transformer):
         return elem
 
     def disjunction(self, elem):                   
-        self.__last_disjunction_list.append(Disjunction(elem))        
+        self.__last_disjunction = Disjunction(elem)        
 
-    def classical_literal(self, elem):  
-        if (self.__open_parenthetis):
-            self.__last_termsList.append(elem[0].value)
-            #self.__last_disjunction_list = []      
-        else:
-            classicalLit = ClassicalLiteral(elem[0].value, self.__last_termsList[:])             
-            self.__last_termsList = []
-            return classicalLit
+    def classical_literal(self, elem):                            
+        classicalLit = ClassicalLiteral(elem[0].value, elem[2][:])                                     
+        return classicalLit
 
     def NAF(self, elem):
         self.__thereIsNaf = True        
@@ -39,7 +34,7 @@ class ASPTransformer(Transformer):
     def naf_literal(self, elem):
         classical_lit = None
         if len(elem) == 1:
-            classical_lit = elem[0]
+            classical_lit = elem[0]            
         else:
             classical_lit = elem[1]
         nafLit = NafLiteral(self.__thereIsNaf, classical_lit)
@@ -69,8 +64,18 @@ class ASPTransformer(Transformer):
     def b(self, elem):
         return elem
 
+    def terms(self, elem):             
+        terms = []
+        for t in elem:
+            if type(t) == Term:
+                terms.append(t)
+            else:              
+                for t1 in t:
+                    if type(t1) == Term:  
+                        terms.append(t1)        
+        return terms
+                
     def term(self, elem):         
-        self.__last_termsList.append(Term(elem[0].value))
         return Term(elem[0].value)        
 
     def body(self, elem):  
@@ -80,17 +85,10 @@ class ASPTransformer(Transformer):
         self.__thereIsOR = True
         
     def statement(self, elem):        
-        self.__rules_list.append(Rule(self.__last_disjunction_list[:], self.__lastConjunction))
-        self.__last_disjunction_list = []                
+        self.__rules_list.append(Rule(self.__last_disjunction, self.__lastConjunction))
+        self.__last_disjunction = None
         self.__lastBodyLiterals = []
-        return elem
-
-    def PAREN_OPEN(self, elem): 
-        self.__open_parenthetis = True   
-    
-    def PAREN_CLOSE(self, elem): 
-        self.__open_parenthetis = False
-        
+        return elem            
 
 @dataclass(frozen=True)
 class Term:
@@ -99,21 +97,46 @@ class Term:
         return not self.name.isnumeric() and self.name[0].isupper()
     def isUnderscore(self):
         return self.name == "_"
+    def toString(self):
+        return self.name
 
 @dataclass(frozen=True)
 class BuiltinAtom:
     op: str
     terms: list[Term]
+    def toString(self):
+        return self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString()
 
 @dataclass(frozen=True)
 class ClassicalLiteral:
     name: str
     terms: list[Term]
+    def toString(self):
+        text = StringIO()   
+        text.write(self.name)
+        started = False
+        for t in self.terms:
+            if started:
+                text.write(", ")
+            else:
+                text.write("(")
+                started = True
+            text.write(t.toString())
+        if started:
+            text.write(")")
+        return text.getvalue()
 
 @dataclass(frozen=True)
 class NafLiteral:
     isNot: bool
     literal: ClassicalLiteral | BuiltinAtom 
+    def toString(self):
+        text = ""
+        if self.isNot:
+            text = "not "
+        text = text + self.literal.toString()
+        return text
+    
 
 @dataclass(frozen=True)
 class Conjunction:
@@ -124,6 +147,17 @@ class Conjunction:
                 if term.isVariable():
                     return True
         return False
+    def toString(self):
+        text = StringIO()           
+        started = False
+        for l in self.literals:
+            if started:
+                text.write(", ")
+            else:                
+                started = True
+            text.write(l.toString())        
+        text.write(".")
+        return text.getvalue()
 
 @dataclass(frozen=True)
 class Disjunction:
@@ -134,15 +168,36 @@ class Disjunction:
                 if term.isVariable():
                     return True
         return False
+    def toString(self):
+        text = StringIO()           
+        started = False
+        for a in self.atoms:
+            if started:
+                text.write(" | ")
+            else:                
+                started = True
+            text.write(a.toString())                
+        return text.getvalue()
 
 @dataclass(frozen=True)
 class Rule:
-    head: list[Disjunction]
-    body: list[Conjunction] 
+    head: Disjunction
+    body: Conjunction
     def isFact(self):
-        return len(self.head) == 1 and self.body is None and not self.head[0].hasVariables()
+        return len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
     def isClassical(self):
-        return len(self.head) == 1 and self.body is not None and len(self.body.literals) > 0
+        return len(self.head.atoms) == 1 and self.body is not None and len(self.body.literals) > 0
+    def toString(self):
+        text = StringIO() 
+        if self.head is not None:
+            text.write(self.head.toString())
+        if self.body is None:
+            text.write(".")
+        else:
+            text.write(" :- ")
+            text.write(self.body.toString())
+        return text.getvalue()
+            
   
 @dataclass(frozen=True)
 class ASPContentTree:

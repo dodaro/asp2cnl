@@ -30,6 +30,8 @@ class TestFacts(unittest.TestCase):
         #print(get_symbol(symbols, "work in"))
         
         for rule in definitions:
+            print("RULE: " + rule)
+            print("TRANSLATED IN: ")
             results.write(compile(rule, symbols))            
         print(results.getvalue())
 

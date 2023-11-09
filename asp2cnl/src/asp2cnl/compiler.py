@@ -148,12 +148,12 @@ def generate_classical_statement(rule, symbols):
 
 def generate_head(head, symbols):
     results = StringIO() 
-    if (len(head[0].atoms) == 1):
+    if (len(head.atoms) == 1):
         results.write("a")
         results.write(" ")
-        results.write(head[0].atoms[0].name)
+        results.write(head.atoms[0].name)
         results.write(" ")   
-        symbLit = get_symbol(symbols, head[0].atoms[0].name)
+        symbLit = get_symbol(symbols, head.atoms[0].name)
 
         
         for i in range(len(symbLit.attributes)):
@@ -165,12 +165,12 @@ def generate_head(head, symbols):
             results.write(symbLit.attributes[i])
             results.write(" ")
 
-            if not head[0].atoms[0].terms[i].isVariable():                                    
+            if not head.atoms[0].terms[i].isVariable():                                    
                 results.write("equal")   
                 results.write(" ")
                 results.write("to")   
                 results.write(" ")
-            results.write(head[0].atoms[0].terms[i].name)   
+            results.write(head.atoms[0].terms[i].name)   
             #results.write(" ")
     else:
         # TODO
@@ -213,7 +213,7 @@ def generate_body(body, symbols):
             results.write(lit.literal.name)   
             results.write(" ")
             startedTerms = False
-            for i in range(len(symbLit.attributes)):
+            for i in range(len(symbLit.attributes)):                                
                 if not lit.literal.terms[i].isUnderscore():                         
                     if startedTerms:
                         results.write(",")   
@@ -225,16 +225,59 @@ def generate_body(body, symbols):
                     results.write(symbLit.attributes[i])
                     results.write(" ")
                     if lit.literal.terms[i].isVariable(): 
-                        if lit.literal.terms[i] in builtinAtoms.keys():
-                            print("AAAA")
-                            print(lit.literal.terms[i])
+                        if lit.literal.terms[i] in builtinAtoms.keys():    
+                            results.write(lit.literal.terms[i].name)
+                            results.write(" ")                      
                             builtinAtom = builtinAtoms[lit.literal.terms[i]]
-                            if (builtinAtom.op == "!=" or builtinAtom.op == "<>" ):
+                            if builtinAtom.op == "!=" or builtinAtom.op == "<>":
+                                # different from
                                 results.write("different")   
                                 results.write(" ")
                                 results.write("from")   
+                                results.write(" ")                                
+                            elif builtinAtom.op == "<":
+                                # less than
+                                results.write("less")   
                                 results.write(" ")
-                                results.write(builtinAtom.terms[1].name)                                
+                                results.write("than")   
+                                results.write(" ")
+                            elif builtinAtom.op == "<=":
+                                # less than or equal to
+                                results.write("less")   
+                                results.write(" ")
+                                results.write("than")   
+                                results.write(" ")
+                                results.write("or")   
+                                results.write(" ")
+                                results.write("equal")   
+                                results.write(" ")
+                                results.write("to")   
+                                results.write(" ")
+                            elif builtinAtom.op == "=":
+                                # equal to    
+                                results.write("equal")   
+                                results.write(" ")
+                                results.write("to")   
+                                results.write(" ")
+                            elif builtinAtom.op == ">":
+                                # greater than    
+                                results.write("greater")   
+                                results.write(" ")
+                                results.write("than")   
+                                results.write(" ")
+                            elif builtinAtom.op == ">=":
+                                # greater than or equal to   
+                                results.write("greater")   
+                                results.write(" ")
+                                results.write("than")   
+                                results.write(" ")
+                                results.write("or")   
+                                results.write(" ")
+                                results.write("equal")   
+                                results.write(" ")
+                                results.write("to")   
+                                results.write(" ")
+                            results.write(builtinAtom.terms[1].name)                       
                         else:
                             results.write(lit.literal.terms[i].name)  
                     else:                                                        

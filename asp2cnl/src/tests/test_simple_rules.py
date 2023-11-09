@@ -22,7 +22,7 @@ class TestSimpleRules(unittest.TestCase):
         
         program = open(os.path.join(os.path.dirname(__file__), "test_simple_rules.asp"), "r").read()
         content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
-        print(content_tree)
+        #print(content_tree)
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
 
         f = open(os.path.join(os.path.dirname(__file__), "facts1.cnl"), "r")    
@@ -30,9 +30,14 @@ class TestSimpleRules(unittest.TestCase):
         #print(symbols)
         #print(get_symbol(symbols, "work in"))
         #print("ResultsA: \n")       
-        for rule in definitions:
-           #print("ResultsAA: \n")       
+        for rule in definitions:           
+            results.write("RULE: ")
+            results.write(rule.toString())
+            results.write("\n")
+            results.write("TRANSLATED IN: ")
+            results.write("\n")
             results.write(compile(rule, symbols))     
+            results.write("\n")
         print("Results: \n")       
         print(results.getvalue())
 
