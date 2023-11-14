@@ -7,12 +7,8 @@ from io import StringIO
 
 class ASPTransformer(Transformer):
     __rules_list = []
-        
-    __lastConjunction = None
-    __lastBodyLiterals = []    
-    __thereIsNaf = False
-
-    def start(self, elem):
+                
+    def start(self, elem):        
         return ASPContentTree(self.__rules_list)
     
     def head(self, elem):   
@@ -32,25 +28,26 @@ class ASPTransformer(Transformer):
                     if type(e1) == ClassicalLiteral:  
                         disElements.append(e1)                              
         return disElements
+    
 
 
     def classical_literal(self, elem):                            
         classicalLit = ClassicalLiteral(elem[0].value, elem[2][:])                                     
         return classicalLit
 
-    def NAF(self, elem):
-        self.__thereIsNaf = True        
+    def NAF(self, elem):        
+        return "_NOT_"       
 
-    def naf_literal(self, elem):
-        classical_lit = None
-        if len(elem) == 1:
-            classical_lit = elem[0]            
-        else:
-            classical_lit = elem[1]
-        nafLit = NafLiteral(self.__thereIsNaf, classical_lit)
-        self.__lastBodyLiterals.append(nafLit) 
-        self.__thereIsNaf = False        
-        return elem
+    def naf_literal(self, elem):        
+        thereIsNaf = False
+        lit = None
+        for e in elem:
+            if e == "_NOT_":
+                thereIsNaf = True
+            elif type(e) == ClassicalLiteral or type(e) == BuiltinAtom:
+                lit = e        
+        nafLit = NafLiteral(thereIsNaf, lit)                
+        return nafLit
 
     def binop(self, elem):
         return elem[0]
@@ -86,19 +83,41 @@ class ASPTransformer(Transformer):
         return terms
                 
     def term(self, elem):         
-        return Term(elem[0].value)        
+        return Term(elem[0].value)      
 
-    def body(self, elem):  
-       self.__lastConjunction = Conjunction(self.__lastBodyLiterals[:])             
+    def CONS(self, elem):
+        return "_IF_"
+                
+    def choice_element(self, elem):                 
+        return elem
+  
+    def body(self, elem):                    
+        bodyElements = []
+
+        for e in elem:            
+            if type(e) == NafLiteral:
+                bodyElements.append(e)            
+            else:
+                for e1 in e:
+                    if type(e1) == NafLiteral:
+                        bodyElements.append(e1)
+                                         
+        return bodyElements
 
         
-    def statement(self, elem):         
+    def statement(self, elem):    
+        foundIf = False        
         head = None
+        body = None
         for e in elem: 
             if type(e) == Disjunction:
-                head = e     
-        self.__rules_list.append(Rule(head, self.__lastConjunction))        
-        self.__lastBodyLiterals = []
+                head = e
+            elif e == "_IF_":
+                foundIf = True
+            elif type(e) == list:
+                if foundIf:
+                    body = Conjunction(e)
+        self.__rules_list.append(Rule(head, body))                
         return elem            
 
 @dataclass(frozen=True)
@@ -142,7 +161,7 @@ class NafLiteral:
     isNot: bool
     literal: ClassicalLiteral | BuiltinAtom 
     def toString(self):
-        text = ""
+        text = ""        
         if self.isNot:
             text = "not "
         text = text + self.literal.toString()
@@ -171,12 +190,17 @@ class Conjunction:
         return text.getvalue()
 
 @dataclass(frozen=True)
+class ChoiceElement:
+    left_part: ClassicalLiteral
+    right_part: NafLiteral
+
+@dataclass(frozen=True)
 class Choice:
     lowerGuard: Term  
     upperGuard: Term
     lowerOp: str
     upperOp: str
-    literal: NafLiteral
+    elements: list[ChoiceElement]
     
 
 @dataclass(frozen=True)

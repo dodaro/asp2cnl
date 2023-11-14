@@ -22,7 +22,7 @@ def get_symbol(symbols, symbol_name):
     else:  
         return res[0]
 
-def compile(rule, symbols):
+def compile(rule, symbols):    
     results = StringIO()
     if rule.isFact():        
         atom = rule.head[0].atoms[0]       
