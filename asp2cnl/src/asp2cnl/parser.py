@@ -7,22 +7,32 @@ from io import StringIO
 
 class ASPTransformer(Transformer):
     __rules_list = []
-
-    __last_disjunction = []        
-
+        
     __lastConjunction = None
-    __lastBodyLiterals = []
-    __thereIsOR = False    
+    __lastBodyLiterals = []    
     __thereIsNaf = False
 
     def start(self, elem):
         return ASPContentTree(self.__rules_list)
     
-    def head(self, elem):                
-        return elem
+    def head(self, elem):   
+        disElements = []
+        for e in elem[0]:            
+            if type(e) == ClassicalLiteral:
+                disElements.append(e)            
+        return Disjunction(disElements)
 
-    def disjunction(self, elem):                   
-        self.__last_disjunction = Disjunction(elem)        
+    def disjunction(self, elem):                    
+        disElements = []
+        for e in elem:            
+            if type(e) == ClassicalLiteral:
+                disElements.append(e)            
+            else:              
+                for e1 in e:
+                    if type(e1) == ClassicalLiteral:  
+                        disElements.append(e1)                              
+        return disElements
+
 
     def classical_literal(self, elem):                            
         classicalLit = ClassicalLiteral(elem[0].value, elem[2][:])                                     
@@ -81,12 +91,13 @@ class ASPTransformer(Transformer):
     def body(self, elem):  
        self.__lastConjunction = Conjunction(self.__lastBodyLiterals[:])             
 
-    def OR(self, elem):                    
-        self.__thereIsOR = True
         
-    def statement(self, elem):        
-        self.__rules_list.append(Rule(self.__last_disjunction, self.__lastConjunction))
-        self.__last_disjunction = None
+    def statement(self, elem):         
+        head = None
+        for e in elem: 
+            if type(e) == Disjunction:
+                head = e     
+        self.__rules_list.append(Rule(head, self.__lastConjunction))        
         self.__lastBodyLiterals = []
         return elem            
 
@@ -160,6 +171,15 @@ class Conjunction:
         return text.getvalue()
 
 @dataclass(frozen=True)
+class Choice:
+    lowerGuard: Term  
+    upperGuard: Term
+    lowerOp: str
+    upperOp: str
+    literal: NafLiteral
+    
+
+@dataclass(frozen=True)
 class Disjunction:
     atoms: list[ClassicalLiteral] 
     def hasVariables(self):
@@ -184,9 +204,14 @@ class Rule:
     head: Disjunction
     body: Conjunction
     def isFact(self):
-        return len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
+        return self.head is not None and len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
     def isClassical(self):
-        return len(self.head.atoms) == 1 and self.body is not None and len(self.body.literals) > 0
+        return self.head is not None and len(self.head.atoms) == 1 and self.body is not None and len(self.body.literals) > 0
+    def isStrongConstraint(self):
+        return self.head is None and self.body is not None and len(self.body.literals) > 0
+    def isDisjunctive(self):
+        return self.head is not None and len(self.head.atoms) > 1 and self.body is not None and len(self.body.literals) > 0
+
     def toString(self):
         text = StringIO() 
         if self.head is not None:

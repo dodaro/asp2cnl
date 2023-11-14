@@ -20,9 +20,11 @@ def asp2cnlTranslate():
     program = open(os.path.join(os.path.dirname(__file__), "test.asp"), "r").read()
     print (aspCoreParser.parse(program).pretty())
 
-def asp2cnlCompile():
+def asp2cnlTransform():
     program = open(os.path.join(os.path.dirname(__file__), "test.asp"), "r").read()
     print (aspCoreParser.parse(program).pretty())
     content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
     print(content_tree)
+    
+   
 

@@ -41,9 +41,17 @@ def compile(rule, symbols):
             #else:
             #    results.write(generate_relation(atom)) 
             #    results.write("\n")
-    elif rule.isClassical():      
+    elif rule.isClassical():            
         results.write(generate_classical_statement(rule, symbols))   
-        results.write("\n")      
+        results.write("\n")    
+    elif rule.isStrongConstraint():
+        results.write(generate_strong_constraint(rule, symbols))
+        results.write("\n") 
+    elif rule.isDisjunctive():
+        results.write(generate_disjunctive_statement(rule, symbols))
+        results.write("\n") 
+
+        
     return results.getvalue()
 
 def generate_is_a(atom):
@@ -79,7 +87,7 @@ def generate_there_is(atom, symbol):
         results.write(" ")   
         results.write("equal to")
         results.write(" ")
-        results.write(atom.terms[i].name)
+        results.write(atom.terms[i].name.strip('\"'))
     results.write(".")
     return results.getvalue()
 
@@ -125,14 +133,38 @@ def generate_relation(atom):
 
     return results.getvalue()
 
+def generate_disjunctive_statement(rule, symbols):
+    # Eg. scoreassignment(movie(I),1) | scoreassignment(movie(I),2) 
+    #               | scoreassignment(movie(I),3) :- movie(I,_,_,_).
+    # -->
+    # Whenever there is a movie with id I, we can have with director equal to spielberg
+    # a scoreAssignment with movie I, and with value equal to 1 
+    # or a scoreAssignment with movie I, and with value equal to 2 
+    # or a scoreAssignment with movie I, and with value equal to 3.    
+    results = StringIO()        
+    results.write(generate_body(rule.body, symbols))    
+    results.write(" ")
+    results.write("then") 
+    results.write(" ")
+    results.write("we") 
+    results.write(" ")
+    results.write("can") 
+    results.write(" ")
+    results.write("have") 
+    results.write(" ")
+
+    results.write(generate_head(rule.head, symbols))
+    results.write(".")
+    return results.getvalue()
+
 def generate_classical_statement(rule, symbols):
     # Eg. topmovie(X) :- movie(X,_,"spielberg",_).
     # -->
     # Whenever there is a movie with id X, with director equal to spielberg
     # then we must have a topmovie with id X.    
-    results = StringIO()   
-    startedLits = False     
+    results = StringIO()        
     results.write(generate_body(rule.body, symbols))    
+    results.write(" ")
     results.write("then") 
     results.write(" ")
     results.write("we") 
@@ -146,15 +178,32 @@ def generate_classical_statement(rule, symbols):
     results.write(".")
     return results.getvalue()
 
+def generate_strong_constraint(rule, symbols):
+    # Eg. :- movie(X,_,_,1964), topmovie(Y), X = Y.
+    # -->
+    # It is prohibited that X is equal to Y, whenever there is a movie 
+    # with id X, and with year equal to 1964, whenever there is a topMovie with id Y.
+    results = StringIO()  
+    results.write("It is prohibited that")     
+    results.write(generate_body(rule.body, symbols, True)) 
+    results.write(".") 
+    return results.getvalue()  
+
 def generate_head(head, symbols):
     results = StringIO() 
-    if (len(head.atoms) == 1):
+    started = False
+    for atom in head.atoms:
+        if started:
+            results.write(" ")
+            results.write("or")
+            results.write(" ")
+        else:
+            started = True
         results.write("a")
         results.write(" ")
-        results.write(head.atoms[0].name)
-        results.write(" ")   
-        symbLit = get_symbol(symbols, head.atoms[0].name)
-
+        results.write(atom.name)
+        results.write(" ")           
+        symbLit = get_symbol(symbols, atom.name)
         
         for i in range(len(symbLit.attributes)):
             if i > 0:
@@ -165,20 +214,17 @@ def generate_head(head, symbols):
             results.write(symbLit.attributes[i])
             results.write(" ")
 
-            if not head.atoms[0].terms[i].isVariable():                                    
+            if not atom.terms[i].isVariable():                                    
                 results.write("equal")   
                 results.write(" ")
                 results.write("to")   
                 results.write(" ")
-            results.write(head.atoms[0].terms[i].name)   
-            #results.write(" ")
-    else:
-        # TODO
-        print("TO BE IMPLEMENTED")
+            results.write(atom.terms[i].name.strip('\"'))   
+            #results.write(" ")        
     return results.getvalue()
 
 
-def generate_body(body, symbols):
+def generate_body(body, symbols, isContraint = False):
     results = StringIO()   
     startedLits = False 
     # Find builtins
@@ -194,8 +240,9 @@ def generate_body(body, symbols):
                 results.write(",")   
                 results.write(" ")
                 results.write("whenever")
-            else:            
-                results.write("Whenever")   
+            else:        
+                if not isContraint:                        
+                    results.write("Whenever")   
                 startedLits = True
             results.write(" ")
             results.write("there")   
@@ -285,10 +332,6 @@ def generate_body(body, symbols):
                         results.write(" ")
                         results.write("to")   
                         results.write(" ")
-                        results.write(lit.literal.terms[i].name)  
-                    
-        
-                 
-    results.write(" ")
+                        results.write(lit.literal.terms[i].name.strip('\"'))                                                   
     return results.getvalue()
 
