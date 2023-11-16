@@ -7,10 +7,12 @@
 % a(X, Y, Z) :- c(X, K), Y = 1, Z != 2.
 
 % scoreassignment(I,1) | scoreassignment(I,2) | scoreassignment(I,3) :- movie(I,_,_,_), movie2(I2,_,_,_), not movie3(I3,_,_,_).
+0 <= {topmovie(I)} <= 1 :- director(X), X != spielberg.
 % 0 <= {topmovie(I): not movie(I,_,X,_)} <= 1 :- director(X), X != spielberg.
 
-% 0 <= {topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_)} <= 1 :- director(X), X != spielberg.
+% 0 <= {topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_)} >= 1 :- director(X), X != spielberg.
+% {topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_); topmovie(I):movie(I,_,X,_)} >= 1 :- director(X), X != spielberg.
 
-movie(X,"jurassicPark",spielberg,Y) :- Y != 5, topmovie(X), not director(Y).
+
 
 

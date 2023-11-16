@@ -11,12 +11,15 @@ class ASPTransformer(Transformer):
     def start(self, elem):        
         return ASPContentTree(self.__rules_list)
     
-    def head(self, elem):   
-        disElements = []
-        for e in elem[0]:            
-            if type(e) == ClassicalLiteral:
-                disElements.append(e)            
-        return Disjunction(disElements)
+    def head(self, elem):
+        if len(elem) == 1 and type(elem[0]) == Choice:            
+            return elem[0]
+        else:            
+            disElements = []
+            for e in elem[0]:            
+                if type(e) == ClassicalLiteral:
+                    disElements.append(e)            
+            return Disjunction(disElements)
 
     def disjunction(self, elem):                    
         disElements = []
@@ -58,9 +61,9 @@ class ASPTransformer(Transformer):
         return elem.value
     def GREATER_OR_EQ(self, elem):
         return elem.value
-    def LOWER(self, elem):
+    def LESS(self, elem):
         return elem.value
-    def LOWER_OR_EQ(self, elem):
+    def LESS_OR_EQ(self, elem):
         return elem.value
     def UNEQUAL(self, elem):
         return elem.value        
@@ -85,11 +88,71 @@ class ASPTransformer(Transformer):
     def term(self, elem):         
         return Term(elem[0].value)      
 
+    def COLON(self, elem):
+        return "_COLON_"
+
     def CONS(self, elem):
         return "_IF_"
-                
-    def choice_element(self, elem):                 
-        return elem
+
+    def CURLY_OPEN(self, elem):
+        return "_CURLY_OPEN_"
+    def CURLY_CLOSE(self, elem):
+        return "_CURLY_CLOSE_"
+        
+    def choice(self, elem):  
+        lowerGuard = None
+        upperGuard = None
+        lowerOp = None
+        upperOp = None
+        choice_elements = None
+        foundCurlyOpen = False
+        foundCurlyClose = False
+        for e in elem:
+            if e == "_CURLY_OPEN_":
+                foundCurlyOpen = True
+            elif e == "_CURLY_CLOSE_":
+                foundCurlyClose = True
+            else:
+                if type(e) == Term:
+                    if not foundCurlyOpen:
+                        lowerGuard = e
+                    elif foundCurlyClose:
+                        upperGuard = e
+                elif type(e) == str:
+                    if not foundCurlyOpen:
+                        lowerOp = e
+                    elif foundCurlyClose:
+                        upperOp = e
+                else:
+                    choice_elements = e                    
+        return Choice(lowerGuard, upperGuard, lowerOp, upperOp, choice_elements)
+    
+
+    def choice_elements(self, elem): 
+        choiceElements = []
+        for e in elem:            
+            if type(e) == ChoiceElement:
+                choiceElements.append(e)            
+            else:              
+                for e1 in e:
+                    if type(e1) == ChoiceElement:  
+                        choiceElements.append(e1)                              
+        return choiceElements
+
+    def choice_element(self, elem): 
+        left_part = None
+        right_part = None
+        foundColon = False
+        for e in elem:
+            if type(e) == ClassicalLiteral:
+                left_part = e
+            elif e == "_COLON_":
+                foundColon = True
+            elif type(e) == NafLiteral:
+                if foundColon:
+                    right_part = e            
+                       
+        return ChoiceElement(left_part, right_part)
   
     def body(self, elem):                    
         bodyElements = []
@@ -109,8 +172,8 @@ class ASPTransformer(Transformer):
         foundIf = False        
         head = None
         body = None
-        for e in elem: 
-            if type(e) == Disjunction:
+        for e in elem:             
+            if type(e) == Disjunction or type(e) == Choice:
                 head = e
             elif e == "_IF_":
                 foundIf = True
@@ -141,6 +204,10 @@ class BuiltinAtom:
 class ClassicalLiteral:
     name: str
     terms: list[Term]
+    def hasVariables(self):        
+        for term in self.terms:
+            if term.isVariable():
+                return True
     def toString(self):
         text = StringIO()   
         text.write(self.name)
@@ -193,6 +260,14 @@ class Conjunction:
 class ChoiceElement:
     left_part: ClassicalLiteral
     right_part: NafLiteral
+    def toString(self):
+        text = StringIO()           
+        text.write(self.left_part.toString())
+        if self.right_part is not None:
+            text.write(":")
+            text.write(self.right_part.toString())
+        return text.getvalue()
+
 
 @dataclass(frozen=True)
 class Choice:
@@ -201,7 +276,28 @@ class Choice:
     lowerOp: str
     upperOp: str
     elements: list[ChoiceElement]
-    
+    def toString(self):
+        text = StringIO()
+        if self.lowerGuard is not None:
+            text.write(self.lowerGuard.name)
+            text.write(" ")
+            text.write(self.lowerOp)
+            text.write(" ")
+        text.write("{")
+        startedElems = False
+        for ce in self.elements:
+            if startedElems:
+                text.write(";")
+            else:
+                startedElems = True
+            text.write(ce.toString())
+        text.write("}")
+        if self.upperGuard is not None:
+            text.write(" ")
+            text.write(self.upperOp)
+            text.write(" ")
+            text.write(self.upperGuard.name)                      
+        return text.getvalue()
 
 @dataclass(frozen=True)
 class Disjunction:
@@ -225,16 +321,18 @@ class Disjunction:
 
 @dataclass(frozen=True)
 class Rule:
-    head: Disjunction
+    head: Disjunction | Choice
     body: Conjunction
     def isFact(self):
-        return self.head is not None and len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
+        return type(self.head) != Choice and self.head is not None and len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
     def isClassical(self):
-        return self.head is not None and len(self.head.atoms) == 1 and self.body is not None and len(self.body.literals) > 0
+        return type(self.head) != Choice and self.head is not None and len(self.head.atoms) == 1 and not self.head.atoms[0] == Choice and self.body is not None and len(self.body.literals) > 0
     def isStrongConstraint(self):
-        return self.head is None and self.body is not None and len(self.body.literals) > 0
+        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0
     def isDisjunctive(self):
-        return self.head is not None and len(self.head.atoms) > 1 and self.body is not None and len(self.body.literals) > 0
+        return type(self.head) != Choice and self.head is not None and len(self.head.atoms) > 1 and self.body is not None and len(self.body.literals) > 0
+    def isChoice(self):
+        return type(self.head) == Choice and self.body is not None and len(self.body.literals) > 0
 
     def toString(self):
         text = StringIO() 
