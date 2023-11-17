@@ -2,7 +2,7 @@ import unittest
 
 import os
 import sys
-ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl2asp/cnl2asp/'
+ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl/cnl2asp/'
 
 sys.path += [os.path.abspath(__file__ + "/../.."), ROOT_CNL2ASP_PATH + 'src']
 
@@ -27,7 +27,7 @@ class TestRules(unittest.TestCase):
 
         with open(os.path.join(os.path.dirname(__file__), "facts1.cnl"), "r") as f:
             symbols = Cnl2asp(f).get_symbols()
-            #print(symbols)
+            print(symbols)
             #print(get_symbol(symbols, "work in"))
             #print("ResultsA: \n")       
             for rule in definitions:           

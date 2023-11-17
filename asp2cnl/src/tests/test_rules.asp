@@ -38,8 +38,8 @@ movie(X,"jurassicPark",spielberg,Y) :- X = Y, topmovie(X), not director(Y).
 movie(X,"jurassicPark",spielberg,Y) :- topmovie(X), X = Y, not director(Y). 
 
 :- movie(X,_,_,1964), topmovie(Y).
-:- movie(X,_,_,1964), topmovie(Y), X = Y.
-:- movie(X,_,_,1964), topmovie(Y), X != Y.
+%% :- movie(X,_,_,1964), topmovie(Y), X = Y.
+%% :- movie(X,_,_,1964), topmovie(Y), X != Y.
 
 scoreassignment(I,1) | scoreassignment(I,2) | scoreassignment(I,3) :- movie(I,_,_,_).
 

@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 from io import StringIO
 
-
 class ASPTransformer(Transformer):
     __rules_list = []
                 
@@ -34,9 +33,74 @@ class ASPTransformer(Transformer):
     
 
 
-    def classical_literal(self, elem):                            
+    def classical_literal(self, elem):           
+        #if len(elem) == 1:
+        #    classicalLit = ClassicalLiteral(elem[0].value, [])                                     
+        #else:                      
         classicalLit = ClassicalLiteral(elem[0].value, elem[2][:])                                     
         return classicalLit
+
+    def aggregate(self, elem): 
+        print("AIAA")
+        print(elem)
+        lowerGuard = None
+        upperGuard = None
+        lowerOp = None
+        upperOp = None
+        aggregateFunction = None
+        foundCurlyOpen = False
+        foundCurlyClose = False
+        aggregateElements = None
+        for e in elem:
+            if type(e) == list:
+                if not foundCurlyOpen:
+                    lowerGuard = e[0]
+                    lowerOp = e[1]
+                else:
+                    aggregateElements = e
+            elif self.__isAggrageteFunction__(e):
+                aggregateFunction = e
+            elif e == '_CURLY_OPEN_':
+                foundCurlyOpen = True
+            elif e == '_CURLY_CLOSE_':
+                foundCurlyClose = True
+            elif type(e) == str and foundCurlyClose:
+                upperOp = e
+            elif type(e) == Term and foundCurlyClose:
+                upperGuard = e
+
+        return Aggregate(lowerGuard,upperGuard, lowerOp, upperOp, aggregateFunction, aggregateElements)
+
+       
+    def aggregate_function(self, elem): 
+        return elem[0].value
+
+    def aggregate_elements(self, elem): 
+        aggElements = []
+        for e in elem:            
+            if type(e) == AggregateElement:
+                aggElements.append(e)            
+            else:              
+                for e1 in e:
+                    if type(e1) == AggregateElement:  
+                        aggElements.append(e1)                              
+        return aggElements
+
+    def aggregate_element(self, elem): 
+        aggregateTerms = elem[0]
+        aggregateBody = Conjunction(elem[2])
+        return AggregateElement(aggregateTerms, aggregateBody)        
+    
+    def naf_literals(self, elem):
+        lits = []
+        for t in elem:
+            if type(t) == NafLiteral:
+                lits.append(t)
+            else:              
+                for t1 in t:
+                    if type(t1) == NafLiteral:  
+                        lits.append(t1)        
+        return lits
 
     def NAF(self, elem):        
         return "_NOT_"       
@@ -154,13 +218,15 @@ class ASPTransformer(Transformer):
                        
         return ChoiceElement(left_part, right_part)
   
-    def body(self, elem):                    
+    def body(self, elem):  
+        print("BB")
+        print(elem)                  
         bodyElements = []
 
         for e in elem:            
             if type(e) == NafLiteral:
                 bodyElements.append(e)            
-            else:
+            else:                
                 for e1 in e:
                     if type(e1) == NafLiteral:
                         bodyElements.append(e1)
@@ -181,7 +247,10 @@ class ASPTransformer(Transformer):
                 if foundIf:
                     body = Conjunction(e)
         self.__rules_list.append(Rule(head, body))                
-        return elem            
+        return elem    
+
+    def __isAggrageteFunction__(self, value):     
+        return value == "#min" or value == "#max" or value == "#sum" # ecc
 
 @dataclass(frozen=True)
 class Term:
@@ -256,6 +325,7 @@ class Conjunction:
         text.write(".")
         return text.getvalue()
 
+
 @dataclass(frozen=True)
 class ChoiceElement:
     left_part: ClassicalLiteral
@@ -268,6 +338,19 @@ class ChoiceElement:
             text.write(self.right_part.toString())
         return text.getvalue()
 
+@dataclass(frozen=True)
+class AggregateElement:
+    leftTerms: list[Term]
+    body: Conjunction
+
+@dataclass(frozen=True)
+class Aggregate:
+    lowerGuard: Term  
+    upperGuard: Term
+    lowerOp: str
+    upperOp: str
+    aggregateFunction: str
+    aggregateElement: list[AggregateElement]
 
 @dataclass(frozen=True)
 class Choice:

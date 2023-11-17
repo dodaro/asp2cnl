@@ -1,8 +1,10 @@
 from io import StringIO
 
 import sys
-ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl2asp/cnl2asp/'
+import os
+ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl/cnl2asp/'
 sys.path += [ROOT_CNL2ASP_PATH + 'src']
+
 from cnl2asp.cnl2asp import Symbol
 
 from asp2cnl.parser import ClassicalLiteral, BuiltinAtom, NafLiteral
@@ -16,10 +18,16 @@ def get_symbol(symbols, symbol_name):
     symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
-                            symbols[i].predicate == symbol_name]  
+                            symbols[i].predicate == symbol_name]      
     if len(res) == 0:
         return None
-    else:  
+    else:
+        for i in range(len(res[0].attributes)):
+            if type(res[0].attributes[i]) == Symbol:
+                res[0].attributes[i] = res[0].attributes[i].predicate# + "_" + res[0].attributes[0]
+                print("AA ")
+                print(res[0].attributes[i])
+
         return res[0]
 
 def compile(rule, symbols):    
