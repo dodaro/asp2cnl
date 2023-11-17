@@ -46,8 +46,9 @@ class TestRules(unittest.TestCase):
                     f.seek(0)                    
                     out_file.write(f.read())
                 with open(outFileDisk, "a") as out_file:
-                    out_file.write(compiled)            
-                with open(outFileDisk, "r") as in_file:
+                    out_file.write(compiled)           
+                print("Translating: " + compiled) 
+                with open(outFileDisk, "r") as in_file:                    
                     cnl2asp = Cnl2asp(in_file)
                     result = cnl2asp.compile()            
                     results.write("TRANSLATION BACK: ")

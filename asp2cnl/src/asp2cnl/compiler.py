@@ -283,24 +283,74 @@ def generate_strong_constraint(rule, symbols):
     return results.getvalue()  
 
 def generate_head_choice(head, symbols):
-    results = StringIO()    
-    if head.lowerGuard is not None and head.upperGuard is not None:
-        if head.lowerGuard.name == '0':
-            if head.lowerOp == "<=" and head.upperOp == "<=":
-                # at most U topmovie with id I such that there is a movie with director X, 
-                #           and with id I.
-                results.write("at most")
-                results.write(" ")
-                results.write(head.upperGuard.name)
-                results.write(" ")
-                results.write(head.elements[0].left_part.name)
-                results.write(" ")
-                results.write(generateWith(symbols, head.elements[0].left_part))  
-                results.write(" ")
-                results.write("such that")
-                results.write(" ")
-                symb = get_symbol(symbols, head.elements[0].right_part.literal.name)
-                results.write(generate_there_is(head.elements[0].right_part, symb, {}))
+    results = StringIO() 
+    atMost = False   
+    atLeast = False 
+    beetween = False    
+    exactly = False   
+    if head.upperGuard is not None:
+        if head.upperOp == "<=":
+            if head.lowerGuard is None:
+                atMost = True
+            else:
+                if head.lowerOp == "<=":
+                    if head.lowerGuard.name == head.upperGuard.name:
+                        exactly = True
+                    elif int(head.lowerGuard.name) < int(head.upperGuard.name):
+                        beetween = True 
+        elif head.upperOp == "=":
+            if head.lowerGuard is None:
+                exactly = True
+            else:
+                if head.lowerOp == "=":
+                    if head.lowerGuard.name == head.upperGuard.name:
+                        exactly = True
+    else:
+        if head.lowerGuard is not None:
+            if head.lowerOp == "=":
+                exactly = True
+            elif head.lowerOp == "<=":
+                atLeast = True
+    if exactly:
+        # exactly 1 topmovie with id I such that there is a movie with director X, 
+        #           and with id I.
+        results.write("exactly")
+        results.write(" ")
+        if head.lowerGuard is not None:            
+            results.write(head.lowerGuard.name)
+        else:
+            results.write(head.upperGuard.name)
+    if atLeast:
+        # at least 1 topmovie with id I such that there is a movie with director X, 
+        #           and with id I.
+        results.write("at least")
+        results.write(" ")
+        results.write(head.lowerGuard.name)
+    if atMost:
+        # at most 1 topmovie with id I such that there is a movie with director X, 
+        #           and with id I.
+        results.write("at most")
+        results.write(" ")
+        results.write(head.upperGuard.name)
+    if beetween:
+        # between 3 and 4 topmovie with id I such that there is a movie with director X, 
+        #           and with id I.
+        results.write("between")
+        results.write(" ")
+        results.write(head.lowerGuard.name)
+        results.write(" ")
+        results.write("and")
+        results.write(" ")
+        results.write(head.upperGuard.name)
+    results.write(" ")
+    results.write(head.elements[0].left_part.name)
+    results.write(" ")
+    results.write(generateWith(symbols, head.elements[0].left_part))  
+    results.write(" ")
+    results.write("such that")
+    results.write(" ")
+    symb = get_symbol(symbols, head.elements[0].right_part.literal.name)
+    results.write(generate_there_is(head.elements[0].right_part, symb, {}))
 
     # lowerGuard: Term  
     # upperGuard: Term
