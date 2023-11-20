@@ -7,7 +7,7 @@ sys.path += [ROOT_CNL2ASP_PATH + 'src']
 
 from cnl2asp.cnl2asp import Symbol
 
-from asp2cnl.parser import ClassicalLiteral, BuiltinAtom, NafLiteral
+from asp2cnl.parser import ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral
 
 def extract_name(name):
     if type(name) == Symbol:
@@ -32,9 +32,10 @@ def get_symbol(symbols, symbol_name):
 
 def compile(rule, symbols):    
     results = StringIO()
-    if rule.isFact():        
+    if rule.isFact():    
+        #Facts    
         atom = rule.head.atoms[0]       
-        symb = get_symbol(symbols, atom.name)     
+        symb = get_symbol(symbols, atom.name)             
         if len(atom.terms) == 1:
             if symb is None:
                 results.write(generate_is_a(atom))            
@@ -96,8 +97,13 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False):
     results.write(" ")
     results.write(atom.name)
     results.write(" ")
-    started = False
+    results.write(generate_with(atom, symbol, builtinAtoms))
+    return results.getvalue()
+    
      
+def generate_with(atom, symbol, builtinAtoms = {}):
+    results = StringIO()
+    started = False
     for i in range(len(atom.terms)):
         if not atom.terms[i].isUnderscore():                         
             if started:
@@ -416,113 +422,110 @@ def generate_body(body, symbols, isContraint = False):
     builtinAtoms = {}
     
     for lit in body.literals: 
-        if type(lit.literal) == BuiltinAtom:            
+        if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:            
             builtinAtoms[lit.literal.terms[0]] = lit.literal
     
+    tmpWheneverResults = StringIO()  
+    foundAggr = False
     for lit in body.literals:    
-        if type(lit.literal) == ClassicalLiteral:    
+        if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:    
             if startedLits:
-                results.write(",")   
-                results.write(" ")
-                results.write("whenever")
+                tmpWheneverResults.write(",")   
+                tmpWheneverResults.write(" ")
+                tmpWheneverResults.write("whenever")
             else:        
                 if not isContraint:                        
-                    results.write("Whenever")   
+                    tmpWheneverResults.write("Whenever")   
                 startedLits = True
-            results.write(" ")
-
-            symbLit = get_symbol(symbols, lit.literal.name)
-            results.write(generate_there_is(lit, symbLit, builtinAtoms))
-
-            '''
-            results.write("there")   
-            results.write(" ")
-            results.write("is")   
-            results.write(" ")
-            if lit.isNot:
-                results.write("not")   
-                results.write(" ")
-            #if type(lit.classical_literal) == ClassicalLiteral:
-        
+            tmpWheneverResults.write(" ")
             
-            results.write("a")   
+            symbLit = get_symbol(symbols, lit.literal.name)
+            tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms))
+        elif type(lit) == AggregateLiteral:
+            foundAggr = True
             results.write(" ")
-            results.write(lit.literal.name)   
-            results.write(" ")
-            startedTerms = False
-            for i in range(len(symbLit.attributes)):                                
-                if not lit.literal.terms[i].isUnderscore():                         
-                    if startedTerms:
-                        results.write(",")   
-                        results.write(" ")
-                    else:
-                        startedTerms = True
-                    results.write("with")   
-                    results.write(" ")
-                    results.write(symbLit.attributes[i])
-                    results.write(" ")
-                    if lit.literal.terms[i].isVariable(): 
-                        if lit.literal.terms[i] in builtinAtoms.keys():    
-                            results.write(lit.literal.terms[i].name)
-                            results.write(" ")                      
-                            builtinAtom = builtinAtoms[lit.literal.terms[i]]
-                            if builtinAtom.op == "!=" or builtinAtom.op == "<>":
-                                # different from
-                                results.write("different")   
-                                results.write(" ")
-                                results.write("from")   
-                                results.write(" ")                                
-                            elif builtinAtom.op == "<":
-                                # less than
-                                results.write("less")   
-                                results.write(" ")
-                                results.write("than")   
-                                results.write(" ")
-                            elif builtinAtom.op == "<=":
-                                # less than or equal to
-                                results.write("less")   
-                                results.write(" ")
-                                results.write("than")   
-                                results.write(" ")
-                                results.write("or")   
-                                results.write(" ")
-                                results.write("equal")   
-                                results.write(" ")
-                                results.write("to")   
-                                results.write(" ")
-                            elif builtinAtom.op == "=":
-                                # equal to    
-                                results.write("equal")   
-                                results.write(" ")
-                                results.write("to")   
-                                results.write(" ")
-                            elif builtinAtom.op == ">":
-                                # greater than    
-                                results.write("greater")   
-                                results.write(" ")
-                                results.write("than")   
-                                results.write(" ")
-                            elif builtinAtom.op == ">=":
-                                # greater than or equal to   
-                                results.write("greater")   
-                                results.write(" ")
-                                results.write("than")   
-                                results.write(" ")
-                                results.write("or")   
-                                results.write(" ")
-                                results.write("equal")   
-                                results.write(" ")
-                                results.write("to")   
-                                results.write(" ")
-                            results.write(builtinAtom.terms[1].name)                       
-                        else:
-                            results.write(lit.literal.terms[i].name)  
-                    else:                                                        
-                        results.write("equal")   
-                        results.write(" ")
-                        results.write("to")   
-                        results.write(" ")
-                        results.write(lit.literal.terms[i].name.strip('\"'))       
-            '''                                            
+            results.write(generate_aggregate_subsentence(lit, symbols))
+    if foundAggr:
+        results.write(" ")
+        results.write("whenever")        
+
+    results.write(tmpWheneverResults.getvalue())
+
+                                                   
     return results.getvalue()
 
+def generate_aggregate_subsentence(aggregate, symbols):
+    results = StringIO()     
+    # #AGGR{VL: scoreassignment(X,VL)} = 1
+    # --->
+    # the lowest value of a scoreAssignment with movie id X is equal to 1        
+    aggrTerm = aggregate.aggregateElement[0].leftTerms[0]        
+    foundClassicalLiteral = None
+    foundVarOfLiteral = None
+    positionOfFoundVar = -1
+    for naf_literal in aggregate.aggregateElement[0].body.literals:
+        if foundClassicalLiteral is None:
+            if type(naf_literal) == NafLiteral:
+                if type(naf_literal.literal) == ClassicalLiteral:
+                    p = 0
+                    for t in naf_literal.literal.terms:
+                        if t.name == aggrTerm.name:
+                            foundClassicalLiteral = naf_literal.literal
+                            foundVarOfLiteral = t
+                            positionOfFoundVar = p
+                        p = p + 1
+    if foundClassicalLiteral is not None:
+        results.write("the")
+        results.write(" ")
+        if aggregate.aggregateFunction == "#min":
+            results.write("lowest")
+        elif aggregate.aggregateFunction == "#max":
+            results.write("highest")            
+        elif aggregate.aggregateFunction == "#count":
+            results.write("number of")  
+        elif aggregate.aggregateFunction == "#sum":
+            results.write("total")  
+        results.write(" ")  
+               
+        symbLit = get_symbol(symbols, foundClassicalLiteral.name)          
+        results.write(symbLit.attributes[positionOfFoundVar])  
+        results.write(" ") 
+        results.write("of")  
+        results.write(" ") 
+        results.write("a")  
+        results.write(" ") 
+        results.write(foundClassicalLiteral.name)
+        results.write(" ") 
+        tmpLitTerm = foundClassicalLiteral.terms.pop(positionOfFoundVar)
+        tmpSymbTerm = symbLit.attributes.pop(positionOfFoundVar)
+        results.write(generate_with(foundClassicalLiteral, symbLit))
+        results.write(" ") 
+        foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
+        symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
+        if aggregate.lowerOp == "=" and aggregate.upperGuard is None or aggregate.upperOp == "=" and aggregate.lowerGuard is None:
+            results.write("is equal to")  
+            results.write(" ") 
+            if aggregate.lowerGuard is not None:
+                results.write(aggregate.lowerGuard.name)  
+            else:
+                results.write(aggregate.upperGuard.name)              
+
+    print(results.getvalue())
+    return results.getvalue()
+            
+
+'''
+    @dataclass(frozen=True)
+class AggregateElement:
+    leftTerms: list[Term]
+    body: 'Conjunction'
+
+@dataclass(frozen=True)
+class Aggregate:
+    lowerGuard: Term  
+    upperGuard: Term
+    lowerOp: str
+    upperOp: str
+    aggregateFunction: str
+    aggregateElement: list[AggregateElement]
+'''

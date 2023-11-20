@@ -15,6 +15,7 @@
 
 
 
-a(1) :- 1 < #min{VL,G: scoreassignment(X,VL), ciccio(X);VL2,G2: scoreassignment(X2,VL2), ciccio(X2)} > 2.
+%a(1) :- scoreassignment(X,K), 1 < #min{VL,G: scoreassignment(X,VL), ciccio(X);VL2,G2: scoreassignment(X2,VL2), ciccio(X2)} > 2.
+a(1) :- 1 < #min{VL,G: scoreassignment(X,VL), ciccio(X);VL2,G2: scoreassignment(X2,VL2), ciccio(X2)} > 2, scoreassignment(X,K).
 
 
