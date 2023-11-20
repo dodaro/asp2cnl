@@ -330,7 +330,7 @@ class AggregateLiteral:
     def toString(self):        
         text = StringIO()
         if self.lowerGuard is not None:
-            text.write(self.lowerGuard.toString)
+            text.write(self.lowerGuard.toString())
             text.write(" ")
             text.write(self.lowerOp)
             text.write(" ")

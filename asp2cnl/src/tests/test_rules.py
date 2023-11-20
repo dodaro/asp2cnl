@@ -20,14 +20,15 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
         
-        program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
+        #program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "test_rules.asp"), "r").read()
         content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
         #print(content_tree)
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
 
         with open(os.path.join(os.path.dirname(__file__), "facts1.cnl"), "r") as f:
             symbols = Cnl2asp(f).get_symbols()
-            print(symbols)
+            #print(symbols)
             #print(get_symbol(symbols, "work in"))
             #print("ResultsA: \n")       
             for rule in definitions:           
@@ -47,7 +48,7 @@ class TestRules(unittest.TestCase):
                     out_file.write(f.read())
                 with open(outFileDisk, "a") as out_file:
                     out_file.write(compiled)           
-                print("Translating: " + compiled) 
+                #print("Translating: " + compiled) 
                 with open(outFileDisk, "r") as in_file:                    
                     cnl2asp = Cnl2asp(in_file)
                     result = cnl2asp.compile()            

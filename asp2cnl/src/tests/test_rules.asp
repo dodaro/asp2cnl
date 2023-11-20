@@ -73,11 +73,39 @@ scoreassignment(I,1) | scoreassignment(I,2) | scoreassignment(I,3) :- movie(I,_,
 :- not topmovie(X), #min{VL: scoreassignment(X,VL)} = 1, scoreassignment(X,K).
 % --->
 % It is prohibited that the lowest value of a scoreassignment with id X is equal to 1 
-% whenever there is not a topmovie with id X, whenever there is a scoreassignment with id X, with value K.
+%       whenever there is not a topmovie with id X, whenever there is a scoreassignment with id X, with value K.
 
-% <> != different from
-% <     less than
-% <=    less than or equal to
-% =     equal to
-% >     greater than
-% >=    greater than or equal to 
+:- topmovie(X), #sum{VL: scoreassignment(X,VL)} = 1.
+:- topmovie(X), 1 <= #sum{VL: scoreassignment(X,VL)} <= 1.
+:- topmovie(X), 1 >= #sum{VL: scoreassignment(X,VL)} >= 1.
+:- topmovie(X), 1 = #sum{VL: scoreassignment(X,VL)}.
+:- topmovie(X), 1 = #sum{VL: scoreassignment(X,VL)} = 1.
+% --->
+% It is prohibited that the total value of a scoreassignment with id X 
+%       is equal to 1 whenever there is a topmovie with id X.
+
+:- topmovie(X), #sum{VL: scoreassignment(X,VL)} > 1.
+% --->
+% It is prohibited that the total value of a scoreassignment with id X 
+% is greater than 1 whenever there is a topmovie with id X
+
+:- topmovie(X), #sum{VL: scoreassignment(X,VL)} >= 1.
+% --->
+% It is prohibited that the total value of a scoreassignment with id X 
+% is greater than or equal to 1 whenever there is a topmovie with id X
+
+:- topmovie(X), #sum{VL: scoreassignment(X,VL)} < 1.
+% --->
+% It is prohibited that the total value of a scoreassignment with id X 
+% is less than 1 whenever there is a topmovie with id X
+
+:- topmovie(X), #sum{VL: scoreassignment(X,VL)} <= 1.
+% --->
+% It is prohibited that the total value of a scoreassignment with id X 
+% is less than or equal to 1 whenever there is a topmovie with id X
+
+% DOMANDE
+% director("alice") :- #min{VL: scoreassignment(X,VL)} = 1.
+% :- topmovie(X), 1 <= #sum{VL: scoreassignment(X,VL)} <= 2.
+
+

@@ -24,9 +24,7 @@ def get_symbol(symbols, symbol_name):
     else:
         for i in range(len(res[0].attributes)):
             if type(res[0].attributes[i]) == Symbol:
-                res[0].attributes[i] = res[0].attributes[i].predicate# + "_" + res[0].attributes[0]
-                print("AA ")
-                print(res[0].attributes[i])
+                res[0].attributes[i] = res[0].attributes[i].predicate# + "_" + res[0].attributes[0]                
 
         return res[0]
 
@@ -120,54 +118,9 @@ def generate_with(atom, symbol, builtinAtoms = {}):
                     results.write(atom.terms[i].name)
                     results.write(" ")                      
                     builtinAtom = builtinAtoms[atom.terms[i]]
-                    if builtinAtom.op == "!=" or builtinAtom.op == "<>":
-                        # different from
-                        results.write("different")   
-                        results.write(" ")
-                        results.write("from")   
-                        results.write(" ")                                
-                    elif builtinAtom.op == "<":
-                        # less than
-                        results.write("less")   
-                        results.write(" ")
-                        results.write("than")   
-                        results.write(" ")
-                    elif builtinAtom.op == "<=":
-                        # less than or equal to
-                        results.write("less")   
-                        results.write(" ")
-                        results.write("than")   
-                        results.write(" ")
-                        results.write("or")   
-                        results.write(" ")
-                        results.write("equal")   
-                        results.write(" ")
-                        results.write("to")   
-                        results.write(" ")
-                    elif builtinAtom.op == "=":
-                        # equal to    
-                        results.write("equal")   
-                        results.write(" ")
-                        results.write("to")   
-                        results.write(" ")
-                    elif builtinAtom.op == ">":
-                        # greater than    
-                        results.write("greater")   
-                        results.write(" ")
-                        results.write("than")   
-                        results.write(" ")
-                    elif builtinAtom.op == ">=":
-                        # greater than or equal to   
-                        results.write("greater")   
-                        results.write(" ")
-                        results.write("than")   
-                        results.write(" ")
-                        results.write("or")   
-                        results.write(" ")
-                        results.write("equal")   
-                        results.write(" ")
-                        results.write("to")   
-                        results.write(" ")
+                    results.write(generate_compare_operator_sentence(builtinAtom.op))
+                    results.write(" ")    
+
                     results.write(builtinAtom.terms[1].name)                       
                 else:
                     results.write(atom.terms[i].name)  
@@ -183,6 +136,52 @@ def generate_with(atom, symbol, builtinAtoms = {}):
         #results.write("equal to")
         #results.write(" ")
         #results.write(atom.terms[i].name.strip('\"'))    
+    return results.getvalue()
+
+def generate_compare_operator_sentence(operator):
+    results = StringIO()
+    if operator == "!=" or operator == "<>":
+        # different from
+        results.write("different")   
+        results.write(" ")
+        results.write("from")                               
+    elif operator == "<":
+        # less than
+        results.write("less")   
+        results.write(" ")
+        results.write("than")           
+    elif operator == "<=":
+        # less than or equal to
+        results.write("less")   
+        results.write(" ")
+        results.write("than")   
+        results.write(" ")
+        results.write("or")   
+        results.write(" ")
+        results.write("equal")   
+        results.write(" ")
+        results.write("to")           
+    elif operator == "=":
+        # equal to    
+        results.write("equal")   
+        results.write(" ")
+        results.write("to")           
+    elif operator == ">":
+        # greater than    
+        results.write("greater")   
+        results.write(" ")
+        results.write("than")           
+    elif operator == ">=":
+        # greater than or equal to   
+        results.write("greater")   
+        results.write(" ")
+        results.write("than")   
+        results.write(" ")
+        results.write("or")   
+        results.write(" ")
+        results.write("equal")   
+        results.write(" ")
+        results.write("to")           
     return results.getvalue()
 
 #TODO
@@ -459,7 +458,8 @@ def generate_aggregate_subsentence(aggregate, symbols):
     # #AGGR{VL: scoreassignment(X,VL)} = 1
     # --->
     # the lowest value of a scoreAssignment with movie id X is equal to 1        
-    aggrTerm = aggregate.aggregateElement[0].leftTerms[0]        
+    aggrTerm = aggregate.aggregateElement[0].leftTerms[0]
+    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:]  
     foundClassicalLiteral = None
     foundVarOfLiteral = None
     positionOfFoundVar = -1
@@ -496,21 +496,45 @@ def generate_aggregate_subsentence(aggregate, symbols):
         results.write(" ") 
         results.write(foundClassicalLiteral.name)
         results.write(" ") 
+
         tmpLitTerm = foundClassicalLiteral.terms.pop(positionOfFoundVar)
         tmpSymbTerm = symbLit.attributes.pop(positionOfFoundVar)
         results.write(generate_with(foundClassicalLiteral, symbLit))
         results.write(" ") 
         foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
         symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
-        if aggregate.lowerOp == "=" and aggregate.upperGuard is None or aggregate.upperOp == "=" and aggregate.lowerGuard is None:
-            results.write("is equal to")  
+        operator = None
+        if (aggregate.lowerOp == "=" and aggregate.upperGuard is None
+                    or aggregate.upperOp == "=" and aggregate.lowerGuard is None
+                    or aggregate.lowerOp == "=" and aggregate.upperOp == "="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    or aggregate.lowerOp == "<=" and aggregate.upperOp == "<="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    or aggregate.lowerOp == ">=" and aggregate.upperOp == ">="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    ):
+            operator = "="
+        elif (aggregate.upperOp == ">" and aggregate.lowerGuard is None):
+            operator = ">"
+        elif (aggregate.upperOp == ">=" and aggregate.lowerGuard is None):
+            operator = ">="
+        elif (aggregate.upperOp == "<" and aggregate.lowerGuard is None):
+            operator = "<"
+        elif (aggregate.upperOp == "<=" and aggregate.lowerGuard is None):
+            operator = "<="
+        elif (aggregate.lowerOp == "<" and aggregate.upperOp == "<"):
+            results.write("beet")
+
+        if operator is not None:
+            results.write("is") 
+            results.write(" ") 
+            results.write(generate_compare_operator_sentence(operator))  
             results.write(" ") 
             if aggregate.lowerGuard is not None:
                 results.write(aggregate.lowerGuard.name)  
             else:
                 results.write(aggregate.upperGuard.name)              
-
-    print(results.getvalue())
+    
     return results.getvalue()
             
 
