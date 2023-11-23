@@ -107,5 +107,6 @@ scoreassignment(I,1) | scoreassignment(I,2) | scoreassignment(I,3) :- movie(I,_,
 % DOMANDE
 % director("alice") :- #min{VL: scoreassignment(X,VL)} = 1.
 % :- topmovie(X), 1 <= #sum{VL: scoreassignment(X,VL)} <= 2.
+% :- topmovie(X), 1 <= #sum{VL,A,B: scoreassignment(X,VL), movie(X)} <= 2.
 
 

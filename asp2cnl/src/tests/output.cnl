@@ -1,8 +1,8 @@
-A movie is identified by an id11, and has a title, a director, and a year.
+A movie is identified by an id, and has a title, a director, and a year.
 A director is identified by a name.
 A topMovie is identified by an id.
 A scoreAssignment is identified by an id, and by a value.
 A waiter is identified by a name.
 
 
-It is prohibited that the total value of a scoreassignment with id X is less than or equal to 1 whenever there is a topmovie with id X.
+It is prohibited that the total of value that have a scoreassignment with id X topmovie X is less than or equal to 2 whenever there is a topmovie with id equal to 1.

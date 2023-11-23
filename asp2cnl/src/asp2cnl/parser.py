@@ -155,6 +155,9 @@ class ASPTransformer(Transformer):
 
     def CONS(self, elem):
         return "_IF_"
+    
+    def WCONS(self, elem):
+        return "_WEAK_IF_"
 
     def CURLY_OPEN(self, elem):
         return "_CURLY_OPEN_"
@@ -237,7 +240,7 @@ class ASPTransformer(Transformer):
         for e in elem:             
             if type(e) == Disjunction or type(e) == Choice:
                 head = e
-            elif e == "_IF_":
+            elif e == "_IF_" or e == "_WEAK_IF_":
                 foundIf = True
             elif type(e) == list:
                 if foundIf:

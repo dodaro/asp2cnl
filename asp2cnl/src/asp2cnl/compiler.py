@@ -455,16 +455,20 @@ def generate_body(body, symbols, isContraint = False):
 
 def generate_aggregate_subsentence(aggregate, symbols):
     results = StringIO()     
-    # #AGGR{VL: scoreassignment(X,VL)} = 1
+    # #AGGR{VL, X: scoreassignment(X,VL)} = 1
     # --->
-    # the lowest value of a scoreAssignment with movie id X is equal to 1        
+    # the lowest value of a scoreAssignment with movie id X for each id is equal to 1        
     aggrTerm = aggregate.aggregateElement[0].leftTerms[0]
-    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:]  
+    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:] 
+    print(forEachTerms)
+    forEachSubsentences = None
+    if len(aggregate.aggregateElement[0].leftTerms) > 1:
+        forEachSubsentences = [None] * (len(aggregate.aggregateElement[0].leftTerms) - 1)
     foundClassicalLiteral = None
     foundVarOfLiteral = None
     positionOfFoundVar = -1
     for naf_literal in aggregate.aggregateElement[0].body.literals:
-        if foundClassicalLiteral is None:
+        #if foundClassicalLiteral is None:
             if type(naf_literal) == NafLiteral:
                 if type(naf_literal.literal) == ClassicalLiteral:
                     p = 0
@@ -473,6 +477,13 @@ def generate_aggregate_subsentence(aggregate, symbols):
                             foundClassicalLiteral = naf_literal.literal
                             foundVarOfLiteral = t
                             positionOfFoundVar = p
+                        if t in forEachTerms:
+                            subEach = StringIO() 
+                            subEach.write("for each")
+                            subEach.write(" ")
+                            symbLit = get_symbol(symbols, naf_literal.literal.name)          
+                            subEach.write(symbLit.attributes[p])  
+                            forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
                         p = p + 1
     if foundClassicalLiteral is not None:
         results.write("the")
@@ -484,13 +495,22 @@ def generate_aggregate_subsentence(aggregate, symbols):
         elif aggregate.aggregateFunction == "#count":
             results.write("number of")  
         elif aggregate.aggregateFunction == "#sum":
-            results.write("total")  
-        results.write(" ")  
-               
+            results.write("total of")  
+        results.write(" ")      
         symbLit = get_symbol(symbols, foundClassicalLiteral.name)          
         results.write(symbLit.attributes[positionOfFoundVar])  
-        results.write(" ") 
-        results.write("of")  
+        #results.write(" ") 
+
+        if forEachSubsentences is not None:            
+            print(forEachSubsentences)
+            for s in forEachSubsentences:
+                results.write(", ")
+                results.write(s)
+                results.write(", ")
+        else:
+            results.write(" ")
+
+        results.write("that have")  
         results.write(" ") 
         results.write("a")  
         results.write(" ") 
@@ -503,6 +523,7 @@ def generate_aggregate_subsentence(aggregate, symbols):
         results.write(" ") 
         foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
         symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
+
         operator = None
         if (aggregate.lowerOp == "=" and aggregate.upperGuard is None
                     or aggregate.upperOp == "=" and aggregate.lowerGuard is None
@@ -525,6 +546,22 @@ def generate_aggregate_subsentence(aggregate, symbols):
         elif (aggregate.lowerOp == "<" and aggregate.upperOp == "<"):
             results.write("beet")
 
+
+        if len(aggregate.aggregateElement[0].body.literals) > 1: 
+            #results.write("in")
+            #results.write(" ")
+            startedIn = False
+            for nafLit in aggregate.aggregateElement[0].body.literals[1:]:
+                if startedIn:
+                    results.write(",")
+                    results.write(" ")
+                else:
+                    startedIn = True
+                results.write(nafLit.literal.name)
+                results.write(" ")
+                results.write(nafLit.literal.terms[0].name)
+            results.write(" ") 
+
         if operator is not None:
             results.write("is") 
             results.write(" ") 
@@ -533,7 +570,8 @@ def generate_aggregate_subsentence(aggregate, symbols):
             if aggregate.lowerGuard is not None:
                 results.write(aggregate.lowerGuard.name)  
             else:
-                results.write(aggregate.upperGuard.name)              
+                results.write(aggregate.upperGuard.name)     
+                     
     
     return results.getvalue()
             
