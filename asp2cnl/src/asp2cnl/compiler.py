@@ -459,8 +459,7 @@ def generate_aggregate_subsentence(aggregate, symbols):
     # --->
     # the lowest value of a scoreAssignment with movie id X for each id is equal to 1        
     aggrTerm = aggregate.aggregateElement[0].leftTerms[0]
-    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:] 
-    print(forEachTerms)
+    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:]     
     forEachSubsentences = None
     if len(aggregate.aggregateElement[0].leftTerms) > 1:
         forEachSubsentences = [None] * (len(aggregate.aggregateElement[0].leftTerms) - 1)
@@ -485,24 +484,29 @@ def generate_aggregate_subsentence(aggregate, symbols):
                             subEach.write(symbLit.attributes[p])  
                             forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
                         p = p + 1
+    
+    connective = None
     if foundClassicalLiteral is not None:
         results.write("the")
         results.write(" ")
         if aggregate.aggregateFunction == "#min":
             results.write("lowest")
+            connective = "of"
         elif aggregate.aggregateFunction == "#max":
-            results.write("highest")            
+            results.write("highest")   
+            connective = "of"         
         elif aggregate.aggregateFunction == "#count":
             results.write("number of")  
+            connective = "that have"
         elif aggregate.aggregateFunction == "#sum":
             results.write("total of")  
+            connective = "that have"
         results.write(" ")      
         symbLit = get_symbol(symbols, foundClassicalLiteral.name)          
         results.write(symbLit.attributes[positionOfFoundVar])  
         #results.write(" ") 
 
-        if forEachSubsentences is not None:            
-            print(forEachSubsentences)
+        if forEachSubsentences is not None:                        
             for s in forEachSubsentences:
                 results.write(", ")
                 results.write(s)
@@ -510,7 +514,8 @@ def generate_aggregate_subsentence(aggregate, symbols):
         else:
             results.write(" ")
 
-        results.write("that have")  
+        if connective is not None:
+            results.write(connective)
         results.write(" ") 
         results.write("a")  
         results.write(" ") 

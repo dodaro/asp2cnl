@@ -158,11 +158,15 @@ class ASPTransformer(Transformer):
     
     def WCONS(self, elem):
         return "_WEAK_IF_"
+    def AT(self, elem):
+        return "_AT_"
 
     def CURLY_OPEN(self, elem):
         return "_CURLY_OPEN_"
     def CURLY_CLOSE(self, elem):
         return "_CURLY_CLOSE_"
+    
+
         
     def choice(self, elem):  
         lowerGuard = None
@@ -219,6 +223,30 @@ class ASPTransformer(Transformer):
                        
         return ChoiceElement(left_part, right_part)
   
+    def weight_at_level(self, elem):          
+        beforeAtTerm = None
+        afterAtTerms = None
+        foundAt = False
+        for e in elem:
+            if e == "_AT_":
+                foundAt = True
+            else:
+                if not foundAt:
+                    beforeAtTerm = e
+                else:       
+                    eToCheck = []             
+                    if type(e) == list:
+                        eToCheck = e
+                    else:
+                        eToCheck.append(e)
+                    for e1 in eToCheck:
+                        if type(e1) == Term:
+                            if afterAtTerms is None:
+                                afterAtTerms = []                    
+                            afterAtTerms.append(e1)                    
+        return WeakElement(beforeAtTerm, afterAtTerms)
+
+    
     def body(self, elem):                
         bodyElements = []
 
@@ -237,6 +265,7 @@ class ASPTransformer(Transformer):
         foundIf = False        
         head = None
         body = None
+        weakElement = None
         for e in elem:             
             if type(e) == Disjunction or type(e) == Choice:
                 head = e
@@ -245,7 +274,10 @@ class ASPTransformer(Transformer):
             elif type(e) == list:
                 if foundIf:
                     body = Conjunction(e)
-        self.__rules_list.append(Rule(head, body))                
+            elif type(e) == WeakElement:
+                weakElement = e
+
+        self.__rules_list.append(Rule(head, body, weakElement))                
         return elem    
 
     def __isAggrageteFunction__(self, value):     
@@ -443,19 +475,44 @@ class Disjunction:
         return text.getvalue()
 
 @dataclass(frozen=True)
+class WeakElement:
+    beforeAt: Term
+    afterAt: list[Term]
+    def toString(self):
+        text = StringIO() 
+        text.write("[")
+        if self.beforeAt is not None:
+            text.write(beforeAt.toString())
+        if self.afterAt is not None:
+            text.write("@")
+            started = False
+            for elem in self.afterAt:
+                if started:
+                    text.write(",")
+                else:
+                    started = True
+                text.write(elem.toString())
+        text.write("]")
+        return text.getvalue()
+
+
+@dataclass(frozen=True)
 class Rule:
     head: Disjunction | Choice
     body: Conjunction
+    weight_at_level: WeakElement = None
     def isFact(self):
         return type(self.head) != Choice and self.head is not None and len(self.head.atoms) == 1 and self.body is None and not self.head.atoms[0].hasVariables()
     def isClassical(self):
         return type(self.head) != Choice and self.head is not None and len(self.head.atoms) == 1 and not self.head.atoms[0] == Choice and self.body is not None and len(self.body.literals) > 0
     def isStrongConstraint(self):
-        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0
+        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and weight_at_level is None
     def isDisjunctive(self):
         return type(self.head) != Choice and self.head is not None and len(self.head.atoms) > 1 and self.body is not None and len(self.body.literals) > 0
     def isChoice(self):
         return type(self.head) == Choice and self.body is not None and len(self.body.literals) > 0
+    def isWeakConstraint(self):
+        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and weight_at_level is not None
 
     def toString(self):
         text = StringIO() 
@@ -464,7 +521,10 @@ class Rule:
         if self.body is None:
             text.write(".")
         else:
-            text.write(" :- ")
+            if self.isWeakConstraint():
+                text.write(" :~ ")
+            else:
+                text.write(" :- ")
             text.write(self.body.toString())
         text.write(".")
         return text.getvalue()

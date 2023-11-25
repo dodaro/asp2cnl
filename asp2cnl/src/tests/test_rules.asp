@@ -109,4 +109,34 @@ scoreassignment(I,1) | scoreassignment(I,2) | scoreassignment(I,3) :- movie(I,_,
 % :- topmovie(X), 1 <= #sum{VL: scoreassignment(X,VL)} <= 2.
 % :- topmovie(X), 1 <= #sum{VL,A,B: scoreassignment(X,VL), movie(X)} <= 2.
 
+:- #sum{VL,X: scoreassignment(X,VL)} <= 2.
+
+% DOMANDE 2
+%% CASO 1
+%% RULE
+%% :- topmovie(1), #sum{VLL, X: scoreassignment(K, VLL), topmovie(X)} <= 2 .
+%% 
+%% TRANSLATED IN:
+%% It is prohibited that the total of value, for each id, that have a scoreassignment topmovie X is less than or equal to 2 whenever 
+%% there is a topmovie with id equal to 1.
+%% 
+%% TRANSLATION BACK:
+%% :- #sum{VL,X: scoreassignment(X,VL), topmovie(X)} <= 2, topmovie(1).
+%%
+%% CASO 2
+%% RULE:
+%% :- topmovie(1), #sum{VLL, X: scoreassignment(K, VLL), topmovie(X)} <= 2 .
+%%
+%% TRANSLATED IN:
+%% It is prohibited that the total of value, for each id, that have a scoreassignment with id K topmovie X is less than or equal to 2 whenever there is a topmovie with id equal to 1.
+%%
+%% TRANSLATION BACK:
+%%
+% VERBI? ATOMO work_in
+
+
+
+
+
+
 
