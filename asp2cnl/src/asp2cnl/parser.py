@@ -482,7 +482,7 @@ class WeakElement:
         text = StringIO() 
         text.write("[")
         if self.beforeAt is not None:
-            text.write(beforeAt.toString())
+            text.write(self.beforeAt.toString())
         if self.afterAt is not None:
             text.write("@")
             started = False
@@ -506,13 +506,13 @@ class Rule:
     def isClassical(self):
         return type(self.head) != Choice and self.head is not None and len(self.head.atoms) == 1 and not self.head.atoms[0] == Choice and self.body is not None and len(self.body.literals) > 0
     def isStrongConstraint(self):
-        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and weight_at_level is None
+        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and self.weight_at_level is None
     def isDisjunctive(self):
         return type(self.head) != Choice and self.head is not None and len(self.head.atoms) > 1 and self.body is not None and len(self.body.literals) > 0
     def isChoice(self):
         return type(self.head) == Choice and self.body is not None and len(self.body.literals) > 0
     def isWeakConstraint(self):
-        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and weight_at_level is not None
+        return type(self.head) != Choice and self.head is None and self.body is not None and len(self.body.literals) > 0 and self.weight_at_level is not None
 
     def toString(self):
         text = StringIO() 
@@ -527,6 +527,9 @@ class Rule:
                 text.write(" :- ")
             text.write(self.body.toString())
         text.write(".")
+        if self.isWeakConstraint():
+            text.write(" ")
+            text.write(self.weight_at_level.toString())
         return text.getvalue()
             
   

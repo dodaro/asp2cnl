@@ -1,4 +1,2 @@
-%:- topmovie(1), #sum{VLL,X: scoreassignment(X,VLL)} <= 2.
-
-:- topmovie(1), #sum{VLL, X: scoreassignment(K,VLL), topmovie(X)} <= 2.
-
+% topmovie(K) :- 1 <= #sum{VL: scoreassignment(X,VL)} <= 2, topmovie(K).
+:~ #sum{VL: scoreassignment(_, VL)} = X , topmovie(Y). [Y@2]

@@ -59,6 +59,9 @@ def compile(rule, symbols):
     elif rule.isDisjunctive() or rule.isChoice():
         results.write(generate_disjunctive_or_choice_statement(rule, symbols))
         results.write("\n") 
+    elif rule.isWeakConstraint():
+        results.write(generate_weak_constraint(rule, symbols))
+        results.write("\n") 
         
     return results.getvalue()
 
@@ -108,6 +111,7 @@ def generate_with(atom, symbol, builtinAtoms = {}):
                 results.write(", ")
             else:
                 started = True    
+                #results.write(" ")
             results.write("with")
             results.write(" ")              
 
@@ -181,7 +185,9 @@ def generate_compare_operator_sentence(operator):
         results.write(" ")
         results.write("equal")   
         results.write(" ")
-        results.write("to")           
+        results.write("to")       
+    elif operator == "between":    
+        results.write("between")    
     return results.getvalue()
 
 #TODO
@@ -292,6 +298,39 @@ def generate_strong_constraint(rule, symbols):
     results = StringIO()  
     results.write("It is prohibited that")     
     results.write(generate_body(rule.body, symbols, True)) 
+    results.write(".") 
+    return results.getvalue()  
+
+def generate_weak_constraint(rule, symbols):
+    results = StringIO()  
+    results.write("It is preferred")
+    if rule.weight_at_level.afterAt is not None:
+        results.write(", ")
+        results.write("with")
+        results.write(" ")
+        if rule.weight_at_level.afterAt[0].name == "1":
+            results.write("low")
+            results.write(" ")
+        elif rule.weight_at_level.afterAt[0].name == "2":
+            results.write("medium")
+            results.write(" ")
+        elif rule.weight_at_level.afterAt[0].name == "3":            
+            results.write("high")
+            results.write(" ")
+        results.write("priority")
+        results.write(",")
+    results.write(" ")
+    results.write("that")
+    #results.write(" ")
+    
+    results.write(generate_body(rule.body, symbols, False, rule.weight_at_level.beforeAt)) 
+    
+    #results.write(", ") 
+    #results.write(rule.weight_at_level.beforeAt.name)
+    #results.write(" ") 
+    results.write("is")
+    results.write(" ")
+    results.write("minimized")   
     results.write(".") 
     return results.getvalue()  
 
@@ -414,7 +453,7 @@ def generateWith(symbols, atom):
         #results.write(" ")  
     return results.getvalue()
 
-def generate_body(body, symbols, isContraint = False):
+def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None):
     results = StringIO()   
     startedLits = False 
     # Find builtins
@@ -424,40 +463,154 @@ def generate_body(body, symbols, isContraint = False):
         if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:            
             builtinAtoms[lit.literal.terms[0]] = lit.literal
     
-    tmpWheneverResults = StringIO()  
-    foundAggr = False
+    tmpWheneverResults = None 
+    tmpAggrResults = None
+    foundAggr = None
+    firstConstraintLiteralInSentence = None    
+    specialConstraintTranslationForLiteral = False
     for lit in body.literals:    
-        if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:    
+        if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
+            if tmpWheneverResults is None:
+                tmpWheneverResults = StringIO()  
             if startedLits:
                 tmpWheneverResults.write(",")   
                 tmpWheneverResults.write(" ")
                 tmpWheneverResults.write("whenever")
-            else:        
-                if not isContraint:                        
-                    tmpWheneverResults.write("Whenever")   
+            else:  
+                if not isStrongConstraint:
+                    tmpWheneverResults.write("Whenever")
+                else:                    
+                    specialConstraintTranslationForLiteral = True
+
+                #if costWeakTerm is not None:      
+                #    tmpWheneverResults.write(" ")              
+                #    tmpWheneverResults.write("whenever")         
+                #elif not isStrongConstraint:
+                #    tmpWheneverResults.write("Whenever")   
                 startedLits = True
-            tmpWheneverResults.write(" ")
-            
             symbLit = get_symbol(symbols, lit.literal.name)
-            tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms))
+            if not specialConstraintTranslationForLiteral:                
+                tmpWheneverResults.write(" ")                            
+                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms))
+            else:
+                specialConstraintTranslationForLiteral = False                
+                firstConstraintLiteralInSentence = " " + generate_there_is(lit, symbLit, builtinAtoms)
+            #tmpWheneverResults.write(" ")
         elif type(lit) == AggregateLiteral:
-            foundAggr = True
+            foundAggr = lit                        
+            #aggregate = lit
+
+            #operator = getAggregateOperator(aggregate)
+            #if operator == "=":    
+            #    if (aggregate.lowerOp == "=" and aggregate.upperGuard is None) or (aggregate.upperOp == "=" and aggregate.lowerGuard is None):
+            #        if aggregate.upperGuard is not None and aggregate.upperGuard.isVariable():
+            #            assignmentVar = aggregate.upperGuard
+            #        elif aggregate.lowerGuard is not None and aggregate.lowerGuard.isVariable():
+            #            assignmentVar = aggregate.lowerGuard
+                            
+            if not isStrongConstraint and costWeakTerm is None:
+                if startedLits:
+                    results.write("whenever")
+                else:
+                    results.write("Whenever")
+                    startedLits = True
+                results.write(" ")
+                results.write("we have that")
+                #results.write(" ") 
+                
             results.write(" ")
-            results.write(generate_aggregate_subsentence(lit, symbols))
-    if foundAggr:
-        results.write(" ")
-        results.write("whenever")        
+            results.write(generate_aggregate_subsentence(lit, symbols, costWeakTerm, isStrongConstraint))
+            startedLits = True
+    #if foundAggr is not None and tmpWheneverResults is not None:
+    #    results.write(" ")
+    #    results.write("whenever")
+    
+    needVariable = False
 
-    results.write(tmpWheneverResults.getvalue())
+    if foundAggr is None:
+        needVariable = True
+    else:
+        if (foundAggr.lowerOp == "=" and foundAggr.upperGuard is None) or (foundAggr.upperOp == "=" and foundAggr.lowerGuard is None):
+            if foundAggr.upperGuard is not None and foundAggr.upperGuard.isVariable():
+                needVariable = True
+            elif foundAggr.lowerGuard is not None and foundAggr.lowerGuard.isVariable():
+                needVariable = True
 
-                                                   
+    if tmpWheneverResults is not None:
+        if costWeakTerm is not None and needVariable:        
+            tmpWheneverResults.write(", ") 
+            tmpWheneverResults.write(costWeakTerm.name)  
+            tmpWheneverResults.write(" ") 
+
+        if firstConstraintLiteralInSentence is not None:
+            if foundAggr is not None:
+                results.write(" whenever " + firstConstraintLiteralInSentence)
+            else:
+                results.write(firstConstraintLiteralInSentence)
+        results.write(tmpWheneverResults.getvalue())
+                                               
     return results.getvalue()
 
-def generate_aggregate_subsentence(aggregate, symbols):
+def getAggregateOperator(aggregate):
+    operator = None
+    if (aggregate.lowerOp == "=" and aggregate.upperGuard is None
+                    or aggregate.upperOp == "=" and aggregate.lowerGuard is None
+                    or aggregate.lowerOp == "=" and aggregate.upperOp == "="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    or aggregate.lowerOp == "<=" and aggregate.upperOp == "<="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    or aggregate.lowerOp == ">=" and aggregate.upperOp == ">="
+                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
+                    ):
+        operator = "="
+        if (aggregate.lowerOp == "=" and aggregate.upperGuard is None) or (aggregate.upperOp == "=" and aggregate.lowerGuard is None):
+            if aggregate.upperGuard is not None and aggregate.upperGuard.isVariable():
+                assignmentVar = aggregate.upperGuard
+            elif aggregate.lowerGuard is not None and aggregate.lowerGuard.isVariable():
+                assignmentVar = aggregate.lowerGuard
+                
+    elif (aggregate.upperOp == ">" and aggregate.lowerGuard is None):
+        operator = ">"
+    elif (aggregate.upperOp == ">=" and aggregate.lowerGuard is None):
+        operator = ">="
+    elif (aggregate.upperOp == "<" and aggregate.lowerGuard is None):
+        operator = "<"
+    elif (aggregate.upperOp == "<=" and aggregate.lowerGuard is None):
+        operator = "<="    
+    elif (aggregate.lowerOp == "<=" and aggregate.upperOp == "<="):
+        operator = "between" 
+    #    results.write("beet")
+    return operator
+
+def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isStrongConstraint = True):
     results = StringIO()     
     # #AGGR{VL, X: scoreassignment(X,VL)} = 1
     # --->
     # the lowest value of a scoreAssignment with movie id X for each id is equal to 1        
+    
+
+    operator = None
+    assignmentVar = None
+    operator = getAggregateOperator(aggregate)
+    if operator == "=":    
+        if (aggregate.lowerOp == "=" and aggregate.upperGuard is None) or (aggregate.upperOp == "=" and aggregate.lowerGuard is None):
+            if aggregate.upperGuard is not None and aggregate.upperGuard.isVariable():
+                assignmentVar = aggregate.upperGuard
+            elif aggregate.lowerGuard is not None and aggregate.lowerGuard.isVariable():
+                assignmentVar = aggregate.lowerGuard
+                    
+    if operator is not None:                
+        if (costWeakTerm is not None and assignmentVar is not None and costWeakTerm.name == assignmentVar.name
+                or isStrongConstraint):
+            results.write("")
+        else:
+            if costWeakTerm is not None:
+                results.write("whenever")
+                results.write(" ")
+                results.write("we have that")
+                results.write(" ")     
+     
+
     aggrTerm = aggregate.aggregateElement[0].leftTerms[0]
     forEachTerms = aggregate.aggregateElement[0].leftTerms[1:]     
     forEachSubsentences = None
@@ -499,8 +652,9 @@ def generate_aggregate_subsentence(aggregate, symbols):
             results.write("number of")  
             connective = "that have"
         elif aggregate.aggregateFunction == "#sum":
-            results.write("total of")  
+            results.write("total")  
             connective = "that have"
+            #connective = "of"
         results.write(" ")      
         symbLit = get_symbol(symbols, foundClassicalLiteral.name)          
         results.write(symbLit.attributes[positionOfFoundVar])  
@@ -525,36 +679,14 @@ def generate_aggregate_subsentence(aggregate, symbols):
         tmpLitTerm = foundClassicalLiteral.terms.pop(positionOfFoundVar)
         tmpSymbTerm = symbLit.attributes.pop(positionOfFoundVar)
         results.write(generate_with(foundClassicalLiteral, symbLit))
-        results.write(" ") 
+        #results.write(" ") 
         foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
         symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
-
-        operator = None
-        if (aggregate.lowerOp == "=" and aggregate.upperGuard is None
-                    or aggregate.upperOp == "=" and aggregate.lowerGuard is None
-                    or aggregate.lowerOp == "=" and aggregate.upperOp == "="
-                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
-                    or aggregate.lowerOp == "<=" and aggregate.upperOp == "<="
-                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
-                    or aggregate.lowerOp == ">=" and aggregate.upperOp == ">="
-                            and aggregate.lowerGuard.name == aggregate.upperGuard.name
-                    ):
-            operator = "="
-        elif (aggregate.upperOp == ">" and aggregate.lowerGuard is None):
-            operator = ">"
-        elif (aggregate.upperOp == ">=" and aggregate.lowerGuard is None):
-            operator = ">="
-        elif (aggregate.upperOp == "<" and aggregate.lowerGuard is None):
-            operator = "<"
-        elif (aggregate.upperOp == "<=" and aggregate.lowerGuard is None):
-            operator = "<="
-        elif (aggregate.lowerOp == "<" and aggregate.upperOp == "<"):
-            results.write("beet")
 
 
         if len(aggregate.aggregateElement[0].body.literals) > 1: 
             #results.write("in")
-            #results.write(" ")
+            results.write(" ")
             startedIn = False
             for nafLit in aggregate.aggregateElement[0].body.literals[1:]:
                 if startedIn:
@@ -567,17 +699,28 @@ def generate_aggregate_subsentence(aggregate, symbols):
                 results.write(nafLit.literal.terms[0].name)
             results.write(" ") 
 
-        if operator is not None:
-            results.write("is") 
-            results.write(" ") 
-            results.write(generate_compare_operator_sentence(operator))  
-            results.write(" ") 
-            if aggregate.lowerGuard is not None:
-                results.write(aggregate.lowerGuard.name)  
-            else:
-                results.write(aggregate.upperGuard.name)     
+        if operator is not None:            
+            if costWeakTerm is not None and assignmentVar is not None and costWeakTerm.name == assignmentVar.name:
+                results.write("")
+            else:                
+                results.write(" ") 
+                results.write("is") 
+                results.write(" ") 
+                results.write(generate_compare_operator_sentence(operator))  
+                results.write(" ") 
+                if operator == "between":
+                    results.write(aggregate.lowerGuard.name)  
+                    results.write(" ") 
+                    results.write("and") 
+                    results.write(" ") 
+                    results.write(aggregate.upperGuard.name)  
+                else:
+                    if aggregate.lowerGuard is not None:
+                        results.write(aggregate.lowerGuard.name)  
+                    else:
+                        results.write(aggregate.upperGuard.name)   
+                
                      
-    
     return results.getvalue()
             
 

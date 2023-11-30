@@ -5,4 +5,4 @@ A scoreAssignment is identified by an id, and by a value.
 A waiter is identified by a name.
 
 
-It is prohibited that the total of value, for each id, that have a scoreassignment with id K topmovie X is less than or equal to 2 whenever there is a topmovie with id equal to 1.
+Whenever we have that the total value that have a scoreassignment with id X is between 1 and 2, whenever there is a topmovie with id K then we must have a topmovie with id K.
