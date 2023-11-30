@@ -160,6 +160,8 @@ class ASPTransformer(Transformer):
         return "_WEAK_IF_"
     def AT(self, elem):
         return "_AT_"
+    def MINUS(self, elem):
+        return "_MINUS_"
 
     def CURLY_OPEN(self, elem):
         return "_CURLY_OPEN_"
@@ -227,9 +229,12 @@ class ASPTransformer(Transformer):
         beforeAtTerm = None
         afterAtTerms = None
         foundAt = False
+        foundMinus = False
         for e in elem:
             if e == "_AT_":
-                foundAt = True
+                foundAt = True            
+            elif e == "_MINUS_":
+                foundMinus = True
             else:
                 if not foundAt:
                     beforeAtTerm = e
@@ -244,7 +249,7 @@ class ASPTransformer(Transformer):
                             if afterAtTerms is None:
                                 afterAtTerms = []                    
                             afterAtTerms.append(e1)                    
-        return WeakElement(beforeAtTerm, afterAtTerms)
+        return WeakElement(beforeAtTerm, afterAtTerms, foundMinus)
 
     
     def body(self, elem):                
@@ -475,13 +480,16 @@ class Disjunction:
         return text.getvalue()
 
 @dataclass(frozen=True)
-class WeakElement:
+class WeakElement:    
     beforeAt: Term
     afterAt: list[Term]
+    isMaximize: bool = False
     def toString(self):
         text = StringIO() 
         text.write("[")
         if self.beforeAt is not None:
+            if (self.isMaximize):
+                text.write("-")
             text.write(self.beforeAt.toString())
         if self.afterAt is not None:
             text.write("@")

@@ -92,16 +92,16 @@ optimize_element : weight_at_level COLON naf_literals
 |                  weight_at_level COLON
 |                  weight_at_level
 
-weight_at_level : term AT term COMMA terms
-|                 classical_literal AT term COMMA terms
-|                 term AT classical_literal COMMA terms
-|                 classical_literal AT classical_literal COMMA terms
-|                 term AT term
-|                 classical_literal AT term
-|                 term AT classical_literal
-|                 classical_literal AT classical_literal
-|                 term
-|                 classical_literal
+weight_at_level : MINUS? term AT term COMMA terms
+|                 MINUS? classical_literal AT term COMMA terms
+|                 MINUS? term AT classical_literal COMMA terms
+|                 MINUS? classical_literal AT classical_literal COMMA terms
+|                 MINUS? term AT term
+|                 MINUS? classical_literal AT term
+|                 MINUS? term AT classical_literal
+|                 MINUS? classical_literal AT classical_literal
+|                 MINUS? term
+|                 MINUS? classical_literal
 
 naf_literals : naf_literals COMMA naf_literal 
 |              naf_literal

@@ -329,8 +329,11 @@ def generate_weak_constraint(rule, symbols):
     #results.write(rule.weight_at_level.beforeAt.name)
     #results.write(" ") 
     results.write("is")
-    results.write(" ")
-    results.write("minimized")   
+    results.write(" ")    
+    if rule.weight_at_level.isMaximize:        
+        results.write("maximized")   
+    else:
+        results.write("minimized")   
     results.write(".") 
     return results.getvalue()  
 
