@@ -1,0 +1,5 @@
+A node is identified by an id, and by a weight.
+A set is identified by an id.
+An edge is identified by a sourcenode, and by a targetnode.
+An assigned_to is identified by a sourcenode, by a targetnode, and by a weight.
+It is prohibited that the total weight that have a assigned_to with targetnode S2 set S2  is equal to X_87CC864C_071D_42D7_97CB_18E25E4CB03B the total weight that have a assigned_to with targetnode S1 set S1  is equal to X_BDC2C474_8F05_44F8_8C14_9262BDFDF973.

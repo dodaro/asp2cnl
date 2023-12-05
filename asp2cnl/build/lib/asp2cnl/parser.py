@@ -187,7 +187,7 @@ class ASPTransformer(Transformer):
     
 
         
-    def choice(self, elem):          
+    def choice(self, elem):  
         lowerGuard = None
         upperGuard = None
         lowerOp = None
@@ -236,8 +236,7 @@ class ASPTransformer(Transformer):
                 left_part = e
             elif e == "_COLON_":
                 foundColon = True
-            #elif type(e) == NafLiteral:
-            elif type(e) == list:
+            elif type(e) == NafLiteral:
                 if foundColon:
                     right_part = e            
                        
@@ -279,19 +278,6 @@ class ASPTransformer(Transformer):
             else:                
                 for e1 in e:
                     if type(e1) == NafLiteral or type(e1) == AggregateLiteral:
-                        bodyElements.append(e1)
-                                         
-        return bodyElements
-    
-    def body_choice_suchthat(self, elem):                
-        bodyElements = []
-
-        for e in elem:            
-            if type(e) == NafLiteral:
-                bodyElements.append(e)           
-            elif type(e) == list:                      
-                for e1 in e:
-                    if type(e1) == NafLiteral:
                         bodyElements.append(e1)
                                          
         return bodyElements
@@ -448,20 +434,13 @@ class Conjunction:
 @dataclass(frozen=True)
 class ChoiceElement:
     left_part: ClassicalLiteral
-    right_part: list[NafLiteral]
+    right_part: NafLiteral
     def toString(self):
         text = StringIO()           
         text.write(self.left_part.toString())
         if self.right_part is not None:
             text.write(":")
-            started = False
-            for nafLit in self.right_part:
-                if started:
-                    text.write(",")
-                    text.write(" ")
-                else:
-                    started = True
-                text.write(nafLit.toString())
+            text.write(self.right_part.toString())
         return text.getvalue()
 
 

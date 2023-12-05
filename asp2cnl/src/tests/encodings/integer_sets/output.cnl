@@ -1,0 +1,4 @@
+A set is identified by an id, and by a value.
+A match is identified by a first, and by a second.
+A positive_match is identified by a match.
+A negative_match is identified by a match.It is prohibited that the number of match, for each match, that have a positive_match with match PSTVMTCH_SCND is equal to X_211196D9_B206_49E4_84C6_A21E423B3815 the number of match, for each match, that have a negative_match with match NGTVMTCH_SCND is equal to X_27DC87E1_53CE_4E7A_908E_052B2C091D92.

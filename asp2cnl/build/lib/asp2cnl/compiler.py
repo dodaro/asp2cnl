@@ -15,7 +15,7 @@ def extract_name(name):
     return name 
 
 def get_symbol(symbols, symbol_name):    
-    #symbol_name = symbol_name.replace("_", " ")
+    symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
                             symbols[i].predicate == symbol_name]      
@@ -75,7 +75,7 @@ def generate_is_a(atom):
     results.write(atom.name)                     
     return results.getvalue()
 
-def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False):
+def generate_there_is(atom, symbol, builtinAtoms, start = False):
     #Eg. movie(1,"jurassicPark","spielberg",1993).
     # -->
     #There is a movie with id equal to 1, with director equal to spielberg, with title equal to jurassicPark, with year equal to 1993.
@@ -84,14 +84,13 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
         isNot = atom.isNot
         atom = atom.literal
     results = StringIO()
-    if not noThereIs:
-        if start:
-            results.write("There") 
-        else:
-            results.write("there") 
-        results.write(" ")
-        results.write("is")
-        results.write(" ")
+    if start:
+        results.write("There") 
+    else:
+        results.write("there") 
+    results.write(" ")
+    results.write("is")
+    results.write(" ")
     if isNot:
         results.write("not")
         results.write(" ")
@@ -119,15 +118,14 @@ def generate_with(atom, symbol, builtinAtoms = {}):
             results.write(symbol.attributes[i])
             results.write(" ")
             if atom.terms[i].isVariable(): 
-                if atom.terms[i] in builtinAtoms.keys():                        
+                if atom.terms[i] in builtinAtoms.keys():    
                     results.write(atom.terms[i].name)
                     results.write(" ")                      
                     builtinAtom = builtinAtoms[atom.terms[i]]
                     results.write(generate_compare_operator_sentence(builtinAtom.op))
                     results.write(" ")    
 
-                    results.write(builtinAtom.terms[1].name)    
-                    builtinAtoms.pop(atom.terms[i])                   
+                    results.write(builtinAtom.terms[1].name)                       
                 else:
                     results.write(atom.terms[i].name)  
             else:                                                        
@@ -399,27 +397,21 @@ def generate_head_choice(head, symbols):
         results.write("and")
         results.write(" ")
         results.write(head.upperGuard.name)
-    if head.lowerGuard is None and head.upperGuard is None:
-        results.write("a")
-    
     results.write(" ")
     results.write(head.elements[0].left_part.name)
     results.write(" ")
-    results.write(generateWith(symbols, head.elements[0].left_part))      
-    if head.elements[0].right_part is not None:
-        results.write(" ")
-        results.write("such that")
-        results.write(" ")
-        
-        started = False
-        for nafLit in head.elements[0].right_part:
-            if started:
-                results.write(",")
-                results.write(" ")
-            symb = get_symbol(symbols, nafLit.literal.name)
-            results.write(generate_there_is(nafLit, symb, {}, False, started))
-            started = True
+    results.write(generateWith(symbols, head.elements[0].left_part))  
+    results.write(" ")
+    results.write("such that")
+    results.write(" ")
+    symb = get_symbol(symbols, head.elements[0].right_part.literal.name)
+    results.write(generate_there_is(head.elements[0].right_part, symb, {}))
 
+    # lowerGuard: Term  
+    # upperGuard: Term
+    # lowerOp: str
+    # upperOp: str
+    # elements: list[ChoiceElement]
     return results.getvalue()  
 
 def generate_head(head, symbols):
@@ -443,7 +435,7 @@ def generate_head(head, symbols):
 
 
 def generateWith(symbols, atom):
-    results = StringIO()     
+    results = StringIO() 
     symbLit = get_symbol(symbols, atom.name)
         
     for i in range(len(symbLit.attributes)):
@@ -509,6 +501,15 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
             #tmpWheneverResults.write(" ")
         elif type(lit) == AggregateLiteral:
             foundAggr = lit                        
+            #aggregate = lit
+
+            #operator = getAggregateOperator(aggregate)
+            #if operator == "=":    
+            #    if (aggregate.lowerOp == "=" and aggregate.upperGuard is None) or (aggregate.upperOp == "=" and aggregate.lowerGuard is None):
+            #        if aggregate.upperGuard is not None and aggregate.upperGuard.isVariable():
+            #            assignmentVar = aggregate.upperGuard
+            #        elif aggregate.lowerGuard is not None and aggregate.lowerGuard.isVariable():
+            #            assignmentVar = aggregate.lowerGuard
                             
             if not isStrongConstraint and costWeakTerm is None:
                 if startedLits:
@@ -517,11 +518,15 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                     results.write("Whenever")
                     startedLits = True
                 results.write(" ")
-                results.write("we have that")                
+                results.write("we have that")
+                #results.write(" ") 
                 
             results.write(" ")
             results.write(generate_aggregate_subsentence(lit, symbols, costWeakTerm, isStrongConstraint))
             startedLits = True
+    #if foundAggr is not None and tmpWheneverResults is not None:
+    #    results.write(" ")
+    #    results.write("whenever")
     
     needVariable = False
 
@@ -577,11 +582,6 @@ def getAggregateOperator(aggregate):
         operator = "<="    
     elif (aggregate.lowerOp == "<=" and aggregate.upperOp == "<="):
         operator = "between" 
-    elif ( (aggregate.lowerOp == "!=" or aggregate.lowerOp == "<>") and aggregate.upperGuard is None
-                    or (aggregate.upperOp == "!=" or aggregate.upperOp == "<>") and aggregate.lowerGuard is None
-                    or (aggregate.lowerOp == "!=" or aggregate.lowerOp == "<>") and (aggregate.upperOp == "!=" or aggregate.upperOp == "<>")
-        ):
-        operator = "!=" 
     #    results.write("beet")
     return operator
 
@@ -622,7 +622,6 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
     foundClassicalLiteral = None
     foundVarOfLiteral = None
     positionOfFoundVar = -1
-    foundMultipleUseOfAggrTerm = False
     for naf_literal in aggregate.aggregateElement[0].body.literals:
         #if foundClassicalLiteral is None:
             if type(naf_literal) == NafLiteral:
@@ -630,12 +629,9 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                     p = 0
                     for t in naf_literal.literal.terms:
                         if t.name == aggrTerm.name:
-                            if foundClassicalLiteral:
-                                foundMultipleUseOfAggrTerm = True
-                            else:
-                                foundClassicalLiteral = naf_literal.literal
-                                foundVarOfLiteral = t
-                                positionOfFoundVar = p
+                            foundClassicalLiteral = naf_literal.literal
+                            foundVarOfLiteral = t
+                            positionOfFoundVar = p
                         if t in forEachTerms:
                             subEach = StringIO() 
                             subEach.write("for each")
@@ -674,9 +670,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                 results.write(", ")
         else:
             results.write(" ")
-        if foundMultipleUseOfAggrTerm:
-            results.write(aggrTerm.name)
-            results.write(" ")
+
         if connective is not None:
             results.write(connective)
         results.write(" ") 

@@ -149,6 +149,14 @@ topmovie(K) :- 1 <= #sum{VL: scoreassignment(X,VL)} <= 2, topmovie(K).
 :~ #sum{VL: scoreassignment(_, VL)} = X , topmovie(Y). [-Y@2]
 
 
+{topmovie(I):movie(I,_,X,_), waiter(X)} = 1 :- director(X), X != spielberg.
+
+%%%% {topmovie(I):movie(I,_,X,_), not waiter(X)} = 1 :- director(X), X != spielberg.
+
+topmovie(K) :- 1 <= #sum{VL: scoreassignment(X,VL), waiter(VL)} <= 2, topmovie(K).
+
+{topmovie(I)} :- movie(I,_,X,_).
+
 
 
 

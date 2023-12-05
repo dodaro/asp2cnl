@@ -27,9 +27,6 @@ body : naf_literal
 |      body COMMA aggregate
 |      body COMMA NAF aggregate
 
-body_choice_suchthat : naf_literal
-|      body_choice_suchthat COMMA naf_literal
-
 disjunction : disjunction OR classical_literal
 |             classical_literal
 
@@ -55,7 +52,7 @@ choice : CURLY_OPEN choice_elements CURLY_CLOSE binop term
 choice_elements : choice_elements SEMICOLON choice_element
 |                 choice_element
 
-choice_element : classical_literal COLON body_choice_suchthat
+choice_element : classical_literal COLON naf_literal
 |               classical_literal COLON
 |               classical_literal
 
