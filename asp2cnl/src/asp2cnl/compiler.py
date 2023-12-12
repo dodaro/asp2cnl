@@ -14,7 +14,7 @@ def extract_name(name):
         return extract_name(name.predicate)
     return name 
 
-def get_symbol(symbols, symbol_name):    
+def get_symbol(symbols, symbol_name):        
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
@@ -24,7 +24,10 @@ def get_symbol(symbols, symbol_name):
     else:
         for i in range(len(res[0].attributes)):
             if type(res[0].attributes[i]) == Symbol:
-                res[0].attributes[i] = res[0].attributes[i].predicate# + "_" + res[0].attributes[0]                
+                res[0].attributes[i] = res[0].attributes[i].predicate #+ "_" + res[0].attributes[0]  
+                ##print("Cosa")
+                ##print(res[0].attributes[i])
+                ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])
 
         return res[0]
 
@@ -443,7 +446,7 @@ def generate_head(head, symbols):
 
 
 def generateWith(symbols, atom):
-    results = StringIO()     
+    results = StringIO()      
     symbLit = get_symbol(symbols, atom.name)
         
     for i in range(len(symbLit.attributes)):
@@ -476,10 +479,10 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
     
     tmpWheneverResults = None 
     tmpAggrResults = None
-    foundAggr = None
+    foundAggrs = []
     firstConstraintLiteralInSentence = None    
     specialConstraintTranslationForLiteral = False
-    for lit in body.literals:    
+    for lit in body.literals:          
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
             if tmpWheneverResults is None:
                 tmpWheneverResults = StringIO()  
@@ -489,9 +492,17 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                 tmpWheneverResults.write("whenever")
             else:  
                 if not isStrongConstraint:
-                    tmpWheneverResults.write("Whenever")
-                else:                    
-                    specialConstraintTranslationForLiteral = True
+                    if len(foundAggrs) > 0:
+                        tmpWheneverResults.write(", ")
+                        tmpWheneverResults.write("whenever")
+                    else:
+                        tmpWheneverResults.write("Whenever")
+                else:      
+                    if len(foundAggrs) > 0:
+                        tmpWheneverResults.write(" ")
+                        tmpWheneverResults.write("whenever")
+                    else:
+                        specialConstraintTranslationForLiteral = True
 
                 #if costWeakTerm is not None:      
                 #    tmpWheneverResults.write(" ")              
@@ -507,32 +518,37 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                 specialConstraintTranslationForLiteral = False                
                 firstConstraintLiteralInSentence = " " + generate_there_is(lit, symbLit, builtinAtoms)
             #tmpWheneverResults.write(" ")
-        elif type(lit) == AggregateLiteral:
-            foundAggr = lit                        
-                            
+        elif type(lit) == AggregateLiteral:                                                       
             if not isStrongConstraint and costWeakTerm is None:
-                if startedLits:
+                if len(foundAggrs) > 0 or startedLits:
+                    results.write(" ")
                     results.write("whenever")
                 else:
-                    results.write("Whenever")
-                    startedLits = True
+                    results.write("Whenever")                    
                 results.write(" ")
-                results.write("we have that")                
-                
+                results.write("we have that")  
+            else:
+                if len(foundAggrs) > 0: # or startedLits:
+                    results.write(",")
+                    results.write(" ")
+                    results.write("whenever")
+                    results.write(" ")
+                    results.write("we have that")                                       
             results.write(" ")
             results.write(generate_aggregate_subsentence(lit, symbols, costWeakTerm, isStrongConstraint))
-            startedLits = True
+            foundAggrs.append(lit)
     
     needVariable = False
 
-    if foundAggr is None:
+    if len(foundAggrs) == 0:
         needVariable = True
     else:
-        if (foundAggr.lowerOp == "=" and foundAggr.upperGuard is None) or (foundAggr.upperOp == "=" and foundAggr.lowerGuard is None):
-            if foundAggr.upperGuard is not None and foundAggr.upperGuard.isVariable():
-                needVariable = True
-            elif foundAggr.lowerGuard is not None and foundAggr.lowerGuard.isVariable():
-                needVariable = True
+        for foundAggr in foundAggrs:
+            if (foundAggr.lowerOp == "=" and foundAggr.upperGuard is None) or (foundAggr.upperOp == "=" and foundAggr.lowerGuard is None):
+                if foundAggr.upperGuard is not None and foundAggr.upperGuard.isVariable():
+                    needVariable = True
+                elif foundAggr.lowerGuard is not None and foundAggr.lowerGuard.isVariable():
+                    needVariable = True
 
     if tmpWheneverResults is not None:
         if costWeakTerm is not None and needVariable:        
@@ -541,7 +557,7 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
             tmpWheneverResults.write(" ") 
 
         if firstConstraintLiteralInSentence is not None:
-            if foundAggr is not None:
+            if len(foundAggrs) > 0:
                 results.write(" whenever " + firstConstraintLiteralInSentence)
             else:
                 results.write(firstConstraintLiteralInSentence)
@@ -623,6 +639,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
     foundVarOfLiteral = None
     positionOfFoundVar = -1
     foundMultipleUseOfAggrTerm = False
+    aggrVarsWithMultipleUse = []
     for naf_literal in aggregate.aggregateElement[0].body.literals:
         #if foundClassicalLiteral is None:
             if type(naf_literal) == NafLiteral:
@@ -636,12 +653,15 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                                 foundClassicalLiteral = naf_literal.literal
                                 foundVarOfLiteral = t
                                 positionOfFoundVar = p
-                        if t in forEachTerms:
+                        if t in forEachTerms:                                
                             subEach = StringIO() 
                             subEach.write("for each")
                             subEach.write(" ")
                             symbLit = get_symbol(symbols, naf_literal.literal.name)          
-                            subEach.write(symbLit.attributes[p])  
+                            subEach.write(symbLit.attributes[p])       
+                            if forEachSubsentences[forEachTerms.index(t)] != None:
+                                subEach.write(" ")
+                                subEach.write(t.name)                                                                               
                             forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
                         p = p + 1
     
@@ -667,17 +687,21 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
         results.write(symbLit.attributes[positionOfFoundVar])  
         #results.write(" ") 
 
+        if foundMultipleUseOfAggrTerm:
+            results.write(" ")
+            results.write(aggrTerm.name)            
+
         if forEachSubsentences is not None:                        
             for s in forEachSubsentences:
-                results.write(", ")
-                results.write(s)
-                results.write(", ")
-        else:
-            results.write(" ")
-        if foundMultipleUseOfAggrTerm:
-            results.write(aggrTerm.name)
-            results.write(" ")
+                if s is not None:
+                    results.write(", ")
+                    results.write(s)
+                    results.write(",")
+        #else:
+        #    results.write(" ")
+        
         if connective is not None:
+            results.write(" ") 
             results.write(connective)
         results.write(" ") 
         results.write("a")  
@@ -706,7 +730,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                 results.write(nafLit.literal.name)
                 results.write(" ")
                 results.write(nafLit.literal.terms[0].name)
-            results.write(" ") 
+            #results.write(" ") 
 
         if operator is not None:            
             if costWeakTerm is not None and assignmentVar is not None and costWeakTerm.name == assignmentVar.name:

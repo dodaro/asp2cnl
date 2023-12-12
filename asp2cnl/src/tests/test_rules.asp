@@ -157,6 +157,8 @@ topmovie(K) :- 1 <= #sum{VL: scoreassignment(X,VL), waiter(VL)} <= 2, topmovie(K
 
 {topmovie(I)} :- movie(I,_,X,_).
 
+:- #count{X, I: scoreassignment(X, Y), movie(I,_,_,_), topmovie(X), not topmovie(I)} = Z, #count{X, Y: scoreassignment(X, Y)} = K.
+
 
 
 

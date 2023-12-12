@@ -20,7 +20,9 @@ class TestRules(unittest.TestCase):
         definitions = ASPParser(program).parse()
 
         with open(os.path.join(os.path.dirname(__file__), "schema.cnl"), "r") as f:
-            symbols = Cnl2asp(f).get_symbols()     
+            symbols = Cnl2asp(f).get_symbols()    
+            #print("symbb")
+            #print(symbols) 
             for rule in definitions:           
                 results.write("RULE: ")
                 results.write("\n")
