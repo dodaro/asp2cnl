@@ -1,5 +1,5 @@
 A node is identified by an id, and by a weight.
 A set is identified by an id.
 An edge is identified by a sourcenode, and by a targetnode.
-An assignedto is identified by a sourcenode, by a targetnode, and by a weight.
-It is prohibited that the number of sourcenode that have a assignedto with targetnode S1 set S1 is equal to Y.
+An assigned_to is identified by a sourcenode, by a targetnode, and by a weight.
+It is prohibited that the total weight that have a assigned_to with targetnode SB set SB is equal to X, whenever we have that .

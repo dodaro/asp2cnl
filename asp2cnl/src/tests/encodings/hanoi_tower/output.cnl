@@ -1,5 +1,16 @@
-A node is identified by an id.
-A color is identified by an id.
-A connected_to is identified by a firstnode, and by a secondnode.
-An assigned_to is identified by a node, and by a color.
-It is prohibited that there is a connected_to with firstnode X, with secondnode Y, whenever there is a node with id X, whenever there is a assigned_to with node X, with color C, whenever there is a node with id Y, whenever there is a assigned_to with node Y, with color C, whenever there is a color with id C.
+A move is identified by a timevalue, and by a diskvalue.
+A nomove is identified by a timevalue, and by a diskvalue.
+A disk is identified by an id.
+A time is identified by a value.
+A step is identified by a value.
+A diskmoved is identified by a timevalue.
+A on is identified by a stepvalue, by a firstdisk, and by a seconddisk.
+A on0 is identified by a firstdisk, and by a seconddisk.
+A onG is identified by a stepvalue, by a firstdisk, and by a seconddisk.
+A ongoal is identified by a firstdisk, and by a seconddisk.
+A awhere is identified by a timevalue, and by a diskvalue.
+A noWhere is identified by a timevalue, and by a diskvalue.
+A diskWhere is identified by a timevalue.
+A move is identified by a timevalue, and by a diskvalue.
+A put is identified by a timevalue, by a firstdisk, and by a seconddisk.
+Whenever there is a move with timevalue T less than K, with diskvalue N, whenever there is a awhere with timevalue T, with diskvalue M, whenever there is a step with value K then we must have a put with timevalue T, with firstdisk M, with seconddisk N.

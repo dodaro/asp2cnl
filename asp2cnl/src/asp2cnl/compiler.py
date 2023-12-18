@@ -5,9 +5,9 @@ import os
 ##ROOT_CNL2ASP_PATH = 'C:/Users/Kristian/git/cnl/cnl2asp/'
 ##sys.path += [ROOT_CNL2ASP_PATH + 'src']
 
-from cnl2asp.cnl2asp import Symbol
+from cnl2asp.cnl2asp import Symbol, SymbolType
 
-from asp2cnl.parser import ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral
+from asp2cnl.parser import Directive, ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral
 
 def extract_name(name):
     if type(name) == Symbol:
@@ -18,7 +18,7 @@ def get_symbol(symbols, symbol_name):
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
-                            symbols[i].predicate == symbol_name]      
+                            symbols[i].predicate.lower() == symbol_name.lower()]      
     if len(res) == 0:
         return None
     else:
@@ -33,39 +33,54 @@ def get_symbol(symbols, symbol_name):
 
 def compile(rule, symbols):    
     results = StringIO()
-    if rule.isFact():    
-        #Facts    
-        atom = rule.head.atoms[0]       
-        symb = get_symbol(symbols, atom.name)             
-        if len(atom.terms) == 1:
-            if symb is None:
-                results.write(generate_is_a(atom))            
-            else:                
-                results.write(generate_there_is(atom, symb, {}, True))            
-            results.write(".")
-            results.write("\n")                                                   
+    if type(rule) == Directive:
+        results.write(generate_directive(rule, symbols))
+        results.write("\n")
+    else:
+        if rule.isFact():    
+            #Facts    
+            atom = rule.head.atoms[0]       
+            symb = get_symbol(symbols, atom.name)
+            if symb.symbol_type == SymbolType.DEFAULT:             
+                if len(atom.terms) == 1:
+                    if symb is None:
+                        results.write(generate_is_a(atom))            
+                    else:                
+                        results.write(generate_there_is(atom, symb, {}, True))            
+                    results.write(".")
+                    results.write("\n")                                                   
 
-        elif len(atom.terms) >= 2:              
-            if symb is not None:
-                results.write(generate_there_is(atom, symb, {}, True)) 
-                results.write(".")  
-                results.write("\n")           
-            #else:
-            #    results.write(generate_relation(atom)) 
-            #    results.write("\n")
-    elif rule.isClassical():            
-        results.write(generate_classical_statement(rule, symbols))   
-        results.write("\n")    
-    elif rule.isStrongConstraint():
-        results.write(generate_strong_constraint(rule, symbols))
-        results.write("\n") 
-    elif rule.isDisjunctive() or rule.isChoice():
-        results.write(generate_disjunctive_or_choice_statement(rule, symbols))
-        results.write("\n") 
-    elif rule.isWeakConstraint():
-        results.write(generate_weak_constraint(rule, symbols))
-        results.write("\n") 
+                elif len(atom.terms) >= 2:              
+                    if symb is not None:
+                        results.write(generate_there_is(atom, symb, {}, True)) 
+                        results.write(".")  
+                        results.write("\n")           
+                    #else:
+                    #    results.write(generate_relation(atom)) 
+                    #    results.write("\n")
+        elif rule.isClassical():            
+            results.write(generate_classical_statement(rule, symbols))   
+            results.write("\n")    
+        elif rule.isStrongConstraint():
+            results.write(generate_strong_constraint(rule, symbols))
+            results.write("\n") 
+        elif rule.isDisjunctive() or rule.isChoice():
+            results.write(generate_disjunctive_or_choice_statement(rule, symbols))
+            results.write("\n") 
+        elif rule.isWeakConstraint():
+            results.write(generate_weak_constraint(rule, symbols))
+            results.write("\n") 
         
+    return results.getvalue()
+
+def generate_directive(directive, symbols):
+    results = StringIO()
+    if directive.type == "const":
+        results.write(directive.name)
+        results.write(" is a constant equal to")
+        results.write(" ")
+        results.write(directive.value)
+        results.write(".")
     return results.getvalue()
 
 def generate_is_a(atom):
@@ -494,6 +509,9 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                 if not isStrongConstraint:
                     if len(foundAggrs) > 0:
                         tmpWheneverResults.write(", ")
+                        tmpWheneverResults.write("whenever")
+                    elif costWeakTerm is not None:
+                        tmpWheneverResults.write(" ")
                         tmpWheneverResults.write("whenever")
                     else:
                         tmpWheneverResults.write("Whenever")

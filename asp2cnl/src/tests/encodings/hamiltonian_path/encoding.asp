@@ -8,6 +8,7 @@ connected_to(4,X) :- node(4), node(X), X = 3.
 connected_to(4,X) :- node(4), node(X), X = 5.
 connected_to(5,X) :- node(5), node(X), X = 3.
 connected_to(5,X) :- node(5), node(X), X = 4.
+
 {path_to(X,Y): node(Y), connected_to(Y,X)} :- node(X).
 :- node(X), #count{Y: path_to(X,Y), node(Y)} != 1.
 :- node(Y), #count{X: path_to(X,Y), node(X)} != 1.

@@ -15,6 +15,9 @@ statement : CONS body DOT
           | WCONS body DOT SQUARE_OPEN weight_at_level SQUARE_CLOSE
           | WCONS DOT SQUARE_OPEN weight_at_level SQUARE_CLOSE
           | optimize DOT
+          | directive DOT
+
+directive: HASHTAG(ID) ID EQUAL NUMBER
 
 query : classical_literal QUERY_MARK
 
@@ -162,6 +165,7 @@ COMMA: ","
 QUERY_MARK: "?"
 COLON: ":"
 SEMICOLON: ";"
+HASHTAG: "#"
 OR: "|"
 NAF: "not"
 CONS: ":-"
