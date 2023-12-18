@@ -12,7 +12,7 @@ from io import StringIO
 from asp2cnl.compiler import compile
 from asp2cnl.parser import ASPParser
 
-from cnl2asp.cnl2asp import Cnl2asp
+from cnl2asp.cnl2asp import Cnl2asp, SymbolType
 
 ##from lark import Lark
 ##aspCoreParser = Lark(open(os.path.join(os.path.dirname(__file__), "../asp2cnl/asp_core_2_grammar/asp_grammar.lark"), "r").read())
@@ -21,19 +21,19 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
         
-        #program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
-        program = open(os.path.join(os.path.dirname(__file__), "test_rules.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
+        #program = open(os.path.join(os.path.dirname(__file__), "test_rules.asp"), "r").read()
         ##content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
         #print(content_tree)
         ##definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
         definitions = ASPParser(program).parse()
 
-        with open(os.path.join(os.path.dirname(__file__), "facts1.cnl"), "r") as f:
+        with open(os.path.join(os.path.dirname(__file__), "facts2.cnl"), "r") as f:
             symbols = Cnl2asp(f).get_symbols()
-            #print(symbols)
+            print(symbols)
             #print(get_symbol(symbols, "work in"))
             #print("ResultsA: \n")       
-            for rule in definitions:           
+            for rule in definitions:        
                 results.write("RULE: ")
                 results.write("\n")
                 results.write(rule.toString())

@@ -118,7 +118,10 @@ class ASPTransformer(Transformer):
         return lits
 
     def NAF(self, elem):        
-        return "_NOT_"       
+        return "_NOT_"    
+
+    def HASHTAG(self, elem):        
+        return "_HASHTAG_"            
 
     def naf_literal(self, elem):        
         thereIsNaf = False
@@ -296,24 +299,29 @@ class ASPTransformer(Transformer):
                                          
         return bodyElements
 
-        
-    def statement(self, elem):    
-        foundIf = False        
-        head = None
-        body = None
-        weakElement = None
-        for e in elem:             
-            if type(e) == Disjunction or type(e) == Choice:
-                head = e
-            elif e == "_IF_" or e == "_WEAK_IF_":
-                foundIf = True
-            elif type(e) == list:
-                if foundIf:
-                    body = Conjunction(e)
-            elif type(e) == WeakElement:
-                weakElement = e
+    def directive(self, elem):
+        return Directive(elem[1].value, elem[2].value, elem[4].value)    
 
-        self.__rules_list.append(Rule(head, body, weakElement))                
+    def statement(self, elem):  
+        if type(elem[0]) == Directive:
+            self.__rules_list.append(elem[0]) 
+        else:      
+            foundIf = False        
+            head = None
+            body = None
+            weakElement = None
+            for e in elem:             
+                if type(e) == Disjunction or type(e) == Choice:
+                    head = e
+                elif e == "_IF_" or e == "_WEAK_IF_":
+                    foundIf = True
+                elif type(e) == list:
+                    if foundIf:
+                        body = Conjunction(e)
+                elif type(e) == WeakElement:
+                    weakElement = e
+
+            self.__rules_list.append(Rule(head, body, weakElement))                
         return elem    
 
     def __isAggrageteFunction__(self, value):     
@@ -541,6 +549,20 @@ class WeakElement:
         text.write("]")
         return text.getvalue()
 
+@dataclass(frozen=True)
+class Directive:
+    type: str
+    name: str
+    value: int
+    def toString(self):
+        text = StringIO()
+        text.write("#")
+        text.write(self.type)
+        text.write(" ")
+        text.write(self.name)
+        text.write(" = ")
+        text.write(self.value)
+        return text.getvalue()
 
 @dataclass(frozen=True)
 class Rule:
