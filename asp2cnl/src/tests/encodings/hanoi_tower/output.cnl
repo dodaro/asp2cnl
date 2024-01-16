@@ -8,9 +8,9 @@ A on is identified by a stepvalue, by a firstdisk, and by a seconddisk.
 A on0 is identified by a firstdisk, and by a seconddisk.
 A onG is identified by a stepvalue, by a firstdisk, and by a seconddisk.
 A ongoal is identified by a firstdisk, and by a seconddisk.
-A awhere is identified by a timevalue, and by a diskvalue.
+A dwhere is identified by a timevalue, and by a diskvalue.
 A noWhere is identified by a timevalue, and by a diskvalue.
 A diskWhere is identified by a timevalue.
 A move is identified by a timevalue, and by a diskvalue.
 A put is identified by a timevalue, by a firstdisk, and by a seconddisk.
-Whenever there is a move with timevalue T less than K, with diskvalue N, whenever there is a awhere with timevalue T, with diskvalue M, whenever there is a step with value K then we must have a put with timevalue T, with firstdisk M, with seconddisk N.
+Whenever there is a move with timevalue T less than K, with diskvalue N, whenever there is a dwhere with timevalue T, with diskvalue M, whenever there is a step with value K then we must have a put with timevalue T, with firstdisk M, with seconddisk N.

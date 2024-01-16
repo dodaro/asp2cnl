@@ -18,7 +18,7 @@ def get_symbol(symbols, symbol_name):
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
-                            symbols[i].predicate.lower() == symbol_name.lower()]      
+                            symbols[i].predicate.lower() == symbol_name.lower()]         
     if len(res) == 0:
         return None
     else:
@@ -40,8 +40,8 @@ def compile(rule, symbols):
         if rule.isFact():    
             #Facts    
             atom = rule.head.atoms[0]       
-            symb = get_symbol(symbols, atom.name)
-            if symb.symbol_type == SymbolType.DEFAULT:             
+            symb = get_symbol(symbols, atom.name)  
+            if symb is None or symb.symbol_type == SymbolType.DEFAULT:                                   
                 if len(atom.terms) == 1:
                     if symb is None:
                         results.write(generate_is_a(atom))            

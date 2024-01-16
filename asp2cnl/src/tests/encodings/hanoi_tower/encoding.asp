@@ -28,10 +28,10 @@ move(T,N) | nomove(T,N) :- disk(N), time(T), step(K), T< K.
 diskmoved(T) :- move(T,FV).
 
 % pick a disk onto which to move
-awhere(T,N) | noWhere(T,N) :- disk(N), time(T), step(K), T< K.
-:- awhere(T,N1), awhere(T,N2), N1 != N2.
+dwhere(T,N) | noWhere(T,N) :- disk(N), time(T), step(K), T< K.
+:- dwhere(T,N1), dwhere(T,N2), N1 != N2.
 :- time(T), step(K), T< K, not diskWhere(T).
-diskWhere(T) :- awhere(T,FV).
+diskWhere(T) :- dwhere(T,FV).
 
 % pegs cannot be moved
 :- move(T,N), N < 5.
@@ -40,13 +40,13 @@ diskWhere(T) :- awhere(T,FV).
 :- on(T,N,N1), move(T,N).
 
 % a disk can be placed on top only.
-:- on(T,N,N1), awhere(T,N).
+:- on(T,N,N1), dwhere(T,N).
 
 % no disk is moved in two consecutive moves
 %%:- move(T,N), move(TM1,N), TM1=T-1.
 
 % Specify effects of a move
-%%on(TP1,N1,N) :- move(T,N), awhere(T,N1), TP1=T+1.
+%%on(TP1,N1,N) :- move(T,N), dwhere(T,N1), TP1=T+1.
 
 %%on(TP1,N,N1) :- time(T), step(K), T< K, on(T,N,N1), not move(T,N1), TP1=T+1.
 
@@ -55,7 +55,7 @@ diskWhere(T) :- awhere(T,FV).
 :- on(K,N,N1), not onG(K,N,N1),step(K).
 
 % Solution
-	put(T,M,N) :- move(T,N), awhere(T,M), step(K), T< K.
+	put(T,M,N) :- move(T,N), dwhere(T,M), step(K), T< K.
 
 
 % BUGS 

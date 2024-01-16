@@ -1,3 +1,9 @@
+node(1).
+node(2).
+node(3).
+node(4).
+node(5).
+connected_to(1,2).
 connected_to(1,X) :- node(1), node(X), X = 2.
 connected_to(1,X) :- node(1), node(X), X = 3.
 connected_to(2,X) :- node(2), node(X), X = 1.
