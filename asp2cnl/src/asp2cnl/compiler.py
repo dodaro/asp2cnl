@@ -7,7 +7,7 @@ import os
 
 from cnl2asp.cnl2asp import Symbol, SymbolType
 
-from asp2cnl.parser import Directive, ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral
+from asp2cnl.parser import Directive, ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral, Term, ArithmeticAtom
 
 def extract_name(name):
     if type(name) == Symbol:
@@ -22,13 +22,18 @@ def get_symbol(symbols, symbol_name):
     if len(res) == 0:
         return None
     else:
+        if res[0].symbol_type == SymbolType.TEMPORAL:
+            res[0].attributes = res[0].attributes[0:1]
+        
         for i in range(len(res[0].attributes)):
             if type(res[0].attributes[i]) == Symbol:
-                res[0].attributes[i] = res[0].attributes[i].predicate #+ "_" + res[0].attributes[0]  
+                if res[0].attributes[i].symbol_type == SymbolType.DEFAULT:
+                    res[0].attributes[i] = res[0].attributes[i].predicate + " " + (str(res[0].attributes[i].attributes[0])).lower()
+                else:
+                    res[0].attributes[i] = res[0].attributes[i].predicate
                 ##print("Cosa")
                 ##print(res[0].attributes[i])
-                ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])
-
+                ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])        
         return res[0]
 
 def compile(rule, symbols):    
@@ -115,7 +120,7 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
         results.write(" ")
     results.write("a") 
     results.write(" ")
-    results.write(atom.name)
+    results.write(atom.name)    
     results.write(" ")
     results.write(generate_with(atom, symbol, builtinAtoms))
     return results.getvalue()
@@ -125,36 +130,42 @@ def generate_with(atom, symbol, builtinAtoms = {}):
     results = StringIO()
     started = False
     for i in range(len(atom.terms)):
-        if not atom.terms[i].isUnderscore():                         
+        canContinue = True        
+        if type(atom.terms[i]) == Term:
+            if atom.terms[i].isUnderscore():
+                canContinue = False
+        if canContinue:
             if started:
                 results.write(", ")
             else:
                 started = True    
                 #results.write(" ")
-            results.write("with")
-            results.write(" ")              
+            if symbol.symbol_type == SymbolType.DEFAULT:
+                results.write("with")
+                results.write(" ")              
+                results.write(symbol.attributes[i])
+                results.write(" ")            
+            if type(atom.terms[i]) == Term:
+                if atom.terms[i].isVariable():
+                    if atom.terms[i] in builtinAtoms.keys():                        
+                        results.write(atom.terms[i].name)
+                        results.write(" ")                      
+                        builtinAtom = builtinAtoms[atom.terms[i]]
+                        results.write(generate_compare_operator_sentence(builtinAtom.op))
+                        results.write(" ")    
 
-            results.write(symbol.attributes[i])
-            results.write(" ")
-            if atom.terms[i].isVariable(): 
-                if atom.terms[i] in builtinAtoms.keys():                        
-                    results.write(atom.terms[i].name)
-                    results.write(" ")                      
-                    builtinAtom = builtinAtoms[atom.terms[i]]
-                    results.write(generate_compare_operator_sentence(builtinAtom.op))
-                    results.write(" ")    
-
-                    results.write(builtinAtom.terms[1].name)    
-                    builtinAtoms.pop(atom.terms[i])                   
-                else:
-                    results.write(atom.terms[i].name)  
-            else:                                                        
-                results.write("equal")   
-                results.write(" ")
-                results.write("to")   
-                results.write(" ")
-                results.write(atom.terms[i].name.strip('\"')) 
-
+                        results.write(builtinAtom.terms[1].toString())    
+                        builtinAtoms.pop(atom.terms[i])                   
+                    else:
+                        results.write(atom.terms[i].name)  
+                else:                                                        
+                    results.write("equal")   
+                    results.write(" ")
+                    results.write("to")   
+                    results.write(" ")
+                    results.write(atom.terms[i].name.strip('\"')) 
+            elif type(atom.terms[i]) == ArithmeticAtom:
+                results.write(atom.terms[i].toString()) 
         #results.write(extract_name(symbol.attributes[i]))
         #results.write(" ")   
         #results.write("equal to")
@@ -473,12 +484,12 @@ def generateWith(symbols, atom):
         results.write(symbLit.attributes[i])
         results.write(" ")
 
-        if not atom.terms[i].isVariable():                                    
+        if type(atom.terms[i]) == Term and not atom.terms[i].isVariable():                                    
             results.write("equal")   
             results.write(" ")
             results.write("to")   
             results.write(" ")
-        results.write(atom.terms[i].name.strip('\"'))   
+        results.write(atom.terms[i].toString().strip('\"'))   
         #results.write(" ")  
     return results.getvalue()
 

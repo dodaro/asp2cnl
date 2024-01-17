@@ -1,10 +1,11 @@
-A ts is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 10 minutes.
-A ats is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 5 minutes.
+A timeslot is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 10 minutes.
+A atimeslot is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 5 minutes.
 A day is a temporal concept expressed in days ranging from 01/01/2022 to 07/01/2022.
 A registration is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, and a preference.
 A chair is identified by an id.
 A bed is identified by an id.
-An x is identified by a registration, by a day, by a timeslot, by a duration of the fourth phase, and by a preference.
+// An x is identified by a registration, by a day, by a timeslot, by a duration of the fourth phase, and by a preference.
+An x is identified by a registration patient, by a day, by a timeslot, by a duration of the fourth phase, by a registration order, and by a preference.
 A chair is identified by an id, by a registration id, by a day, and by a timeslot.
 A bed is identified by an id, by a registration id, by a day, and by a timeslot.
 A res is identified by a registration id, by a day, and by a timeslot.
@@ -17,3 +18,4 @@ A registration is identified by a patient, and by an order, and has a number of 
 A nurse is identified by an id.
 A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
+Whenever there is a x with registration patient RID, with day DAY, with registration order N, whenever there is a day DAY+DAY2, whenever there is a registration with patient RID, with order ORDER equal to N+1, with number_of_waiting_day DAY2, with duration_of_the_first_phase PH4, with duration_of_the_second_phase PH3, with duration_of_the_third_phase PH2, with duration_of_the_fourth_phase PH1, with preference S then we can have exactly 1 x with registration patient RID, with day DAY+DAY2, with timeslot TS, with duration_of_the_fourth_phase PH4, with registration order ORDER, with preference S such that there is a timeslot TS.

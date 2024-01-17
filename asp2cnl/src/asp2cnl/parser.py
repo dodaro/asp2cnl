@@ -14,8 +14,10 @@ class ASPParser:
         self.__programFile = programFile
 
     def parse(self):
-        content_tree: ASPContentTree = ASPTransformer().transform(self.__aspCoreParser.parse(self.__programFile))
-        #print(content_tree)
+        parsed = self.__aspCoreParser.parse(self.__programFile) 
+#        print(parsed.pretty())       
+        content_tree: ASPContentTree = ASPTransformer().transform(parsed)
+#        print(content_tree)        
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
         return definitions
 
@@ -158,17 +160,27 @@ class ASPTransformer(Transformer):
 
     def terms(self, elem):             
         terms = []
+        print("ssssssss")
+        print(elem)
         for t in elem:
-            if type(t) == Term:
+            if type(t) == Term or type(t) == ArithmeticAtom:
                 terms.append(t)
             else:              
                 for t1 in t:
-                    if type(t1) == Term:  
+                    if type(t1) == Term or type(t1) == ArithmeticAtom:  
                         terms.append(t1)        
         return terms
                 
     def term(self, elem):         
-        return Term(elem[0].value)      
+        if len(elem) == 1:     
+            return Term(elem[0].value)      
+        elif len(elem) == 2:
+            return ArithmeticAtom(elem[0][1], [Term(elem[0][0].value), elem[1]])
+
+    
+    def termdue(self, elem):      
+        return elem
+
 
     def COLON(self, elem):
         return "_COLON_"
@@ -245,7 +257,10 @@ class ASPTransformer(Transformer):
                     right_part = e            
                        
         return ChoiceElement(left_part, right_part)
-  
+    
+    def arithop(self, elem):  
+        return elem[0].value
+
     def weight_at_level(self, elem):          
         beforeAtTerm = None
         afterAtTerms = None
@@ -343,6 +358,13 @@ class BuiltinAtom:
     terms: list[Term]
     def toString(self):
         return self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString()
+
+@dataclass(frozen=True)
+class ArithmeticAtom:
+    op: str
+    terms: list[Term]
+    def toString(self):
+        return self.terms[0].toString() + self.op + self.terms[1].toString()
 
 @dataclass(frozen=True)
 class ClassicalLiteral:
