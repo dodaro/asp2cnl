@@ -1,0 +1,19 @@
+A ts is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 10 minutes.
+A ats is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 5 minutes.
+A day is a temporal concept expressed in days ranging from 01/01/2022 to 07/01/2022.
+A registration is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, and a preference.
+A chair is identified by an id.
+A bed is identified by an id.
+An x is identified by a registration, by a day, by a timeslot, by a duration of the fourth phase, and by a preference.
+A chair is identified by an id, by a registration id, by a day, and by a timeslot.
+A bed is identified by an id, by a registration id, by a day, and by a timeslot.
+A res is identified by a registration id, by a day, and by a timeslot.
+A support is identified by a registration id, by a day, and by a timeslot.
+A numbReg is identified by a day, by number, and by a timeslot.
+A numMax is identified by a day, and by a timeslot.
+A numMin is identified by a day, and by a timeslot.
+A numbDay is identified by a day, and by a number.
+A registration is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, a preference, a priority, and a drug.
+A nurse is identified by an id.
+A nurseLimits is identified by a number.
+A drug is identified by an id, by an available quantity, and by a day.
