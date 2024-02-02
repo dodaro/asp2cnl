@@ -3,7 +3,7 @@ pub(1).
 patron("alice").
 % movie(1,"jurassicPark","spielberg",1993).
 % scoreassignment(1, 30).
-.\te
+
 %% serve non ha schemi. Ignoro la regola?
 % working(W) :- serve(W, X_574408ca_c2cd_43b2_a68a_0eae7285f99d).
 
@@ -157,10 +157,7 @@ topmovie(K) :- 1 <= #sum{VL: scoreassignment(X,VL), waiter(VL)} <= 2, topmovie(K
 
 {topmovie(I)} :- movie(I,_,X,_).
 
-:- #count{X, I: scoreassignment(X, Y), movie(I,_,_,_), topmovie(X), not topmovie(I)} = Z, #count{X, Y: scoreassignment(X, Y)} = K.
-
-
-
+:- #count{X, I: scoreassignment(X, Y), movie(I,_,_,_), topmovie(X)} = Z, #count{X, Y: scoreassignment(X, Y)} = K.
 
 
 

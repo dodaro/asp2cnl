@@ -18,4 +18,3 @@ A registration is identified by a patient, and by an order, and has a number of 
 A nurse is identified by an id.
 A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
-Whenever there is a x with registration patient RID, with day DAY then we can have exactly 1 bed with id ID such that there is a bed with id ID.

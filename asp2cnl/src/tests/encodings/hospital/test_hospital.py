@@ -16,12 +16,11 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
                 
-        program = open(os.path.join(os.path.dirname(__file__), "test.asp"), "r").read()        
+        program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()        
         definitions = ASPParser(program).parse()        
 
-        with open(os.path.join(os.path.dirname(__file__), "definition.txt"), "r") as f:
-            symbols = Cnl2asp(f).get_symbols() 
-            print(symbols)    
+        with open(os.path.join(os.path.dirname(__file__), "hospital_input"), "r") as f:
+            symbols = Cnl2asp(f).get_symbols()             
             for rule in definitions:           
                 results.write("RULE: ")
                 results.write("\n")
@@ -40,14 +39,14 @@ class TestRules(unittest.TestCase):
                 with open(outFileDisk, "a") as out_file:
                     out_file.write(compiled)           
                 #print("Translating: " + compiled) 
-                '''
+                
                 with open(outFileDisk, "r") as in_file:                    
                     cnl2asp = Cnl2asp(in_file)
                     result = cnl2asp.compile()            
                     results.write("TRANSLATION BACK: ")
                     results.write("\n")
                     results.write(result)
-                '''
+                
                 results.write("\n")
                 results.write("------------------")
                 

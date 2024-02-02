@@ -15,9 +15,9 @@ class ASPParser:
 
     def parse(self):
         parsed = self.__aspCoreParser.parse(self.__programFile) 
-#        print(parsed.pretty())       
+        #print(parsed.pretty())       
         content_tree: ASPContentTree = ASPTransformer().transform(parsed)
-#        print(content_tree)        
+        #print(content_tree)        
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
         return definitions
 
@@ -159,9 +159,7 @@ class ASPTransformer(Transformer):
         return elem
 
     def terms(self, elem):             
-        terms = []
-        print("ssssssss")
-        print(elem)
+        terms = []        
         for t in elem:
             if type(t) == Term or type(t) == ArithmeticAtom:
                 terms.append(t)
@@ -175,7 +173,15 @@ class ASPTransformer(Transformer):
         if len(elem) == 1:     
             return Term(elem[0].value)      
         elif len(elem) == 2:
-            return ArithmeticAtom(elem[0][1], [Term(elem[0][0].value), elem[1]])
+            if type(elem[1]) == ArithmeticAtom:
+                operators = [elem[0][1]]
+                operators += elem[1].ops
+                terms = [Term(elem[0][0].value)]
+                terms += elem[1].terms
+                
+                return ArithmeticAtom(operators, terms)
+            else:
+                return ArithmeticAtom(elem[0][1], [Term(elem[0][0].value), elem[1]])
 
     
     def termdue(self, elem):      
@@ -259,6 +265,8 @@ class ASPTransformer(Transformer):
         return ChoiceElement(left_part, right_part)
     
     def arithop(self, elem):  
+        if (elem[0] == "_MINUS_"):
+            return "-"
         return elem[0].value
 
     def weight_at_level(self, elem):          
@@ -353,18 +361,25 @@ class Term:
         return self.name
 
 @dataclass(frozen=True)
+class ArithmeticAtom:
+    ops: list[str]
+    terms: list[Term]
+    def toString(self):
+        text = StringIO() 
+        for i in range(len(self.ops)):
+            text.write(self.terms[i].toString())
+            text.write(self.ops[i])
+        text.write(self.terms[len(self.terms) - 1].toString())
+        return text.getvalue()
+        #return self.terms[0].toString() + self.ops[0] + self.terms[1].toString()
+
+@dataclass(frozen=True)
 class BuiltinAtom:
     op: str
-    terms: list[Term]
+    terms: list[Term | ArithmeticAtom]
     def toString(self):
         return self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString()
 
-@dataclass(frozen=True)
-class ArithmeticAtom:
-    op: str
-    terms: list[Term]
-    def toString(self):
-        return self.terms[0].toString() + self.op + self.terms[1].toString()
 
 @dataclass(frozen=True)
 class ClassicalLiteral:
