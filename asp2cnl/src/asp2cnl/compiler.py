@@ -15,7 +15,7 @@ def extract_name(name):
     return name 
 
 def get_symbol(symbols, atom):  
-    symbol_name = atom.name      
+    symbol_name = atom.name       
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
@@ -27,13 +27,14 @@ def get_symbol(symbols, atom):
         
 
         for s in res: 
+            print(s)
             if s.symbol_type == SymbolType.TEMPORAL:
                 s.attributes = s.attributes[0:1]
             if len(s.attributes) == atom.arity():
                 symb = s
         
         
-        for i in range(len(symb.attributes)):
+        for i in range(len(symb.attributes)):            
             if type(symb.attributes[i]) == Symbol:
                 if symb.attributes[i].symbol_type == SymbolType.DEFAULT:
                     symb.attributes[i] = symb.attributes[i].predicate.strip() + " " + (symb.attributes[i].attributes[0].strip()).lower()
@@ -507,10 +508,9 @@ def generate_head_choice(head, symbols):
         if startedHeadElem:
             results.write(" ")
             results.write("or")
-            results.write(" ")
+            #results.write(" ")
         else:
-            startedHeadElem = True
-        
+            startedHeadElem = True        
             results.write(howMany.getvalue())
         results.write(" ")
         results.write(headElem.left_part.name)

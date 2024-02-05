@@ -1,1 +1,1 @@
-1 <= {bed3(ID, RID, DAY):bed(ID);chair3(ID, RID, DAY):chair(ID)} <= 1 :- x(RID, DAY, _, _, _, _).
+:~ registration10(RID,0,_,_,_,_,_,_,1,_), x(RID,_,TS,_,_,_). [TS@3,RID]

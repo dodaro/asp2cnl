@@ -15,11 +15,13 @@ A numbReg is identified by a day, by number, and by a 10_min_ts.
 A numMax is identified by a day, and by a 10_min_ts.
 A numMin is identified by a day, and by a 10_min_ts.
 A numbDay is identified by a day, and by a number.
-A registration is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, a preference, a priority, and a drug.
+A numMaxDay is identified by a number.
+A registration10 is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, a preference, a priority, and a drug_id.
 A nurse is identified by an id.
 A nurses3 is identified by an id, by a registration id, by a day.
 A nurses4 is identified by an id, by a registration id, by a day, by a 10_min_ts.
 A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
 
-Whenever there is a bed3 with id ID, with registration id RID, with day DAY, whenever there is a res with registration id RID, with day DAY, with 10_min_ts TS then we must have a bed4 with id ID, with registration id RID, with day DAY, with 10_min_ts TS.
+
+It is preferred, with high priority, that whenever there is a registration10 with patient RID, with order equal to 0, with priority equal to 1, whenever there is a x with registration patient RID, with 10_min_ts TS, TS is minimized.
