@@ -385,6 +385,9 @@ class BuiltinAtom:
 class ClassicalLiteral:
     name: str
     terms: list[Term]
+    def arity(self):
+        return len(self.terms)
+
     def hasVariables(self):        
         for term in self.terms:
             if term.isVariable():

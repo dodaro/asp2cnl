@@ -14,30 +14,37 @@ def extract_name(name):
         return extract_name(name.predicate)
     return name 
 
-def get_symbol(symbols, symbol_name):        
+def get_symbol(symbols, atom):  
+    symbol_name = atom.name      
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
-                            symbols[i].predicate.lower() == symbol_name.lower()]         
-    print(res)
+                            symbols[i].predicate.lower() == symbol_name.lower()]             
     if len(res) == 0:
         return None
     else:
-        if res[0].symbol_type == SymbolType.TEMPORAL:
-            res[0].attributes = res[0].attributes[0:1]
+        symb = None
         
-        for i in range(len(res[0].attributes)):
-            if type(res[0].attributes[i]) == Symbol:
-                if res[0].attributes[i].symbol_type == SymbolType.DEFAULT:
-                    res[0].attributes[i] = res[0].attributes[i].predicate.strip() + " " + (res[0].attributes[i].attributes[0].strip()).lower()
+
+        for s in res: 
+            if s.symbol_type == SymbolType.TEMPORAL:
+                s.attributes = s.attributes[0:1]
+            if len(s.attributes) == atom.arity():
+                symb = s
+        
+        
+        for i in range(len(symb.attributes)):
+            if type(symb.attributes[i]) == Symbol:
+                if symb.attributes[i].symbol_type == SymbolType.DEFAULT:
+                    symb.attributes[i] = symb.attributes[i].predicate.strip() + " " + (symb.attributes[i].attributes[0].strip()).lower()
                 else:
-                    res[0].attributes[i] = res[0].attributes[i].predicate.strip()
+                    symb.attributes[i] = symb.attributes[i].predicate.strip()
                 ##print("Cosa")
                 ##print(res[0].attributes[i])
                 ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])        
             else:
-                res[0].attributes[i] = res[0].attributes[i].strip()
-        return res[0]
+                symb.attributes[i] = res[0].attributes[i].strip()
+        return symb
 
 def compile(rule, symbols):    
     results = StringIO()
@@ -48,7 +55,7 @@ def compile(rule, symbols):
         if rule.isFact():    
             #Facts    
             atom = rule.head.atoms[0]       
-            symb = get_symbol(symbols, atom.name)  
+            symb = get_symbol(symbols, atom)  
             if symb is None or symb.symbol_type == SymbolType.DEFAULT:                                   
                 if len(atom.terms) == 1:
                     if symb is None:
@@ -141,7 +148,7 @@ def generate_vars_symbols(body, symbols, arithAtom):
 
     for lit in body.literals:          
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
-            symbLit = get_symbol(symbols, lit.literal.name)
+            symbLit = get_symbol(symbols, lit.literal)
             atom = lit.literal
             for i in range(len(atom.terms)):
                 canContinue = True        
@@ -435,6 +442,9 @@ def generate_head_choice(head, symbols):
     atLeast = False 
     beetween = False    
     exactly = False   
+
+    howMany = StringIO() 
+
     if head.upperGuard is not None:
         if head.upperOp == "<=":
             if head.lowerGuard is None:
@@ -461,54 +471,64 @@ def generate_head_choice(head, symbols):
     if exactly:
         # exactly 1 topmovie with id I such that there is a movie with director X, 
         #           and with id I.
-        results.write("exactly")
-        results.write(" ")
+        howMany.write("exactly")
+        howMany.write(" ")
         if head.lowerGuard is not None:            
-            results.write(head.lowerGuard.name)
+            howMany.write(head.lowerGuard.name)
         else:
-            results.write(head.upperGuard.name)
+            howMany.write(head.upperGuard.name)
     if atLeast:
         # at least 1 topmovie with id I such that there is a movie with director X, 
         #           and with id I.
-        results.write("at least")
-        results.write(" ")
-        results.write(head.lowerGuard.name)
+        howMany.write("at least")
+        howMany.write(" ")
+        howMany.write(head.lowerGuard.name)
     if atMost:
         # at most 1 topmovie with id I such that there is a movie with director X, 
         #           and with id I.
-        results.write("at most")
-        results.write(" ")
-        results.write(head.upperGuard.name)
+        howMany.write("at most")
+        howMany.write(" ")
+        howMany.write(head.upperGuard.name)
     if beetween:
         # between 3 and 4 topmovie with id I such that there is a movie with director X, 
         #           and with id I.
-        results.write("between")
-        results.write(" ")
-        results.write(head.lowerGuard.name)
-        results.write(" ")
-        results.write("and")
-        results.write(" ")
-        results.write(head.upperGuard.name)
+        howMany.write("between")
+        howMany.write(" ")
+        howMany.write(head.lowerGuard.name)
+        howMany.write(" ")
+        howMany.write("and")
+        howMany.write(" ")
+        howMany.write(head.upperGuard.name)
     if head.lowerGuard is None and head.upperGuard is None:
-        results.write("a")
+        howMany.write("a")
     
-    results.write(" ")
-    results.write(head.elements[0].left_part.name)
-    results.write(" ")
-    results.write(generateWithInHead(symbols, head.elements[0].left_part))      
-    if head.elements[0].right_part is not None:
-        results.write(" ")
-        results.write("such that")
-        results.write(" ")
+    startedHeadElem = False
+    for headElem in head.elements:        
+        if startedHeadElem:
+            results.write(" ")
+            results.write("or")
+            results.write(" ")
+        else:
+            startedHeadElem = True
         
-        started = False
-        for nafLit in head.elements[0].right_part:
-            if started:
-                results.write(",")
-                results.write(" ")
-            symb = get_symbol(symbols, nafLit.literal.name)
-            results.write(generate_there_is(nafLit, symb, {}, False, started))
-            started = True
+            results.write(howMany.getvalue())
+        results.write(" ")
+        results.write(headElem.left_part.name)
+        results.write(" ")
+        results.write(generateWithInHead(symbols, headElem.left_part))      
+        if headElem.right_part is not None:
+            results.write(" ")
+            results.write("such that")
+            results.write(" ")
+            
+            started = False
+            for nafLit in headElem.right_part:
+                if started:
+                    results.write(",")
+                    results.write(" ")
+                symb = get_symbol(symbols, nafLit.literal)
+                results.write(generate_there_is(nafLit, symb, {}, False, started))
+                started = True
 
     return results.getvalue()  
 
@@ -534,7 +554,7 @@ def generate_head(head, symbols):
 
 def generateWithInHead(symbols, atom):
     results = StringIO()      
-    symbLit = get_symbol(symbols, atom.name)
+    symbLit = get_symbol(symbols, atom)
         
     for i in range(len(symbLit.attributes)):
         if i > 0:
@@ -607,7 +627,7 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                 #elif not isStrongConstraint:
                 #    tmpWheneverResults.write("Whenever")   
                 startedLits = True
-            symbLit = get_symbol(symbols, lit.literal.name)
+            symbLit = get_symbol(symbols, lit.literal)
             if not specialConstraintTranslationForLiteral:                
                 tmpWheneverResults.write(" ")                            
                 tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, hasSumInBuiltin=hasSumInBuiltin))
@@ -820,7 +840,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                             subEach = StringIO() 
                             subEach.write("for each")
                             subEach.write(" ")
-                            symbLit = get_symbol(symbols, naf_literal.literal.name)          
+                            symbLit = get_symbol(symbols, naf_literal.literal)          
                             subEach.write(symbLit.attributes[p])       
                             if forEachSubsentences[forEachTerms.index(t)] != None:
                                 subEach.write(" ")
@@ -846,7 +866,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
             connective = "that have"
             #connective = "of"
         results.write(" ")      
-        symbLit = get_symbol(symbols, foundClassicalLiteral.name)          
+        symbLit = get_symbol(symbols, foundClassicalLiteral)          
         results.write(symbLit.attributes[positionOfFoundVar])  
         #results.write(" ") 
 

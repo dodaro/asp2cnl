@@ -5,9 +5,10 @@ A registration is identified by a patient, and by an order, and has a number of 
 A chair is identified by an id.
 A bed is identified by an id.
 An x is identified by a registration patient, by a day, by a 10_min_ts, by a duration of the fourth phase, by a registration order, and by a preference.
-A chair is identified by an id, by a registration id, by a day, and by a 10_min_ts.
-A bed is identified by an id, by a registration id, and by a day.
-A bed is identified by an id, by a registration id, by a day, and by a 10_min_ts.
+A chair3 is identified by an id, by a registration id, by a day.
+A chair4 is identified by an id, by a registration id, by a day, and by a 10_min_ts.
+A bed3 is identified by an id, by a registration id, by a day.
+A bed4 is identified by an id, by a registration id, by a day, and by a 10_min_ts.
 A res is identified by a registration id, by a day, and by a 10_min_ts.
 A support is identified by a registration id, by a day, and by a 10_min_ts.
 A numbReg is identified by a day, by number, and by a 10_min_ts.
@@ -16,5 +17,8 @@ A numMin is identified by a day, and by a 10_min_ts.
 A numbDay is identified by a day, and by a number.
 A registration is identified by a patient, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, a duration of the fourth phase, a preference, a priority, and a drug.
 A nurse is identified by an id.
+A nurses3 is identified by an id, by a registration id, by a day.
+A nurses4 is identified by an id, by a registration id, by a day, by a 10_min_ts.
 A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
+
