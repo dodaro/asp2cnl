@@ -1,1 +1,1 @@
-:~ registration10(RID,0,_,_,_,_,_,_,1,_), x(RID,_,TS,_,_,_). [TS@3,RID]
+:- drug(DRUG,LMT,DAY), #count{RID: x(RID,DAY,_,_,ORDER,_), registration10(RID,_,ORDER,_,_,_,_,_,_,DRUG)} > LMT.
