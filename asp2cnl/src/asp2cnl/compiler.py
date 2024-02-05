@@ -19,6 +19,7 @@ def get_symbol(symbols, symbol_name):
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
                             symbols[i].predicate.lower() == symbol_name.lower()]         
+    print(res)
     if len(res) == 0:
         return None
     else:
@@ -100,7 +101,7 @@ def generate_is_a(atom):
     results.write(atom.name)                     
     return results.getvalue()
 
-def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False):
+def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False, hasSumInBuiltin = False):
     #Eg. movie(1,"jurassicPark","spielberg",1993).
     # -->
     #There is a movie with id equal to 1, with director equal to spielberg, with title equal to jurassicPark, with year equal to 1993.
@@ -124,6 +125,11 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
     results.write(" ")
     results.write(atom.name)    
     results.write(" ")
+
+    if hasSumInBuiltin:
+        results.write(atom.name[0].capitalize())
+        results.write(" ")
+
     results.write(generate_with(atom, symbol, builtinAtoms))
     return results.getvalue()
     
@@ -158,11 +164,16 @@ def generate_vars_symbols(body, symbols, arithAtom):
         results.write("the")
         results.write(" ")
         results.write(builtVars[1])
+
+        results.write(" ")
+        results.write(builtVars[0].name)
+
         results.write(" ")
         results.write("of the ")
         results.write(builtVars[2])
         results.write(" ")
-        results.write(builtVars[0].name)
+        results.write(builtVars[2][0].capitalize())
+
 
     return results.getvalue()
     
@@ -599,7 +610,7 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
             symbLit = get_symbol(symbols, lit.literal.name)
             if not specialConstraintTranslationForLiteral:                
                 tmpWheneverResults.write(" ")                            
-                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms))
+                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, hasSumInBuiltin=hasSumInBuiltin))
             else:
                 specialConstraintTranslationForLiteral = False    
                 if not hasSumInBuiltin:     

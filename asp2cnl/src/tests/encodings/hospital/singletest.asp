@@ -1,0 +1,1 @@
+1 <= {bed(ID,RID,DAY) : bed(ID); chair(ID,RID,DAY) : chair(ID)} <= 1:- x(RID,DAY,_,_,_,_).
