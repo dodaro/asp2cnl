@@ -1,1 +1,5 @@
-:- drug(DRUG,LMT,DAY), #count{RID: x(RID,DAY,_,_,ORDER,_), registration10(RID,_,ORDER,_,_,_,_,_,_,DRUG)} > LMT.
+%res(RID,DAY,TS..TS+PH4-1) :- x(RID,DAY,TS,PH4,_,_), PH4 > 0.
+
+res(RID,DAY,T) :- 10_min_ts(T), x(RID,DAY,TS,PH4,_,_), PH4 > 0, TS <= T, T < TS+PH4.
+
+

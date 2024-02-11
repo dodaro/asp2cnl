@@ -16,7 +16,7 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
                 
-        program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "singletest.asp"), "r").read()
         definitions = ASPParser(program).parse()        
 
         with open(os.path.join(os.path.dirname(__file__), "hospital_input"), "r") as f:
@@ -42,7 +42,7 @@ class TestRules(unittest.TestCase):
                 
                 with open(outFileDisk, "r") as in_file:                    
                     cnl2asp = Cnl2asp(in_file)
-                    result = cnl2asp.compile()            
+                    result = cnl2asp.compile(False)            
                     results.write("TRANSLATION BACK: ")
                     results.write("\n")
                     results.write(result)

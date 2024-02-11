@@ -364,6 +364,13 @@ class Term:
 class ArithmeticAtom:
     ops: list[str]
     terms: list[Term]
+
+    def containsVar(self, term):
+        for t in self.terms:        
+            if t.name == term.name:
+                return True
+        return False
+
     def toString(self):
         text = StringIO() 
         for i in range(len(self.ops)):
@@ -377,6 +384,16 @@ class ArithmeticAtom:
 class BuiltinAtom:
     op: str
     terms: list[Term | ArithmeticAtom]
+    def containsVar(self, term):
+        for t in self.terms:        
+            if type(t) == ArithmeticAtom:
+                if t.containsVar(term.name):
+                    return True
+            else:
+                if t.name == term.name:
+                    return True
+        return False
+            
     def toString(self):
         return self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString()
 

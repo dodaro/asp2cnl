@@ -24,4 +24,4 @@ A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
 
 
-It is prohibited that the number of registration patient RID that have a x with day DAY, with registration order ORDER registration10 RID is greater than LMT whenever  there is a drug with id DRUG, with available_quantity LMT, with day DAY.
+Whenever there is a 10_min_ts with 10_min_ts T less than TS+PH4, whenever there is a x with registration patient RID, with day DAY, with 10_min_ts TS less than or equal to T, with duration_of_the_fourth_phase PH4 greater than 0 then we must have a res with registration id RID, with day DAY, with 10_min_ts T.

@@ -27,7 +27,7 @@ def get_symbol(symbols, atom):
         
 
         for s in res: 
-            print(s)
+            #print(s)
             if s.symbol_type == SymbolType.TEMPORAL:
                 s.attributes = s.attributes[0:1]
             if len(s.attributes) == atom.arity():
@@ -135,7 +135,7 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
     results.write(" ")
 
     if hasSumInBuiltin:
-        results.write(atom.name[0].capitalize())
+        results.write(atom.name.upper())
         results.write(" ")
 
     results.write(generate_with(atom, symbol, builtinAtoms))
@@ -180,7 +180,7 @@ def generate_vars_symbols(body, symbols, arithAtom):
         results.write("of the ")
         results.write(builtVars[2])
         results.write(" ")
-        results.write(builtVars[2][0].capitalize())
+        results.write(builtVars[2].upper())
 
 
     return results.getvalue()
@@ -350,7 +350,7 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
     #         then we can have at most 1 topmovie with id I such that there is a movie with director X, 
     #           and with id I.   
     results = StringIO()        
-    results.write(generate_body(rule.body, symbols))    
+    results.write(generate_body(rule, symbols))    
     results.write(" ")
     results.write("then") 
     results.write(" ")
@@ -375,7 +375,7 @@ def generate_classical_statement(rule, symbols):
     # Whenever there is a movie with id X, with director equal to spielberg
     # then we must have a topmovie with id X.    
     results = StringIO()        
-    results.write(generate_body(rule.body, symbols))    
+    results.write(generate_body(rule, symbols))    
     results.write(" ")
     results.write("then") 
     results.write(" ")
@@ -397,43 +397,51 @@ def generate_strong_constraint(rule, symbols):
     # with id X, and with year equal to 1964, whenever there is a topMovie with id Y.
     results = StringIO()  
     results.write("It is prohibited that")     
-    results.write(generate_body(rule.body, symbols, True)) 
+    results.write(generate_body(rule, symbols, True)) 
     results.write(".") 
     return results.getvalue()  
 
 def generate_weak_constraint(rule, symbols):
     results = StringIO()  
     results.write("It is preferred")
+    if type(rule.weight_at_level.beforeAt) != ArithmeticAtom:
+        if rule.weight_at_level.beforeAt.name == "1":
+            results.write(" as little as possible")
+
     if rule.weight_at_level.afterAt is not None:
         results.write(", ")
         results.write("with")
         results.write(" ")
-        if rule.weight_at_level.afterAt[0].name == "1":
-            results.write("low")
-            results.write(" ")
-        elif rule.weight_at_level.afterAt[0].name == "2":
-            results.write("medium")
-            results.write(" ")
-        elif rule.weight_at_level.afterAt[0].name == "3":            
-            results.write("high")
-            results.write(" ")
+        #if rule.weight_at_level.afterAt[0].name == "1":
+        #    results.write("low")
+        #    results.write(" ")
+        #elif rule.weight_at_level.afterAt[0].name == "2":
+        #    results.write("medium")
+        #    results.write(" ")
+        #elif rule.weight_at_level.afterAt[0].name == "3":            
+        #    results.write("high")
+        #    results.write(" ")
         results.write("priority")
+        results.write(" ")
+        results.write(rule.weight_at_level.afterAt[0].name)
         results.write(",")
     results.write(" ")
     results.write("that")
     #results.write(" ")
     
-    results.write(generate_body(rule.body, symbols, False, rule.weight_at_level.beforeAt)) 
+    results.write(generate_body(rule, symbols, False, rule.weight_at_level.beforeAt)) 
     
     #results.write(", ") 
     #results.write(rule.weight_at_level.beforeAt.name)
     #results.write(" ") 
-    results.write("is")
-    results.write(" ")    
-    if rule.weight_at_level.isMaximize:        
-        results.write("maximized")   
-    else:
-        results.write("minimized")   
+    if type(rule.weight_at_level.beforeAt) != ArithmeticAtom:
+        if rule.weight_at_level.beforeAt.isVariable():
+            results.write("is")
+            results.write(" ")    
+            if rule.weight_at_level.isMaximize:        
+                results.write("maximized")   
+            else:
+                results.write("minimized")   
     results.write(".") 
     return results.getvalue()  
 
@@ -574,7 +582,8 @@ def generateWithInHead(symbols, atom):
         #results.write(" ")  
     return results.getvalue()
 
-def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None):
+def generate_body(rule, symbols, isStrongConstraint = False, costWeakTerm = None):
+    body = rule.body
     results = StringIO()   
     startedLits = False 
     # Find builtins
@@ -589,7 +598,10 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
     
     if hasSumInBuiltin and isStrongConstraint:
         results.write(" ")
-        results.write(generate_operation_between(body, symbols, builtinAtoms))
+        for builtinAtom in builtinAtoms:
+            if type(builtinAtom.terms[0]) == ArithmeticAtom:        
+                results.write(generate_operation_between(body, symbols, builtinAtom.terms[0]))
+                results.write(generate_compare_of_arithmetic_builtin(builtinAtom.op, builtinAtom.terms[1]))
 
     tmpWheneverResults = None 
     tmpAggrResults = None
@@ -609,9 +621,10 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                     if len(foundAggrs) > 0:
                         tmpWheneverResults.write(", ")
                         tmpWheneverResults.write("whenever")
-                    elif costWeakTerm is not None:
-                        tmpWheneverResults.write(" ")
-                        tmpWheneverResults.write("whenever")
+                    elif costWeakTerm is not None:    
+                        if type(rule.weight_at_level.beforeAt) == ArithmeticAtom or rule.weight_at_level.beforeAt.isVariable():                    
+                            tmpWheneverResults.write(" ")
+                            tmpWheneverResults.write("whenever")
                     else:
                         tmpWheneverResults.write("Whenever")
                 else:      
@@ -629,8 +642,11 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
                 startedLits = True
             symbLit = get_symbol(symbols, lit.literal)
             if not specialConstraintTranslationForLiteral:                
-                tmpWheneverResults.write(" ")                            
-                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, hasSumInBuiltin=hasSumInBuiltin))
+                tmpWheneverResults.write(" ")            
+                hasSum = hasSumInBuiltin
+                if type(costWeakTerm) == ArithmeticAtom:
+                    hasSum = True
+                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, hasSumInBuiltin=hasSum))                    
             else:
                 specialConstraintTranslationForLiteral = False    
                 if not hasSumInBuiltin:     
@@ -670,9 +686,23 @@ def generate_body(body, symbols, isStrongConstraint = False, costWeakTerm = None
 
     if tmpWheneverResults is not None:
         if costWeakTerm is not None and needVariable:        
-            tmpWheneverResults.write(", ") 
-            tmpWheneverResults.write(costWeakTerm.name)  
-            tmpWheneverResults.write(" ") 
+            
+            if type(costWeakTerm) == ArithmeticAtom:
+                results.write(" ")
+                results.write(generate_operation_between(body, symbols, costWeakTerm))
+                #if rule.weight_at_level.beforeAt.isVariable():
+                results.write(" ")  
+                results.write("is")
+                results.write(" ")    
+                if rule.weight_at_level.isMaximize:        
+                    results.write("maximized")   
+                else:
+                    results.write("minimized")  
+            else:
+                if rule.weight_at_level.beforeAt.isVariable():
+                    tmpWheneverResults.write(", ") 
+                    tmpWheneverResults.write(costWeakTerm.name)  
+                    tmpWheneverResults.write(" ") 
 
         if firstConstraintLiteralInSentence is not None:
             if len(foundAggrs) > 0:
@@ -719,68 +749,71 @@ def getAggregateOperator(aggregate):
     #    results.write("beet")
     return operator
 
-def generate_operation_between(body, symbols, builtinAtoms):
-    results = StringIO()
-    for builtinAtom in builtinAtoms:
-        if type(builtinAtom.terms[0]) == ArithmeticAtom:
-            arithAtom = builtinAtom.terms[0]
+def generate_operation_between(body, symbols, arithAtom):
+    results = StringIO()                
+    isSum = False
+    isSub = False
+    isMult = False
+    isDiv = False    
+    if arithAtom.ops[0] == "+":
+        isSum = True    
+    if arithAtom.ops[0] == "-":
+        isSub = True
+    if arithAtom.ops[0] == "*":
+        isMult = True
+    if arithAtom.ops[0] == "/":
+        isDiv = True
+
+    for op in arithAtom.ops:
+        if op == "+":
+            isSub = False
+            isMult = False
+            isDiv = False
+        if op == "-":
+            isSum = False
+            isMult = False
+            isDiv = False
+        if op == "*":
+            isSum = False
+            isSub = False
+            isDiv = False
+        if op == "/":
             isSum = False
             isSub = False
             isMult = False
-            isDiv = False    
-            if arithAtom.ops[0] == "+":
-                isSum = True    
-            if arithAtom.ops[0] == "-":
-                isSub = True
-            if arithAtom.ops[0] == "*":
-                isMult = True
-            if arithAtom.ops[0] == "/":
-                isDiv = True
+    isOp = isSum or isSub or isMult or isDiv
+    
+    if isOp:
+        results.write("the")
+        results.write(" ")
 
-            for op in arithAtom.ops:
-                if op == "+":
-                    isSub = False
-                    isMult = False
-                    isDiv = False
-                if op == "-":
-                    isSum = False
-                    isMult = False
-                    isDiv = False
-                if op == "*":
-                    isSum = False
-                    isSub = False
-                    isDiv = False
-                if op == "/":
-                    isSum = False
-                    isSub = False
-                    isMult = False
-            isOp = isSum or isSub or isMult or isDiv
-            
-            if isOp:
-                results.write("the")
-                results.write(" ")
+        if isSum:
+            results.write("sum")
+            results.write(" ")
+        elif isSub:
+            results.write("difference")
+            results.write(" ")
 
-                if isSum:
-                    results.write("sum")
-                    results.write(" ")
-                elif isSub:
-                    results.write("difference")
-                    results.write(" ")
+        results.write("between")
+        results.write(" ")  
 
-                results.write("between")
-                results.write(" ")  
+        results.write(generate_vars_symbols(body, symbols, arithAtom)) 
 
-                results.write(generate_vars_symbols(body, symbols, arithAtom)) 
 
-                results.write(" ") 
-                results.write("is") 
-                results.write(" ") 
-                results.write(generate_compare_operator_sentence(builtinAtom.op))
-                results.write(" ")    
+    return results.getvalue()
 
-                results.write(builtinAtom.terms[1].toString()) 
+def generate_compare_of_arithmetic_builtin(op, compareTerm):
+    results = StringIO()
 
-    return results.getvalue() 
+    results.write(" ") 
+    results.write("is") 
+    results.write(" ") 
+    results.write(generate_compare_operator_sentence(op))
+    results.write(" ")    
+
+    results.write(compareTerm.toString()) 
+
+    return results.getvalue()
 
 
 
@@ -823,6 +856,18 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
     positionOfFoundVar = -1
     foundMultipleUseOfAggrTerm = False
     aggrVarsWithMultipleUse = []
+    builtinAtoms = []
+    removeAggrTerm = True
+
+    #Search builtins
+    for naf_literal in aggregate.aggregateElement[0].body.literals:
+        if type(naf_literal) == NafLiteral and type(naf_literal.literal) == BuiltinAtom:  
+            #if type(lit.literal.terms[0]) == ArithmeticAtom:
+            #    hasSumInBuiltin = True
+            builtinAtoms.append(naf_literal.literal) 
+            if naf_literal.literal.containsVar(aggrTerm):
+                removeAggrTerm = False
+
     for naf_literal in aggregate.aggregateElement[0].body.literals:
         #if foundClassicalLiteral is None:
             if type(naf_literal) == NafLiteral:
@@ -891,13 +936,17 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
         results.write(" ") 
         results.write(foundClassicalLiteral.name)
         results.write(" ") 
-
-        tmpLitTerm = foundClassicalLiteral.terms.pop(positionOfFoundVar)
-        tmpSymbTerm = symbLit.attributes.pop(positionOfFoundVar)
-        results.write(generate_with(foundClassicalLiteral, symbLit))
+    
+        tmpLitTerm = None
+        tmpSymbTerm = None
+        if removeAggrTerm:
+            tmpLitTerm = foundClassicalLiteral.terms.pop(positionOfFoundVar)
+            tmpSymbTerm = symbLit.attributes.pop(positionOfFoundVar)
+        results.write(generate_with(foundClassicalLiteral, symbLit, builtinAtoms))
         #results.write(" ") 
-        foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
-        symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
+        if removeAggrTerm:
+            foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
+            symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
 
 
         if len(aggregate.aggregateElement[0].body.literals) > 1: 
@@ -905,14 +954,15 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
             results.write(" ")
             startedIn = False
             for nafLit in aggregate.aggregateElement[0].body.literals[1:]:
-                if startedIn:
-                    results.write(",")
+                if type(nafLit) == NafLiteral and type(nafLit.literal) == ClassicalLiteral:
+                    if startedIn:
+                        results.write(",")
+                        results.write(" ")
+                    else:
+                        startedIn = True
+                    results.write(nafLit.literal.name)
                     results.write(" ")
-                else:
-                    startedIn = True
-                results.write(nafLit.literal.name)
-                results.write(" ")
-                results.write(nafLit.literal.terms[0].name)
+                    results.write(nafLit.literal.terms[0].name)
             #results.write(" ") 
 
         if operator is not None:            
