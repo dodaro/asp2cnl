@@ -5,15 +5,15 @@
 :- x(RID,DAY,TS,PH4,_,_), PH4 > 50, TS < 24.
 :- x(RID,DAY,TS,_,ORDER,_), registration(RID,ORDER,DAY2,PH4,PH3,PH2,PH1,S), TS-PH3-PH2-PH1<1.
 
-1 <= {bed3(ID,RID,DAY) : bed(ID); chair3(ID,RID,DAY) : chair(ID)} <= 1 :- x(RID,DAY,_,_,_,_).
+1 <= {bed_with_registration_and_day(ID,RID,DAY) : bed(ID); chair_with_registration_and_day(ID,RID,DAY) : chair(ID)} <= 1 :- x(RID,DAY,_,_,_,_).
 
 %% res(RID,DAY,TS..TS+PH4-1) :- x(RID,DAY,TS,PH4,_,_), PH4 > 0. 
 res(RID,DAY,T) :- 10_min_ts(T), x(RID,DAY,TS,PH4,_,_), PH4 > 0, TS <= T, T < TS+PH4.
 
-chair4(ID,RID,DAY,TS) :- chair3(ID,RID,DAY), res(RID,DAY,TS). 
-bed4(ID,RID,DAY,TS) :- bed3(ID,RID,DAY), res(RID,DAY,TS). 
-:- #count{RID: chair4(ID,RID,DAY,TS)} > 1, day(DAY), 10_min_ts(TS), chair(ID). 
-:- #count{RID: bed4(ID,RID,DAY,TS)} > 1, day(DAY), 10_min_ts(TS), bed(ID).
+chair_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- chair_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+bed_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- bed_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+:- #count{RID: chair_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_min_ts(TS), chair(ID). 
+:- #count{RID: bed_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_min_ts(TS), bed(ID).
 
 support(RID,DAY,TS) :- x(RID,DAY,PH4,_,_,_), registration(RID,ORDER,_,_,PH3,PH2,_,_), PH2 > 0, TS=PH4-PH3-PH2, day(DAY), 5_min_ts(TS).
 
@@ -24,8 +24,8 @@ numMin(DAY,T) :- T = #min{N: numbReg(DAY,N,_), N != 0}, day(DAY).
 numbDay(DAY,N) :- N = #count{RID: support(RID,DAY,_)}, day(DAY).
 numMaxDay(T) :- T = #max{N: numbDay(DAY, N)}.
 
-:~ x(RID,DAY,_,_,_,"chair"), bed4(ID,RID,DAY,_). [1@7,RID]
-:~ x(RID,DAY,_,_,_,"bed"), chair4(ID,RID,DAY,_). [1@7,RID]
+:~ x(RID,DAY,_,_,_,"chair"), bed_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+:~ x(RID,DAY,_,_,_,"bed"), chair_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
 
 :~ numMax(DAY,T). [T@6, DAY]
 :~ numMax(DAY,MAX), numMin(DAY,MIN). [MAX-MIN@5,DAY]

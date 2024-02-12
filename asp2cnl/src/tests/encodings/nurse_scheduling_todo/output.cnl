@@ -7,8 +7,8 @@ A bed is identified by an id.
 An x is identified by a registration patient, by a day, by a 10_min_ts, by a duration of the fourth phase, by a registration order, and by a preference.
 A chair3 is identified by an id, by a registration id, by a day.
 A chair4 is identified by an id, by a registration id, by a day, and by a 10_min_ts.
-A bed3 is identified by an id, by a registration id, by a day.
-A bed4 is identified by an id, by a registration id, by a day, and by a 10_min_ts.
+A bed_with_registration_and_day is identified by an id, by a registration id, by a day.
+A bed_with_registration_day_and_timeslot is identified by an id, by a registration id, by a day, and by a 10_min_ts.
 A res is identified by a registration id, by a day, and by a 10_min_ts.
 A support is identified by a registration id, by a day, and by a 10_min_ts.
 A numbReg is identified by a day, by number, and by a 10_min_ts.
@@ -24,4 +24,4 @@ A nurseLimits is identified by a number.
 A drug is identified by an id, by an available quantity, and by a day.
 
 
-Whenever there is a 10_min_ts with 10_min_ts T less than TS+PH4, whenever there is a x with registration patient RID, with day DAY, with 10_min_ts TS less than or equal to T, with duration_of_the_fourth_phase PH4 greater than 0 then we must have a res with registration id RID, with day DAY, with 10_min_ts T.
+It is preferred as little as possible, with priority 7, that there is a x with registration patient RID, with day DAY, with preference equal to chair, whenever there is a bed_with_registration_day_and_timeslot with id ID, with registration id RID, with day DAY.
