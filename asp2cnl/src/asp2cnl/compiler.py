@@ -14,7 +14,8 @@ def extract_name(name):
         return extract_name(name.predicate)
     return name 
 
-def get_symbol(symbols, atom):  
+def get_symbol(symbols, atom): 
+    print(atom) 
     symbol_name = atom.name       
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
@@ -349,8 +350,10 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
     # Whenever there is a director with name X different from spielberg 
     #         then we can have at most 1 topmovie with id I such that there is a movie with director X, 
     #           and with id I.   
-    results = StringIO()        
-    results.write(generate_body(rule, symbols))    
+    results = StringIO()      
+
+    builtinAtoms = getBuiltinAtoms(rule)    
+    results.write(generate_body(rule, symbols, builtinAtoms))    
     results.write(" ")
     results.write("then") 
     results.write(" ")
@@ -366,16 +369,25 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
     else:
         results.write(generate_head(rule.head, symbols))
     
+    results.write(generateWhereForBuiltins(builtinAtoms))
     results.write(".")
     return results.getvalue()
+
+def getBuiltinAtoms(rule):
+    builtinAtoms = []
+    for lit in rule.body.literals: 
+        if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:              
+            builtinAtoms.append(lit.literal) 
+    return builtinAtoms
 
 def generate_classical_statement(rule, symbols):
     # Eg. topmovie(X) :- movie(X,_,"spielberg",_).
     # -->
     # Whenever there is a movie with id X, with director equal to spielberg
     # then we must have a topmovie with id X.    
-    results = StringIO()        
-    results.write(generate_body(rule, symbols))    
+    results = StringIO()     
+    builtinAtoms = getBuiltinAtoms(rule)     
+    results.write(generate_body(rule, symbols, builtinAtoms))    
     results.write(" ")
     results.write("then") 
     results.write(" ")
@@ -387,6 +399,7 @@ def generate_classical_statement(rule, symbols):
     results.write(" ")
 
     results.write(generate_head(rule.head, symbols))
+    results.write(generateWhereForBuiltins(builtinAtoms))
     results.write(".")
     return results.getvalue()
 
@@ -397,7 +410,7 @@ def generate_strong_constraint(rule, symbols):
     # with id X, and with year equal to 1964, whenever there is a topMovie with id Y.
     results = StringIO()  
     results.write("It is prohibited that")     
-    results.write(generate_body(rule, symbols, True)) 
+    results.write(generate_body(rule, symbols, getBuiltinAtoms(rule), True)) 
     results.write(".") 
     return results.getvalue()  
 
@@ -429,7 +442,7 @@ def generate_weak_constraint(rule, symbols):
     results.write("that")
     #results.write(" ")
     
-    results.write(generate_body(rule, symbols, False, rule.weight_at_level.beforeAt)) 
+    results.write(generate_body(rule, symbols, getBuiltinAtoms(rule), False, rule.weight_at_level.beforeAt)) 
     
     #results.write(", ") 
     #results.write(rule.weight_at_level.beforeAt.name)
@@ -531,9 +544,10 @@ def generate_head_choice(head, symbols):
             
             started = False
             for nafLit in headElem.right_part:
+                #if type(nafLit.literal) != BuiltinAtom:
                 if started:
                     results.write(",")
-                    results.write(" ")
+                    results.write(" ")                
                 symb = get_symbol(symbols, nafLit.literal)
                 results.write(generate_there_is(nafLit, symb, {}, False, started))
                 started = True
@@ -560,6 +574,28 @@ def generate_head(head, symbols):
     return results.getvalue()
 
 
+def generateWhereForBuiltins(builtinAtoms):
+    results = StringIO() 
+    if len(builtinAtoms) > 0:
+        started = False
+        for builtinAtom in builtinAtoms:
+            if type(builtinAtom.terms[0]) != ArithmeticAtom:
+                if started:
+                    results.write(", ")
+                else:
+                    started = True
+                results.write(", ")
+                results.write("where")
+                results.write(" ")
+                results.write(builtinAtom.terms[0].toString())
+                results.write(" ")                                  
+                results.write("is")
+                results.write(" ") 
+                results.write(generate_compare_operator_sentence(builtinAtom.op))
+                results.write(" ")    
+                results.write(builtinAtom.terms[1].toString()) 
+    return results.getvalue()
+
 def generateWithInHead(symbols, atom):
     results = StringIO()      
     symbLit = get_symbol(symbols, atom)
@@ -582,19 +618,17 @@ def generateWithInHead(symbols, atom):
         #results.write(" ")  
     return results.getvalue()
 
-def generate_body(rule, symbols, isStrongConstraint = False, costWeakTerm = None):
+def generate_body(rule, symbols, builtinAtoms, isStrongConstraint = False, costWeakTerm = None):
     body = rule.body
     results = StringIO()   
-    startedLits = False 
-    # Find builtins
-    builtinAtoms = []
+    startedLits = False     
+    #builtinAtoms = []
     hasSumInBuiltin = False
     
-    for lit in body.literals: 
-        if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:  
-            if type(lit.literal.terms[0]) == ArithmeticAtom:
+    for builtinA in builtinAtoms:
+        if type(builtinA.terms[0]) == ArithmeticAtom:
                 hasSumInBuiltin = True
-            builtinAtoms.append(lit.literal)
+    
     
     if hasSumInBuiltin and isStrongConstraint:
         results.write(" ")
@@ -639,7 +673,7 @@ def generate_body(rule, symbols, isStrongConstraint = False, costWeakTerm = None
                 #    tmpWheneverResults.write("whenever")         
                 #elif not isStrongConstraint:
                 #    tmpWheneverResults.write("Whenever")   
-                startedLits = True
+                startedLits = True            
             symbLit = get_symbol(symbols, lit.literal)
             if not specialConstraintTranslationForLiteral:                
                 tmpWheneverResults.write(" ")            
@@ -710,7 +744,8 @@ def generate_body(rule, symbols, isStrongConstraint = False, costWeakTerm = None
             else:
                 results.write(firstConstraintLiteralInSentence)
         results.write(tmpWheneverResults.getvalue())
-                                               
+
+
     return results.getvalue()
 
 def getAggregateOperator(aggregate):

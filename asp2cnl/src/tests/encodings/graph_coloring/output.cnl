@@ -2,4 +2,4 @@ A node is identified by an id.
 A color is identified by an id.
 A connected_to is identified by a firstnode, and by a secondnode.
 An assigned_to is identified by a node, and by a color.
-It is prohibited that there is a connected_to with firstnode X, with secondnode Y, whenever there is a node with id X, whenever there is a assigned_to with node X, with color C, whenever there is a node with id Y, whenever there is a assigned_to with node Y, with color C, whenever there is a color with id C.
+It is prohibited that there is a connected_to with firstnode X, with secondnode Y, whenever there is a node with id X, whenever there is a assigned_to with node id X, with color id C, whenever there is a node with id Y, whenever there is a assigned_to with node id Y, with color id C, whenever there is a color with id C.
