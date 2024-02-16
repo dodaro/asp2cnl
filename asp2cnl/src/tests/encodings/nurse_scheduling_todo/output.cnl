@@ -20,4 +20,4 @@ A maxNights is identified by a value.
 
 
 
-It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 5, with day value D1 greater than or equal to D  is less than 2, where D1 is less than D+14 whenever  there is a nurse with id N, whenever there is a day with value D less than or equal to DAYS-13, whenever there is a days with value DAYS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 3 is less than MINNIGHTS whenever  there is a nurse with id N, whenever there is a minNights with value MINNIGHTS.
