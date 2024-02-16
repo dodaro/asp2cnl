@@ -1,7 +1,1 @@
-%res(RID,DAY,TS..TS+PH4-1) :- x(RID,DAY,TS,PH4,_,_), PH4 > 0.
-
-%res(RID,DAY,T) :- 10_min_ts(T), x(RID,DAY,TS,PH4,_,_), PH4 > 0, TS <= T, T < TS+PH4.
-
-% numMin(DAY,T) :- T = #min{N: numbReg(DAY,N,_), N != 0}, day(DAY). 
-
-:~ x(RID,DAY,_,_,_,"chair"), bed_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+:- nurse(N), day(D), days(DAYS), D <= DAYS-13, #count{D1: assign(N, 5, D1), D1 >= D, D1 < D+14} < 2 .

@@ -1,4 +1,4 @@
 A node is identified by an id.
 A color is identified by an id.
-A connected_to is identified by a firstnode, and by a secondnode.
+A connected_to is identified by a first node, and by a second node.
 An assigned_to is identified by a node, and by a color.

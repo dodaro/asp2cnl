@@ -8,4 +8,4 @@ A hasAngle is identified by a joint, by an angle, and by a time.
 A changeAngle is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time. 
 A ok is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time.
 timemax is a constant equal to 90.
-It is prohibited that there is a goal with joint id J, with angle value A, whenever there is not a hasAngle with joint id J, with angle value A, with time equal to timemax.
+Whenever there is a isLinked with first_joint J2, with second_joint J1 then we must have a isLinked with first_joint J1, with second_joint J2.

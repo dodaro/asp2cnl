@@ -36,13 +36,19 @@ move(T,N) | nomove(T,N) :- disk(N), time(T), step(K), T< K.
 % The rule ensures that for each step there must be a disk moved.
 
 diskmoved(T) :- move(T,FV).
-% "" (Atomo di supporto, come lo gestivamo?)
+% The rules states that a disk that is moved is a disk moved.
 
 % pick a disk onto which to move
 dwhere(T,N) | noWhere(T,N) :- disk(N), time(T), step(K), T< K.
+% The rule guesses the disks to be moved at a certain time.
+
 :- dwhere(T,N1), dwhere(T,N2), N1 != N2.
+% The rule ensures that only one disk can be moved at a certain time.
+
 :- time(T), step(K), T< K, not diskWhere(T).
 diskWhere(T) :- dwhere(T,FV).
+% The rules ensure that at every time a disk must be moved
+
 
 % pegs cannot be moved
 :- move(T,N), N < 5.

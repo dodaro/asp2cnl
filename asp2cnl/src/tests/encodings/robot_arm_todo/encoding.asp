@@ -12,6 +12,6 @@ hasAngle(J1,A,T+1) :- changeAngle(J1,_,A,_,T).
 
 hasAngle(J1,A,T+1) :- affected(J1,A,_,T).
 
-% hasAngle(J1,A,T+1) :- hasAngle(J1,A,T), not changeAngle(J1,_,_,_,T), not affected(J1,_,_,T), T <= timemax.
+hasAngle(J1,A,T+1) :- hasAngle(J1,A,T), not changeAngle(J1,_,_,_,T), not affected(J1,_,_,T), T <= timemax.
 
 :- goal(J,A), not hasAngle(J,A,timemax).

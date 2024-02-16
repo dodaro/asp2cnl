@@ -14,26 +14,28 @@ def extract_name(name):
         return extract_name(name.predicate)
     return name 
 
-def get_symbol(symbols, atom): 
-    print(atom) 
-    symbol_name = atom.name       
+def get_symbol(symbols, atom):     
+    symbol_name = atom.name   
+    #print(symbol_name)    
     #symbol_name = symbol_name.replace("_", " ")
     res: list = [symbols[i] for i in
                             range(len(symbols)) if
                             symbols[i].predicate.lower() == symbol_name.lower()]             
+
     if len(res) == 0:
         return None
     else:
         symb = None
         
-
         for s in res: 
             #print(s)
             if s.symbol_type == SymbolType.TEMPORAL:
                 s.attributes = s.attributes[0:1]
+           # print(len(s.attributes))
+           # print(atom.arity())
             if len(s.attributes) == atom.arity():
                 symb = s
-        
+       
         
         for i in range(len(symb.attributes)):            
             if type(symb.attributes[i]) == Symbol:
@@ -46,6 +48,7 @@ def get_symbol(symbols, atom):
                 ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])        
             else:
                 symb.attributes[i] = res[0].attributes[i].strip()
+        #print (symb)
         return symb
 
 def compile(rule, symbols):    
@@ -410,7 +413,9 @@ def generate_strong_constraint(rule, symbols):
     # with id X, and with year equal to 1964, whenever there is a topMovie with id Y.
     results = StringIO()  
     results.write("It is prohibited that")     
-    results.write(generate_body(rule, symbols, getBuiltinAtoms(rule), True)) 
+    builtinAtoms = getBuiltinAtoms(rule)
+    results.write(generate_body(rule, symbols, builtinAtoms, True)) 
+    results.write(generateWhereForBuiltins(builtinAtoms))
     results.write(".") 
     return results.getvalue()  
 
@@ -442,7 +447,8 @@ def generate_weak_constraint(rule, symbols):
     results.write("that")
     #results.write(" ")
     
-    results.write(generate_body(rule, symbols, getBuiltinAtoms(rule), False, rule.weight_at_level.beforeAt)) 
+    builtinAtoms = getBuiltinAtoms(rule)
+    results.write(generate_body(rule, symbols, builtinAtoms, False, rule.weight_at_level.beforeAt)) 
     
     #results.write(", ") 
     #results.write(rule.weight_at_level.beforeAt.name)
@@ -455,6 +461,7 @@ def generate_weak_constraint(rule, symbols):
                 results.write("maximized")   
             else:
                 results.write("minimized")   
+    results.write(generateWhereForBuiltins(builtinAtoms))
     results.write(".") 
     return results.getvalue()  
 
@@ -907,7 +914,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
         #if foundClassicalLiteral is None:
             if type(naf_literal) == NafLiteral:
                 if type(naf_literal.literal) == ClassicalLiteral:
-                    p = 0
+                    p = 0                    
                     for t in naf_literal.literal.terms:
                         if t.name == aggrTerm.name:
                             if foundClassicalLiteral:
@@ -916,6 +923,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                                 foundClassicalLiteral = naf_literal.literal
                                 foundVarOfLiteral = t
                                 positionOfFoundVar = p
+                            foundAMatchWithAggregateTerm = True
                         if t in forEachTerms:                                
                             subEach = StringIO() 
                             subEach.write("for each")
@@ -926,7 +934,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                                 subEach.write(" ")
                                 subEach.write(t.name)                                                                               
                             forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
-                        p = p + 1
+                        p = p + 1                    
     
     connective = None
     if foundClassicalLiteral is not None:
@@ -988,17 +996,21 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
             #results.write("in")
             results.write(" ")
             startedIn = False
-            for nafLit in aggregate.aggregateElement[0].body.literals[1:]:
-                if type(nafLit) == NafLiteral and type(nafLit.literal) == ClassicalLiteral:
-                    if startedIn:
-                        results.write(",")
+            for nafLit in aggregate.aggregateElement[0].body.literals:                            
+                if nafLit.literal != foundClassicalLiteral:
+                    if type(nafLit) == NafLiteral and type(nafLit.literal) == ClassicalLiteral:
+                        if startedIn:
+                            results.write(",")
+                            results.write(" ")
+                        else:
+                            startedIn = True
+                        results.write(nafLit.literal.name)
                         results.write(" ")
-                    else:
-                        startedIn = True
-                    results.write(nafLit.literal.name)
-                    results.write(" ")
-                    results.write(nafLit.literal.terms[0].name)
-            #results.write(" ") 
+                        results.write(nafLit.literal.terms[0].name)
+                        symbLit2 = get_symbol(symbols, nafLit.literal)    
+                        results.write(" ")
+                        results.write(generate_with(nafLit.literal, symbLit2, builtinAtoms))
+            #results.write(" ")         
 
         if operator is not None:            
             if costWeakTerm is not None and assignmentVar is not None and costWeakTerm.name == assignmentVar.name:
@@ -1020,8 +1032,7 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm = None, isSt
                         results.write(aggregate.lowerGuard.name)  
                     else:
                         results.write(aggregate.upperGuard.name)   
-                
-                     
+    results.write(generateWhereForBuiltins(builtinAtoms))
     return results.getvalue()
             
 

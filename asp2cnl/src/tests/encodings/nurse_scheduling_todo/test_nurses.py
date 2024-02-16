@@ -19,8 +19,9 @@ class TestRules(unittest.TestCase):
         program = open(os.path.join(os.path.dirname(__file__), "singletest.asp"), "r").read()
         definitions = ASPParser(program).parse()        
 
-        with open(os.path.join(os.path.dirname(__file__), "hospital_input"), "r") as f:
-            symbols = Cnl2asp(f).get_symbols()             
+        with open(os.path.join(os.path.dirname(__file__), "nurses_input"), "r") as f:
+            symbols = Cnl2asp(f).get_symbols()  
+            #print(symbols)          
             for rule in definitions:           
                 results.write("RULE: ")
                 results.write("\n")

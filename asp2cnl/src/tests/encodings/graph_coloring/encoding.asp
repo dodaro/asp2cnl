@@ -19,5 +19,5 @@ connected_to(3,X) :- node(3), node(X), X = 2.
 1 <= {assigned_to(ND_D,CLR_D): color(CLR_D)} <= 1 :- node(ND_D).
 % The rule is used to assign a color to each node.
 
-:- connected_to(X,Y), node(X), assigned_to(X,C), node(Y), assigned_to(Y,C), color(C).
+:- connected_to(X,Y), assigned_to(X,C), assigned_to(Y,C).
 % The rule ensures that the same color is not assigned to two different connected nodes.
