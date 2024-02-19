@@ -1,6 +1,6 @@
 %%%%% input %%%%%
 
-days(365).
+total_days(365).
 % day(1..365).
 
 % workshift(id, name, hours).
@@ -33,7 +33,7 @@ workshift(6,"6_holiday",0).
 :- assign(N,4,D), not assign(N,3,D-1).
 
 % At least 2 rest days each 14 days.
-:- nurse(N), day(D), days(DAYS), D <= DAYS-13, #count{D1:assign(N,5,D1), D1>=D, D1 < D+14} < 2.
+:- nurse(N), day(D), total_days(DAYS), D <= DAYS-13, #count{D1:assign(N,5,D1), D1>=D, D1 < D+14} < 2.
 
 % Each morning the number of nurses can range from 6 to 9.
 :- day(D), #count{N:assign(N,1,D)} > K, maxNurseMorning(K).

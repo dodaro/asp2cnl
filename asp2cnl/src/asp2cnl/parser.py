@@ -169,7 +169,7 @@ class ASPTransformer(Transformer):
                         terms.append(t1)        
         return terms
                 
-    def term(self, elem):         
+    def term(self, elem):             
         if len(elem) == 1:     
             return Term(elem[0].value)      
         elif len(elem) == 2:
@@ -182,6 +182,10 @@ class ASPTransformer(Transformer):
                 return ArithmeticAtom(operators, terms)
             else:
                 return ArithmeticAtom(elem[0][1], [Term(elem[0][0].value), elem[1]])
+        elif len(elem) == 3:
+            if elem[1].value == "..":
+                return Term(elem[0].toString(), elem[2].toString())   
+
 
     
     def termdue(self, elem):      
@@ -353,12 +357,18 @@ class ASPTransformer(Transformer):
 @dataclass(frozen=True)
 class Term:
     name: str
+    afterDotDot: str = None
     def isVariable(self):
-        return not self.name.isnumeric() and self.name[0].isupper()
+        return not self.name.isnumeric() and self.name[0].isupper() and self.afterDotDot is None
     def isUnderscore(self):
-        return self.name == "_"
+        return self.name == "_" and self.afterDotDot is None
+    def isWithDotDot(self):
+        return self.afterDotDot is not None
     def toString(self):
-        return self.name
+        if self.afterDotDot is None:
+            return self.name
+        else:
+            return self.name + ".." + self.afterDotDot
 
 @dataclass(frozen=True)
 class ArithmeticAtom:

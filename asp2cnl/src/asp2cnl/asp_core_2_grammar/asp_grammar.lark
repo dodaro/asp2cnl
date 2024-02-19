@@ -134,6 +134,7 @@ term : NUMBER
 |      PAREN_OPEN term PAREN_CLOSE
 |      termdue term
 |      termdue termdue
+|      term DOTDOT term
 
 termdue: NUMBER arithop
 |      STRING arithop
@@ -161,6 +162,7 @@ STRING: "\"" ("\\\""|/[^"]/)* "\""
 NUMBER: "0"|/[1-9][0-9]*/
 ANONYMOUS_VARIABLE: "_"
 DOT: "."
+DOTDOT: ".."
 COMMA: ","
 QUERY_MARK: "?"
 COLON: ":"

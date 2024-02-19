@@ -19,4 +19,4 @@ A numMaxDay is identified by a number.
 
 
 
-It is preferred, with priority 4, that whenever there is a numMaxDay with number N, N is minimized.
+Whenever there is a x with registration patient RID, with day DAY, with 10_minutes_timeslot TS, with duration_of_the_fourth_phase PH4 greater than 0 then we must have a res with registration id RID, with day DAY, with 10_minutes_timeslot equal to TS..TS+PH4-1.
