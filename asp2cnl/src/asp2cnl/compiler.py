@@ -65,8 +65,11 @@ def compile(rule, symbols):
                 if len(atom.terms) == 1:
                     if symb is None:
                         results.write(generate_is_a(atom))            
-                    else:                
-                        results.write(generate_there_is(atom, symb, {}, True))            
+                    else:           
+                        if atom.terms[0].isWithDotDot():
+                            results.write(generate_goes(atom))
+                        else: 
+                            results.write(generate_there_is(atom, symb, {}, True))
                     results.write(".")
                     results.write("\n")                                                   
 
@@ -111,6 +114,23 @@ def generate_is_a(atom):
     results.write("is a") 
     results.write(" ")
     results.write(atom.name)                     
+    return results.getvalue()
+
+def generate_goes(atom):    
+    results = StringIO()
+    results.write("A") 
+    results.write(" ")
+    results.write(atom.name)  
+    results.write(" ")
+    results.write("goes") 
+    results.write(" ") 
+    results.write("from") 
+    results.write(" ") 
+    results.write(atom.terms[0].name) 
+    results.write(" ") 
+    results.write("to") 
+    results.write(" ") 
+    results.write(atom.terms[0].afterDotDot) 
     return results.getvalue()
 
 def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False, hasSumInBuiltin = False):
