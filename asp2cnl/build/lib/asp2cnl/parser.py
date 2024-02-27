@@ -14,8 +14,10 @@ class ASPParser:
         self.__programFile = programFile
 
     def parse(self):
-        content_tree: ASPContentTree = ASPTransformer().transform(self.__aspCoreParser.parse(self.__programFile))
-        #print(content_tree)
+        parsed = self.__aspCoreParser.parse(self.__programFile) 
+        #print(parsed.pretty())       
+        content_tree: ASPContentTree = ASPTransformer().transform(parsed)
+        #print(content_tree)        
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
         return definitions
 
@@ -157,18 +159,38 @@ class ASPTransformer(Transformer):
         return elem
 
     def terms(self, elem):             
-        terms = []
+        terms = []        
         for t in elem:
-            if type(t) == Term:
+            if type(t) == Term or type(t) == ArithmeticAtom:
                 terms.append(t)
             else:              
                 for t1 in t:
-                    if type(t1) == Term:  
+                    if type(t1) == Term or type(t1) == ArithmeticAtom:  
                         terms.append(t1)        
         return terms
                 
-    def term(self, elem):         
-        return Term(elem[0].value)      
+    def term(self, elem):             
+        if len(elem) == 1:     
+            return Term(elem[0].value)      
+        elif len(elem) == 2:
+            if type(elem[1]) == ArithmeticAtom:
+                operators = [elem[0][1]]
+                operators += elem[1].ops
+                terms = [Term(elem[0][0].value)]
+                terms += elem[1].terms
+                
+                return ArithmeticAtom(operators, terms)
+            else:
+                return ArithmeticAtom(elem[0][1], [Term(elem[0][0].value), elem[1]])
+        elif len(elem) == 3:
+            if elem[1].value == "..":
+                return Term(elem[0].toString(), elem[2].toString())   
+
+
+    
+    def termdue(self, elem):      
+        return elem
+
 
     def COLON(self, elem):
         return "_COLON_"
@@ -245,7 +267,12 @@ class ASPTransformer(Transformer):
                     right_part = e            
                        
         return ChoiceElement(left_part, right_part)
-  
+    
+    def arithop(self, elem):  
+        if (elem[0] == "_MINUS_"):
+            return "-"
+        return elem[0].value
+
     def weight_at_level(self, elem):          
         beforeAtTerm = None
         afterAtTerms = None
@@ -330,24 +357,64 @@ class ASPTransformer(Transformer):
 @dataclass(frozen=True)
 class Term:
     name: str
+    afterDotDot: str = None
     def isVariable(self):
-        return not self.name.isnumeric() and self.name[0].isupper()
+        return not self.name.isnumeric() and self.name[0].isupper() and self.afterDotDot is None
     def isUnderscore(self):
-        return self.name == "_"
+        return self.name == "_" and self.afterDotDot is None
+    def isWithDotDot(self):
+        return self.afterDotDot is not None
     def toString(self):
-        return self.name
+        if self.afterDotDot is None:
+            return self.name
+        else:
+            return self.name + ".." + self.afterDotDot
+
+@dataclass(frozen=True)
+class ArithmeticAtom:
+    ops: list[str]
+    terms: list[Term]
+
+    def containsVar(self, term):
+        for t in self.terms:        
+            if t.name == term.name:
+                return True
+        return False
+
+    def toString(self):
+        text = StringIO() 
+        for i in range(len(self.ops)):
+            text.write(self.terms[i].toString())
+            text.write(self.ops[i])
+        text.write(self.terms[len(self.terms) - 1].toString())
+        return text.getvalue()
+        #return self.terms[0].toString() + self.ops[0] + self.terms[1].toString()
 
 @dataclass(frozen=True)
 class BuiltinAtom:
     op: str
-    terms: list[Term]
+    terms: list[Term | ArithmeticAtom]
+    def containsVar(self, term):
+        for t in self.terms:        
+            if type(t) == ArithmeticAtom:
+                if t.containsVar(term.name):
+                    return True
+            else:
+                if t.name == term.name:
+                    return True
+        return False
+            
     def toString(self):
         return self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString()
+
 
 @dataclass(frozen=True)
 class ClassicalLiteral:
     name: str
     terms: list[Term]
+    def arity(self):
+        return len(self.terms)
+
     def hasVariables(self):        
         for term in self.terms:
             if term.isVariable():

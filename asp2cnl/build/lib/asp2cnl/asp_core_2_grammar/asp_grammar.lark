@@ -134,6 +134,7 @@ term : NUMBER
 |      PAREN_OPEN term PAREN_CLOSE
 |      termdue term
 |      termdue termdue
+|      term DOTDOT term
 
 termdue: NUMBER arithop
 |      STRING arithop
@@ -155,12 +156,13 @@ classical_literal : ID
 b: term binop
 |   classical_literal binop
 
-ID: /[a-z][A-Za-z0-9_]*/
+ID: /[a-z0-9][A-Za-z0-9_]*/
 VARIABLE: /[A-Z][A-Za-z0-9_]*/
 STRING: "\"" ("\\\""|/[^"]/)* "\""
 NUMBER: "0"|/[1-9][0-9]*/
 ANONYMOUS_VARIABLE: "_"
 DOT: "."
+DOTDOT: ".."
 COMMA: ","
 QUERY_MARK: "?"
 COLON: ":"

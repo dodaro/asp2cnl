@@ -21,8 +21,8 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
         
-        #program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
-        program = open(os.path.join(os.path.dirname(__file__), "test_rules.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
+        #program = open(os.path.join(os.path.dirname(__file__), "test_rules.asp"), "r").read()
         ##content_tree: ASPContentTree = ASPTransformer().transform(aspCoreParser.parse(program))
         #print(content_tree)
         ##definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
