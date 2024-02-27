@@ -32,7 +32,7 @@ class TestRules(unittest.TestCase):
             symbols = Cnl2asp(f).get_symbols()
             #print(symbols)
             #print(get_symbol(symbols, "work in"))
-            #print("ResultsA: \n")       
+            #print("ResultsA: \n")              
             for rule in definitions:           
                 results.write("RULE: ")
                 results.write("\n")

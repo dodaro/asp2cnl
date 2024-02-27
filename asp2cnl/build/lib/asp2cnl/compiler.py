@@ -46,8 +46,8 @@ def get_symbol(symbols, atom):
                 ##print("Cosa")
                 ##print(res[0].attributes[i])
                 ##res[0].attributes[i] = str(res[0].attributes[i].attributes[0])        
-            else:
-                symb.attributes[i] = res[0].attributes[i].strip()
+            else:                
+                symb.attributes[i] = symb.attributes[i].strip()
         #print (symb)
         return symb
 
