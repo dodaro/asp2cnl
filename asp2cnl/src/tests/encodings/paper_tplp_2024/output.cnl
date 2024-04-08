@@ -1,0 +1,5 @@
+A topmovie is identified by a score.
+A movie is identified by a score.
+
+A bestmovie is identified by a score.
+An assignment is identified by a value, and by a target.It is preferred, with priority 5, that the difference between the value V of the assignment ASSIGNMENT, the target T of the assignment ASSIGNMENT is minimized whenever there is a assignment ASSIGNMENT with value V, with target T.

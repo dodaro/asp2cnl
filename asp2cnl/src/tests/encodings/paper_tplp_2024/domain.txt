@@ -1,0 +1,5 @@
+A topmovie is identified by a score.
+A movie is identified by a score.
+
+A bestmovie is identified by a score.
+An assignment is identified by a value, and by a target.

@@ -169,7 +169,10 @@ def generate_vars_symbols(body, symbols, arithAtom):
     results = StringIO()
     matchedVars = []
     for term in arithAtom.terms:
-        matchedVars.append((term, None, None))
+        if term.isVariable():
+            matchedVars.append((term, None, None))
+        else:
+            matchedVars.append(term)
 
     for lit in body.literals:          
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
@@ -182,29 +185,42 @@ def generate_vars_symbols(body, symbols, arithAtom):
                         canContinue = False
                 if canContinue:
                     for ip in range(len(matchedVars)):
-                        if matchedVars[ip][0] == atom.terms[i]:
-                            p = list(matchedVars[ip])
-                            p[1] = symbLit.attributes[i]
-                            p[2] = lit.literal.name
-                            matchedVars[ip] = tuple(p)
+                        if type(matchedVars[ip]) == tuple:                        
+                            if matchedVars[ip][0] == atom.terms[i]:
+                                p = list(matchedVars[ip])
+                                p[1] = symbLit.attributes[i]
+                                p[2] = lit.literal.name
+                                matchedVars[ip] = tuple(p)
+                        #elif not matchedVars[ip][0].isVariable():
+                        #    p = list(matchedVars[ip])
+                        #    p[1] = matchedVars[ip][0].name
+                        #    p[2] = matchedVars[ip][0].name
+                        #    matchedVars[ip] = tuple(p)                                                        
+
     started = False
     for builtVars in matchedVars:
+        isConstant = type(builtVars) != tuple        
         if started:
             results.write(", ")
+            if isConstant:
+                results.write("and ")
         else:
             started = True
-        results.write("the")
-        results.write(" ")
-        results.write(builtVars[1])
+        if not isConstant:
+            results.write("the")
+            results.write(" ")
+            results.write(builtVars[1])
 
-        results.write(" ")
-        results.write(builtVars[0].name)
+            results.write(" ")
+            results.write(builtVars[0].name)
 
-        results.write(" ")
-        results.write("of the ")
-        results.write(builtVars[2])
-        results.write(" ")
-        results.write(builtVars[2].upper())
+            results.write(" ")
+            results.write("of the ")
+            results.write(builtVars[2])
+            results.write(" ")
+            results.write(builtVars[2].upper())
+        else:
+            results.write(builtVars.name)
 
 
     return results.getvalue()
@@ -232,10 +248,13 @@ def generate_with(atom, symbol, builtinAtoms = []):
             if type(atom.terms[i]) == Term:
                 if atom.terms[i].isVariable():
                     foundMatchedBuiltin = False
+                    userVariablesInBuiltin = []
                     for builtinAtom in builtinAtoms: 
                         #if atom.terms[i] in builtinAtoms.keys():      
                         if not type(builtinAtom.terms[0]) == ArithmeticAtom:
-                            if builtinAtom.terms[0] == atom.terms[i]: 
+                            if (builtinAtom.terms[0] == atom.terms[i] 
+                                    and builtinAtom.terms[0] not in userVariablesInBuiltin): 
+                                userVariablesInBuiltin.append(builtinAtom.terms[0])
                                 foundMatchedBuiltin = True      
                                 results.write(atom.terms[i].name)
                                 results.write(" ")                      
@@ -243,10 +262,13 @@ def generate_with(atom, symbol, builtinAtoms = []):
                                 results.write(generate_compare_operator_sentence(builtinAtom.op))
                                 results.write(" ")    
 
-                                results.write(builtinAtom.terms[1].toString())    
-                                builtinAtoms.remove(builtinAtom)                   
+                                results.write(builtinAtom.terms[1].toString()) 
+                                 
+                                builtinAtoms.remove(builtinAtom)   
+                                                   
                     if not foundMatchedBuiltin:
                         results.write(atom.terms[i].name)  
+                        
                 else:                                                        
                     results.write("equal")   
                     results.write(" ")
@@ -467,7 +489,7 @@ def generate_weak_constraint(rule, symbols):
     results.write("that")
     #results.write(" ")
     
-    builtinAtoms = getBuiltinAtoms(rule)
+    builtinAtoms = getBuiltinAtoms(rule)  
     results.write(generate_body(rule, symbols, builtinAtoms, False, rule.weight_at_level.beforeAt)) 
     
     #results.write(", ") 
