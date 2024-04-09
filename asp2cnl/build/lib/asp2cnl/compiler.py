@@ -165,7 +165,7 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
     results.write(generate_with(atom, symbol, builtinAtoms))
     return results.getvalue()
     
-def generate_vars_symbols(body, symbols, arithAtom):
+def generate_vars_symbols_for_arithm(body, symbols, arithAtom):
     results = StringIO()
     matchedVars = []
     for term in arithAtom.terms:
@@ -193,18 +193,18 @@ def generate_vars_symbols(body, symbols, arithAtom):
             results.write(", ")
         else:
             started = True
-        results.write("the")
-        results.write(" ")
-        results.write(builtVars[1])
-
-        results.write(" ")
+        #results.write("the")
+        #results.write(" ")
+        #results.write(builtVars[1])
+ 
+        #results.write(" ")
         results.write(builtVars[0].name)
 
-        results.write(" ")
-        results.write("of the ")
-        results.write(builtVars[2])
-        results.write(" ")
-        results.write(builtVars[2].upper())
+        #results.write(" ")
+        #results.write("of the ")
+        #results.write(builtVars[2])
+        #results.write(" ")
+        #results.write(builtVars[2].upper())
 
 
     return results.getvalue()
@@ -859,7 +859,7 @@ def generate_operation_between(body, symbols, arithAtom):
         results.write("between")
         results.write(" ")  
 
-        results.write(generate_vars_symbols(body, symbols, arithAtom)) 
+        results.write(generate_vars_symbols_for_arithm(body, symbols, arithAtom)) 
 
 
     return results.getvalue()

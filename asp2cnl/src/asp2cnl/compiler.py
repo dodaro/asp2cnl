@@ -174,6 +174,7 @@ def generate_vars_symbols(body, symbols, arithAtom):
         else:
             matchedVars.append(term)
 
+    foundLitNames = []
     for lit in body.literals:          
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
             symbLit = get_symbol(symbols, lit.literal)
@@ -190,35 +191,34 @@ def generate_vars_symbols(body, symbols, arithAtom):
                                 p = list(matchedVars[ip])
                                 p[1] = symbLit.attributes[i]
                                 p[2] = lit.literal.name
-                                matchedVars[ip] = tuple(p)
-                        #elif not matchedVars[ip][0].isVariable():
-                        #    p = list(matchedVars[ip])
-                        #    p[1] = matchedVars[ip][0].name
-                        #    p[2] = matchedVars[ip][0].name
-                        #    matchedVars[ip] = tuple(p)                                                        
+                                foundLitNames.append(lit.literal.name)
+                                matchedVars[ip] = tuple(p)                                                       
 
     started = False
     for builtVars in matchedVars:
         isConstant = type(builtVars) != tuple        
         if started:
             results.write(", ")
-            if isConstant:
+            if isConstant or builtVars == matchedVars[-1]:
                 results.write("and ")
         else:
             started = True
         if not isConstant:
-            results.write("the")
-            results.write(" ")
-            results.write(builtVars[1])
+            if foundLitNames.count(builtVars[2]) == 1:
+                results.write(builtVars[0].name)
+            else:
+                results.write("the")
+                results.write(" ")
+                results.write(builtVars[1])
 
-            results.write(" ")
-            results.write(builtVars[0].name)
+                results.write(" ")
+                results.write(builtVars[0].name)
 
-            results.write(" ")
-            results.write("of the ")
-            results.write(builtVars[2])
-            results.write(" ")
-            results.write(builtVars[2].upper())
+                results.write(" ")
+                results.write("of the ")
+                results.write(builtVars[2])
+                results.write(" ")
+                results.write(builtVars[2].upper())
         else:
             results.write(builtVars.name)
 
