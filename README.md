@@ -30,7 +30,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 
 For installation on other systems, please refer to [Download Ollama](https://ollama.com/download)
 
-Run the following command to disable automatic Ollama serving 
+Note:By default Ollama launch itself as system service. If you do not want such behaviour, please, run the following command to disable automatic Ollama serving 
 ```
 sudo systemctl disable ollama.service
 ```
