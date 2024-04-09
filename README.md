@@ -47,15 +47,47 @@ ollama run openchat
 
 ### Getting start
 
-Syntax to convert an asp program into natural language
+#### ASP2NL
+
+Syntax to convert an asp program into natural language via CNL
 
 ```
-python asp2nl.py <ASP PROGRAM FILE> <DEFINITION FILE> <LLM MODEL NAME>
+python asp2nl/asp2nl.py <ASP PROGRAM FILE> <DEFINITION FILE> <LLM MODEL NAME>
 ```
 
 The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `asp2cnl2nl.json`
 
 A simple example is
 ```
-python asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+```
+
+#### ASP2NL
+
+Syntax to convert an asp program into natural language via CNL
+
+```
+python asp2nl/asp2nl.py <ASP PROGRAM FILE> <DEFINITION FILE> <LLM MODEL NAME>
+```
+
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `asp2cnl2nl.json`
+
+A simple example is
+```
+python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+```
+
+#### CNL2NL
+
+Syntax to convert a list of CNL sentences into natural language using a LLM
+
+```
+python cnl2nl/cnl2nl.py <CNL JSON FILE> <LLM MODEL NAME>
+```
+
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `cnl2nl.json`
+
+A simple example is
+```
+python cnl2nl/cnl2nl.py examples/cnl_example.json
 ```

@@ -55,6 +55,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--cnl_file', required=False, default='examples/cnl_example.json')
     parser.add_argument('--llm_model', type=str, required=False, default='openchat')
+    parser.add_argument('--output_file', type=str, required=False, default='cnl2nl.json')
     args = parser.parse_args()
     prompt_compiler = compile_prompt()
 
@@ -63,3 +64,9 @@ if __name__ == '__main__':
     #print(o)
     o['nl'] = [contact_llm_service(model=args.llm_model, prompt=prompt_compiler(cnl)) for cnl in o['cnl']]
     print(o['nl'])
+
+    try:
+        with open(output_file, 'w') as f:
+            json.dump(o, f)
+    except Exception as e:
+        print("Error in writing output", str(e))
