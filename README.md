@@ -82,12 +82,12 @@ python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema
 Syntax to convert a list of CNL sentences into natural language using a LLM
 
 ```
-python cnl2nl/cnl2nl.py <CNL JSON FILE> <LLM MODEL NAME>
+python cnl2nl/cnl2nl.py -f <CNL JSON FILE> -m <LLM MODEL NAME> -o <OUTPUT FILE>
 ```
 
-The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `cnl2nl.json`
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file whose default name is `cnl2nl.json`
 
 A simple example is
 ```
-python cnl2nl/cnl2nl.py examples/cnl_example.json
+python cnl2nl/cnl2nl.py -f examples/cnl_example.json
 ```

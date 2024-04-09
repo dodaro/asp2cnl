@@ -53,8 +53,8 @@ def contact_llm_service(model='openchat', prompt=None):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--cnl_file', required=False, default='examples/cnl_example.json')
-    parser.add_argument('--llm_model', type=str, required=False, default='openchat')
+    parser.add_argument("-f", '--cnl_file', required=False, default='examples/cnl_example.json')
+    parser.add_argument("-m", "--llm_model", type=str, required=False, default='openchat')
     parser.add_argument('--output_file', type=str, required=False, default='cnl2nl.json')
     args = parser.parse_args()
     prompt_compiler = compile_prompt()
