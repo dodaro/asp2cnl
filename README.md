@@ -57,12 +57,12 @@ ollama run openchat
 Syntax to convert an asp program into constrained natural language
 
 ```
-python asp2cnl/asp2cnl.py <ASP PROGRAM FILE> <DEFINITION FILE> 
+python asp2cnl/main.py <ASP PROGRAM FILE> <DEFINITION FILE> 
 ```
 
 A simple example is
 ```
-python asp2cnl/asp2cnl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+python asp2cnl/main.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
 ```
 
 #### CNL2NL
