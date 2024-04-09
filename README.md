@@ -2,14 +2,14 @@
 
 intro
 
-## CNL2NL 
-
 #### Python request libraries
 
 `lark inflect multipledispatch` are the only required libraries. Optionally, `openai` should be also installed if you plan to use it.
 ```
 pip install lark inflect multipledispatch openai 
 ```
+TODO add reference to simone library
+## CNL2NL 
 
 ### About LLM  
 
@@ -67,14 +67,14 @@ python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema
 Syntax to convert an asp program into natural language via CNL
 
 ```
-python asp2nl/asp2nl.py <ASP PROGRAM FILE> <DEFINITION FILE> <LLM MODEL NAME>
+python asp2nl/asp2nl.py -f <ASP PROGRAM FILE> -d <DEFINITION FILE> -m <LLM MODEL NAME> -o <OUTPUT JSON FILE>
 ```
 
-The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `asp2cnl2nl.json`
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into a json file whose default name is `asp2cnl2nl.json`
 
 A simple example is
 ```
-python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+python asp2nl/asp2nl.py -f example/maxclique/maxclique.asp -d example/maxclique/schema.cnl
 ```
 
 #### CNL2NL
@@ -82,10 +82,10 @@ python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema
 Syntax to convert a list of CNL sentences into natural language using a LLM
 
 ```
-python cnl2nl/cnl2nl.py -f <CNL JSON FILE> -m <LLM MODEL NAME> -o <OUTPUT FILE>
+python cnl2nl/cnl2nl.py -f <CNL JSON FILE> -m <LLM MODEL NAME> -o <OUTPUT JSON FILE>
 ```
 
-The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file whose default name is `cnl2nl.json`
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into a json file whose default name is `cnl2nl.json`
 
 A simple example is
 ```

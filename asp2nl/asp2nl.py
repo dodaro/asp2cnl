@@ -14,10 +14,10 @@ from asp2cnl.parser import ASPParser
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_file')
-    parser.add_argument('definition_file')
-    parser.add_argument('output_file', type=str, nargs='?', default='asp2cnl2nl.json')
-    parser.add_argument('llm_model', type=str,nargs='?', default='openchat')
+    parser.add_argument("f",  '--input_file', required=True)
+    parser.add_argument("-d", '--definition_file', required=True)
+    parser.add_argument("-o", '--output_file', type=str, required=False, default='asp2cnl2nl.json')
+    parser.add_argument("-m", '--llm_model', type=str, required=False, default='openchat')
     args = parser.parse_args()
 
     input_file = args.input_file
