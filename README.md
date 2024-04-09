@@ -9,11 +9,16 @@ intro
 pip install lark inflect multipledispatch openai 
 ```
 TODO add reference to simone library
+
+## ASP2CNL
+
+Bla bla #TODO
+
 ## CNL2NL 
 
-### About LLM  
+### Access to a LLM  is required
 
-In order to convert CNL into plan natural language the script needs access to an Large Language Model. 
+In order to convert CNL into plan natural language the CNL2NL tool needs access to a Large Language Model. 
 We suggest to use an open source library called Ollama which download and run pre-trained LLMs locally. 
 Alternatively, OpenAI's ChatGPT can be also invoked but a valid api key is required. The api key must be stored in the environment variable `OPENAI_API_KEY`
 
@@ -47,19 +52,32 @@ ollama run openchat
 
 ### Getting start
 
-#### ASP2NL
+#### ASP2CNL
 
-Syntax to convert an asp program into natural language via CNL
+Syntax to convert an asp program into constrained natural language
 
 ```
-python asp2nl/asp2nl.py <ASP PROGRAM FILE> <DEFINITION FILE> <LLM MODEL NAME>
+python asp2cnl/asp2cnl.py <ASP PROGRAM FILE> <DEFINITION FILE> 
 ```
-
-The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into the json file `asp2cnl2nl.json`
 
 A simple example is
 ```
-python asp2nl/asp2nl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+python asp2cnl/asp2cnl.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+```
+
+#### CNL2NL
+
+Syntax to convert a list of CNL sentences into natural language using a LLM
+
+```
+python cnl2nl/cnl2nl.py -f <CNL JSON FILE> -m <LLM MODEL NAME> -o <OUTPUT JSON FILE>
+```
+
+The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into a json file whose default name is `cnl2nl.json`
+
+A simple example is
+```
+python cnl2nl/cnl2nl.py -f examples/cnl_example.json
 ```
 
 #### ASP2NL
@@ -77,17 +95,3 @@ A simple example is
 python asp2nl/asp2nl.py -f example/maxclique/maxclique.asp -d example/maxclique/schema.cnl
 ```
 
-#### CNL2NL
-
-Syntax to convert a list of CNL sentences into natural language using a LLM
-
-```
-python cnl2nl/cnl2nl.py -f <CNL JSON FILE> -m <LLM MODEL NAME> -o <OUTPUT JSON FILE>
-```
-
-The default value `<LLM MODEL NAME>` is set to  `openchat` and can be omitted. Results will be stored into a json file whose default name is `cnl2nl.json`
-
-A simple example is
-```
-python cnl2nl/cnl2nl.py -f examples/cnl_example.json
-```
