@@ -1,4 +1,7 @@
+import argparse
 import os
+import sys
+
 import requests
 import json
 
@@ -43,6 +46,20 @@ def contact_openai_service(prompt, model="gpt-3.5-turbo"):
 
 def contact_llm_service(model='openchat', prompt=None):
     if model == 'openai':
-        contact_openai_service(prompt)
+        return contact_openai_service(prompt)
     else:
-        contact_ollama_service(model=model, prompt=None)
+        return contact_ollama_service(model=model, prompt=prompt)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cnl_file', required=False, default='examples/cnl_example.json')
+    parser.add_argument('--llm_model', type=str, required=False, default='openchat')
+    args = parser.parse_args()
+    prompt_compiler = compile_prompt()
+
+    with open(args.cnl_file, "r") as f:
+        o = json.load(f)
+    #print(o)
+    o['nl'] = [contact_llm_service(model=args.llm_model, prompt=prompt_compiler(cnl)) for cnl in o['cnl']]
+    print(o['nl'])
