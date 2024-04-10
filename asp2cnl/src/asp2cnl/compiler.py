@@ -133,7 +133,7 @@ def generate_goes(atom):
     results.write(atom.terms[0].afterDotDot) 
     return results.getvalue()
 
-def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False, hasSumInBuiltin = False):
+def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = False, literalVariable = None):
     #Eg. movie(1,"jurassicPark","spielberg",1993).
     # -->
     #There is a movie with id equal to 1, with director equal to spielberg, with title equal to jurassicPark, with year equal to 1993.
@@ -158,13 +158,23 @@ def generate_there_is(atom, symbol, builtinAtoms, start = False, noThereIs = Fal
     results.write(atom.name)    
     results.write(" ")
 
-    if hasSumInBuiltin:
-        results.write(atom.name.upper())
+    if literalVariable is not None:        
+        results.write(literalVariable)
         results.write(" ")
 
     results.write(generate_with(atom, symbol, builtinAtoms))
     return results.getvalue()
-    
+
+def get_literal_identifier(body, lit):
+    count = 0
+    for l in body.literals:     
+        if type(l) == NafLiteral and type(l.literal) == ClassicalLiteral:  
+            if l.literal.name == lit.literal.name:
+                count = count + 1
+                if l == lit:
+                    return lit.literal.name.upper() + str(count)
+    return None
+
 def generate_vars_symbols(body, symbols, arithAtom):
     results = StringIO()
     matchedVars = []
@@ -179,6 +189,7 @@ def generate_vars_symbols(body, symbols, arithAtom):
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
             symbLit = get_symbol(symbols, lit.literal)
             atom = lit.literal
+            foundLitNames.append(atom.name)
             for i in range(len(atom.terms)):
                 canContinue = True        
                 if type(atom.terms[i]) == Term:
@@ -190,11 +201,11 @@ def generate_vars_symbols(body, symbols, arithAtom):
                             if matchedVars[ip][0] == atom.terms[i]:
                                 p = list(matchedVars[ip])
                                 p[1] = symbLit.attributes[i]
-                                p[2] = lit.literal.name
-                                foundLitNames.append(lit.literal.name)
+                                p[2] = lit
+#                                foundLitNames.append(lit.literal.name)
                                 matchedVars[ip] = tuple(p)                                                       
 
-    started = False
+    started = False    
     for builtVars in matchedVars:
         isConstant = type(builtVars) != tuple        
         if started:
@@ -203,8 +214,8 @@ def generate_vars_symbols(body, symbols, arithAtom):
                 results.write("and ")
         else:
             started = True
-        if not isConstant:
-            if foundLitNames.count(builtVars[2]) == 1:
+        if not isConstant:            
+            if foundLitNames.count(builtVars[2].literal.name) == 1:
                 results.write(builtVars[0].name)
             else:
                 results.write("the")
@@ -216,9 +227,10 @@ def generate_vars_symbols(body, symbols, arithAtom):
 
                 results.write(" ")
                 results.write("of the ")
-                results.write(builtVars[2])
+                results.write(builtVars[2].literal.name)
                 results.write(" ")
-                results.write(builtVars[2].upper())
+                results.write(get_literal_identifier(body, builtVars[2]))
+                #results.write(builtVars[2].upper())
         else:
             results.write(builtVars.name)
 
@@ -676,13 +688,18 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint = False, costW
     
     for builtinA in builtinAtoms:
         if type(builtinA.terms[0]) == ArithmeticAtom:
-                hasSumInBuiltin = True
-    
-    
-    if hasSumInBuiltin and isStrongConstraint:
-        results.write(" ")
-        for builtinAtom in builtinAtoms:
-            if type(builtinAtom.terms[0]) == ArithmeticAtom:        
+            hasSumInBuiltin = True
+        
+    if hasSumInBuiltin and isStrongConstraint:        
+        #results.write(" ")
+        #started = False
+        for builtinAtom in builtinAtoms:            
+            if type(builtinAtom.terms[0]) == ArithmeticAtom:
+                if startedLits:
+                    results.write(", whenever we have that")   
+                else:
+                    startedLits = True
+                results.write(" ")   
                 results.write(generate_operation_between(body, symbols, builtinAtom.terms[0]))
                 results.write(generate_compare_of_arithmetic_builtin(builtinAtom.op, builtinAtom.terms[1]))
 
@@ -691,6 +708,13 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint = False, costW
     foundAggrs = []
     firstConstraintLiteralInSentence = None    
     specialConstraintTranslationForLiteral = False
+
+    # It    
+    foundLitNames = []
+    for lit in body.literals:      
+        if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
+            foundLitNames.append(lit.literal.name)            
+
     for lit in body.literals:          
         if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:  
             if tmpWheneverResults is None:
@@ -729,7 +753,10 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint = False, costW
                 hasSum = hasSumInBuiltin
                 if type(costWeakTerm) == ArithmeticAtom:
                     hasSum = True
-                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, hasSumInBuiltin=hasSum))                    
+                literalVariable = None
+                if foundLitNames.count(lit.literal.name) > 1:
+                    literalVariable = get_literal_identifier(body, lit)
+                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, literalVariable=literalVariable))                    
             else:
                 specialConstraintTranslationForLiteral = False    
                 if not hasSumInBuiltin:     
