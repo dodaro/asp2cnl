@@ -1,2 +1,0 @@
-Whenever there is a registration with patient RID, with order equal to 0, with duration_of_the_first_phase PH4, with duration_of_the_second_phase PH3, with duration_of_the_third_phase PH2, with duration_of_the_fourth_phase PH1, with preference S then we can have exactly 1 x with registration patient RID, with day DAY, with timeslot TS, with duration_of_the_fourth_phase PH4, with registration order equal to 0, with preference S such that there is a timeslot with timeslot TS, a day with day DAY.
-

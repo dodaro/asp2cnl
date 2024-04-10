@@ -1,20 +1,24 @@
 import argparse
 import os
-import sys
-sys.path.append(os.getcwd()+'/asp2cnl/src')
+#import sys
+#sys.path.append(os.getcwd()+'/asp2cnl/src')
 
 import json
 
-from asp2cnl.compiler import compile
-from asp2cnl.parser import ASPParser
+from compiler import *
+from parser import ASPParser
+
 from cnl2asp.cnl2asp import Cnl2asp
 from io import StringIO
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_file')
-    parser.add_argument('definition_file')
-    parser.add_argument('output_file', type=str, nargs='?', default='asp2cnl.json')
+    parser.add_argument("-f",  '--input_file', required=True)
+    parser.add_argument("-d", '--definition_file', required=True)
+    parser.add_argument("-o", '--output_file', type=str, required=False, default='asp2cnl2nl.json')   
+    parser.add_argument("-s", '--std', action='store_true')   
+
+
     args = parser.parse_args()
 
     input_file = args.input_file
@@ -29,11 +33,10 @@ if __name__ == '__main__':
         o = {'asp': [], 'cnl': []}
         for rule in definitions:
             o['asp'].append(rule.toString())
-            o['cnl'].append(compile(rule, symbols))
-
-#            compiled = compile(rule, symbols)
-#            cnl_results.write(compiled)
-#            cnl_results.write("\n")
+            compiled = compile(rule, symbols)
+            o['cnl'].append(compiled)
+            if args.std:
+                print(compiled)                
     try:
         with open(output_file, "w") as f:
             json.dump(o, f)

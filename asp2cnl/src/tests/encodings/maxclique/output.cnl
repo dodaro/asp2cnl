@@ -1,6 +1,0 @@
-A node is identified by an id.
-A chosen is identified by an id.
-A connected_to is identified by a sourcenode, and by a targetnode.
-
-
-It is preferred, with priority 3, that the number of id that have a chosen is maximized.

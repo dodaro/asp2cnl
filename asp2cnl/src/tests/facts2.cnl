@@ -1,8 +1,0 @@
-A timeslot is a temporal concept expressed in minutes ranging from 07:30 AM to 01:30 PM with a length of 10 minutes.
-A day is a temporal concept expressed in days ranging from 01/01/2022 to 07/01/2022.
-A patient is identified by an id, and has a preference.
-A registration is identified by a patient_id, and by an order, and has a number of waiting days, a duration of the first phase, a duration of the second phase, a duration of the third phase, and a duration of the fourth phase.
-A seat is identified by an id, and has a type.
-An assignment_to is identified by a registration_id, by a registration_order, by a day_id, and by a timeslot_id.
-A position_in is identified by a day_id, by a seat_id, by a id_1, by a id_2, and by a timeslot_id. 
-

@@ -1,7 +1,0 @@
-A node is identified by an id.
-A reachable is identified by an id.
-A path_to is identified by a source node, and by a target node.
-A connected_to is identified by a source node, and by a target node.
-
-
-It is prohibited that there is a node with id RCHBL_D, whenever there is not a reachable with id RCHBL_D.

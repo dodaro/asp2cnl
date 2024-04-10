@@ -1,5 +1,0 @@
-A node is identified by an id.
-A chosen is identified by an id.
-A connected_to is identified by a sourcenode, and by a targetnode.
-
-

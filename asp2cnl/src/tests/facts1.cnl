@@ -1,1 +1,0 @@
-A movie is identified by an id, and has a title, a director, and a year. A director is identified by a name. A topMovie is identified by an id. A scoreAssignment is identified by an id, and by a value. A waiter is identified by a name.
