@@ -750,11 +750,11 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint = False, costW
             if not specialConstraintTranslationForLiteral:                
                 tmpWheneverResults.write(" ")            
                 hasSum = hasSumInBuiltin
-                if type(costWeakTerm) == ArithmeticAtom:
-                    hasSum = True
                 literalVariable = None
-                if foundLitNames.count(lit.literal.name) > 1:
-                    literalVariable = get_literal_identifier(body, lit)
+                if type(costWeakTerm) == ArithmeticAtom:
+                    hasSum = True                
+                    if foundLitNames.count(lit.literal.name) > 1:
+                        literalVariable = get_literal_identifier(body, lit)
                 tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, literalVariable=literalVariable))                    
             else:
                 specialConstraintTranslationForLiteral = False    
