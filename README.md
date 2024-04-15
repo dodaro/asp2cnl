@@ -1,18 +1,34 @@
 # ASP2(C)NL 
 
-intro
+ASP2(C)NL is composed by two novel and open-source tools, namely ASP2CNL and CNL2NL.
+
+With ASP2CNL, ASP rules are converted into Controlled Natural Language (CNL) sentences in
+the format supported by the tool CNL2ASP [1].
+
+Subsequently, CNL2NL translate the obtained CNL sentences into natural language sentences 
+using the state-of-the-art LLM tool ChatGPT. 
+
+Finally, the two tools, can be combined together in a pipeline, referred to as ASP2NL, 
+that transforms a given ASP program into a set of sentences expressed in a natural language.
+
+[1]: Caruso, Simone & Dodaro, Carmine & Maratea, Marco & Mochi, Marco & 
+ 		Riccio, Francesco. (2023). CNL2ASP: Converting Controlled Natural Language Sentences into ASP. 
+ 		Theory and Practice of Logic Programming. 24. 1-31. 10.1017/S1471068423000388. [Link](https://www.cambridge.org/core/journals/theory-and-practice-of-logic-programming/article/cnl2asp-converting-controlled-natural-language-sentences-into-asp/AF5901FADC579E49C583CFD5A10C0192).
+
 
 #### Python request libraries
+
+Python version 3.10 is required.
 
 `lark inflect multipledispatch` are the only required libraries. Optionally, `openai` should be also installed if you plan to use it.
 ```
 pip install lark inflect multipledispatch openai 
 ```
-TODO add reference to simone library
 
 ## ASP2CNL
 
-Bla bla #TODO
+A prototype for automatic converting ASP rules into Controlled Natural Language (CNL) 
+sentences in the format supported by the tool CNL2ASP.
 
 ## CNL2NL 
 
@@ -54,15 +70,18 @@ ollama run openchat
 
 #### ASP2CNL
 
-Syntax to convert an asp program into constrained natural language
+Syntax to convert an ASP program into Controlled Natural Language (CNL).
 
+``` 
+python asp2cnl/asp2cnl.py -f <ASP PROGRAM FILE> -d <DEFINITION FILE> [-o <OUTPUT JSON FILE>]
 ```
-python asp2cnl/main.py <ASP PROGRAM FILE> <DEFINITION FILE> 
-```
+
+The result will be printed to the standard output as a list of CNL sentences. In the case where 
+a JSON format is needed, the option -o can be used, allowing to save the results to a file. 
 
 A simple example is
 ```
-python asp2cnl/main.py example/maxclique/maxclique.asp example/maxclique/schema.cnl
+python asp2cnl/asp2cnl.py -f example/maxclique/maxclique.asp -d example/maxclique/schema.cnl
 ```
 
 #### CNL2NL
