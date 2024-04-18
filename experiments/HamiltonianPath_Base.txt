@@ -1,0 +1,25 @@
+ASP RUle:
+{path_to(X,Y): node(Y), connected_to(Y,X)} :- node(X).
+Description:
+This rule in an Answer Set Program says: "For every pair of nodes X and Y connected by a path, if Y is a node, then X must also be a node." It ensures that if there's a path from X to Y and Y is a node, then X must also be a node.
+
+ASP RUle:
+:- node(X), #count{Y: path_to(X,Y), node(Y)} != 1.
+:- node(Y), #count{X: path_to(X,Y), node(X)} != 1.
+Description:
+These rules say: "If there's not exactly one path leading to a node X, then X shouldn't be considered a node." Similarly, "If there's not exactly one path leading to a node Y, then Y shouldn't be considered a node." These rules ensure that each node is uniquely reachable along a path.
+
+ASP RUle:
+reachable(start) :- node(start).
+Description:
+This rule states: "A node is considered reachable if it's the starting point." It ensures that the starting node is marked as reachable, indicating it can be reached from itself.
+
+ASP RUle:
+reachable(Y) :- reachable(X), node(X), path_to(X,Y), node(Y).
+Description:
+This rule says: "A node Y is reachable if there exists a node X that is already reachable, and there's a direct path from X to Y." It ensures that if you can reach a node X, and there's a direct path from X to Y, then Y becomes reachable too.
+
+ASP RUle:
+:- node(RCHBL_D), not reachable(RCHBL_D).
+Description:
+This rule states: "If a node RCHBL_D exists but is not reachable, then it should not be considered as a reachable node." It ensures that any node which isn't reachable should not be treated as reachable.

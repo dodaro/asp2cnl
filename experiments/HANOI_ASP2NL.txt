@@ -1,0 +1,87 @@
+ASP Rule:
+on(0,N1,N) :- on0(N,N1).
+Description:
+If there's a connection between "firstdisk N" and "seconddisk N1," then there must also be a connection with a stepvalue of 0 between "firstdisk N1" and "seconddisk N."
+
+ASP Rule:
+onG(K,N1,N) :- ongoal(N,N1), step(K).
+Description:
+If the task involves moving a disk from position N to position N1, and there's a specific step involved, then there must also be a similar task involving the same step, moving a disk from N1 to N.
+
+ASP Rule:
+:- time(T), on(T,N1,N), N1>=N.
+Description:
+It's not allowed for there to be a situation where a certain time value T occaurs if there's a step with the same value T, moving a disk from position N1 to N, where N1 is equal to or greater than N.
+
+ASP Rule:
+move(T,N) | nomove(T,N) :- disk(N), time(T), step(K), T< K.
+Description:
+If there's a disk labeled N and a time value T less than K, and there's a step with value K, we can either move disk N at time T or not move it at all at time T.
+
+ASP Rule:
+:- move(T,N1), move(T,N2), N1 != N2.
+Description:
+You can't have a situation where one disk (N1) moves at time T while another disk (N2) moves at the same time T. If one disk moves, all moves must involve the same disk at that time.
+
+ASP Rule:
+:- time(T), step(K), T< K, not diskmoved(T).
+Description:
+If there's a step with value K, it's not allowed for there to be a time value T less than K where no disk has been moved at that time.
+
+ASP Rule:
+diskmoved(T) :- move(T,FV).
+Description:
+If a disk is moved at a certain time T, labeled FV, then there must be a record showing that a disk was indeed moved at that time T.
+
+ASP Rule:
+dwhere(T,N) | noWhere(T,N) :- disk(N), time(T), step(K), T< K.
+Description:
+If there's a disk labeled N and a time value T less than K, and there's a step with value K, we can either move the disk N to another location at time T or leave it where it is at time T.
+
+ASP Rule:
+:- dwhere(T,N1), dwhere(T,N2), N1 != N2.
+Description:
+You can't have a situation where one disk (N1) is moved to a different location than another disk (N2) at the same time (T). If one disk is moved, all moves must involve the same disk at that time.
+
+ASP Rule:
+:- time(T), step(K), T< K, not diskWhere(T).
+diskWhere(T) :- dwhere(T,FV).
+Description:
+If there's a step with value K, you can't have a time value T less than K where no disk is moved. If a disk is moved to a different location (dwhere) at time T, there must be a record showing that a disk was indeed moved at that time T.
+
+ASP Rule:
+:- move(T,N), N < 5.
+Description:
+It's not allowed for a disk with a value less than 5 to be moved at a specific time T.
+
+ASP Rule:
+:- on(T,N,N1), move(T,N).
+Description:
+If there's a connection (on) between two disks N and N1 at a certain step T, it's not allowed for the same disk N to be moved at the same time T.
+
+ASP Rule:
+:- on(T,N,N1), dwhere(T,N).
+Description:
+It's not allowed for two disks, N and N1, to be connected (on) at a certain step T if one of them (N) is moved to a different location (dwhere) at the same time T.
+
+ASP Rule:
+:- move(T,N), move(TM1,N), TM1=T-1.
+Description:
+You can't move disk N at time T if another disk N was moved at time T-1.
+
+ASP Rule:
+on(TP1,N1,N) :- move(T,N), dwhere(T,N1), TP1=T+1.
+on(TP1,N,N1) :- time(T), step(K), T< K, on(T,N,N1), not move(T,N1), TP1=T+1.
+Description:
+If disk N is moved at time T and disk N1 is moved at the same time to a different place, then the next step (on) involves connecting N1 to N at time T+1. Also, if there's a step at time T where N connects to N1 but no move for N1, then at time T+1, N connects to N1.
+
+ASP Rule:
+:- not on(K,N,N1), onG(K,N,N1), step(K).
+:- on(K,N,N1), not onG(K,N,N1), step(K).
+Description:
+If there's a connection (on) between disks N and N1 at step K, there can't be a situation where there's no connection (onG) between the same disks at step K when there's a step at value K, and vice versa.
+
+ASP Rule:
+put(T,M,N) :- move(T,N), dwhere(T,M), step(K), T< K.
+Description:
+If a disk N is moved at a time T before K, and another disk M is moved to a different location at the same time T, and there's a step at value K, then we need to put disk M onto disk N at time T.

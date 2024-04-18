@@ -1,0 +1,96 @@
+ASP Rule:
+1 <= {assign(N, T, D) : workshift(T,_,_)} <= 1 :- day(D), nurse(N).
+Description:
+This rule ensures that for each nurse (N) and each day (D), there can be only one assignment of a workshift (T). So, it guarantees that each nurse works only one shift per day.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,1,D)} > K, maxNurseMorning(K).
+Description:
+This rule says if there are more nurse assignments (N) on a day (D) than a certain limit (K), specified by maxNurseMorning(K), then there's a constraint violation. It ensures a maximum number of nurse assignments for a particular time, like mornings.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,1,D)} < K, minNurseMorning(K).
+Description:
+This rule means if there are fewer nurse assignments (N) on a day (D) than a certain minimum (K), specified by minNurseMorning(K), then there's a constraint violation. It ensures a minimum number of nurse assignments for a particular time, like mornings.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,2,D)} > K, maxNurseAfternoon(K).
+Description:
+This rule states that if there are more than a specified limit (K) of nurse assignments (N) on a particular day (D) for the afternoon shift, as defined by maxNurseAfternoon(K), then there's a problem. It sets a maximum number of nurse assignments for the afternoon shift.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,2,D)} < K, minNurseAfternoon(K).
+Description:
+This rule ensures that there are enough nurse assignments (N) on a specific day (D) for the afternoon shift. If there are fewer assignments than the minimum specified (K) by minNurseAfternoon(K), then it's a problem. It sets a minimum number of nurse assignments for the afternoon shift.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,3,D)} > K, maxNurseNight(K).
+Description:
+This rule means if there are more nurse assignments (N) than a specified limit (K) for the night shift on a particular day (D), as defined by maxNurseNight(K), then it's not allowed. It sets a maximum number of nurse assignments for the night shift.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,3,D)} < K, minNurseNight(K).
+Description:
+This rule ensures there are sufficient nurse assignments (N) for the night shift on a specific day (D). If there are fewer assignments than the minimum specified (K) by minNurseNight(K), it's a problem. It sets a minimum number of nurse assignments for the night shift.
+
+ASP Rule:
+:- nurse(N), maxHoursPerYear(MAX), #sum{H,D : assign(N,T,D), workshift(T,_,H)} > MAX.
+Description:
+This rule ensures that no nurse (N) exceeds the maximum number of hours (MAX) they can work in a year. If the total hours worked by a nurse in a year exceed this limit, it's a violation.
+
+ASP Rule:
+:- nurse(N), minHoursPerYear(MIN), #sum{H,D : assign(N,T,D), workshift(T,_,H)} < MIN.
+Description:
+This rule ensures that every nurse (N) works at least the minimum required number of hours (MIN) per year. If a nurse works fewer hours than this minimum, it's a problem.
+
+ASP Rule:
+:- nurse(N), #count{D:assign(N,6,D)} != 30.
+Description:
+This rule states that for each nurse (N), if they are assigned exactly 6 shifts on any day (D), then the total number of such days (D) should be exactly 30. If this condition isn't met, it's a problem.
+
+ASP Rule:
+:- nurse(N), assign(N, T1, D), assign(N, T2, D+1), T2 < T1, T2 <= 3, T1 <= 3.
+Description:
+This rule says if a nurse (N) is assigned to two shifts (T1 and T2) on consecutive days (D and D+1), and if the shift on the second day (T2) is earlier than the shift on the first day (T1), and both shifts are within the first three shifts of the day, then it's not allowed.
+
+ASP Rule:
+:- nurse(N), day(D), days(DAYS), D <= DAYS-13, #count{D1:assign(N,5,D1), D1>=D, D1 < D+14} < 2.
+Description:
+This rule states that for each nurse (N) and day (D) within a certain range (DAYS), if it's within the last two weeks of the schedule (DAYS-13), and the nurse has been assigned 5 shifts in any 2-week period starting from that day, then it's not allowed.
+
+ASP Rule:
+:- not assign(N,4,D), assign(N,3,D-2), assign(N,3,D-1).
+:- assign(N,4,D), not assign(N,3,D-2).
+:- assign(N,4,D), not assign(N,3,D-1).
+Description:
+These rules enforce consistency in nurse (N) assignments: 1. If a nurse isn't assigned a shift on day D but is assigned shifts on the two preceding days (D-2 and D-1), it's not allowed. 2. If a nurse is assigned a shift on day D but wasn't assigned a shift two days before (D-2), it's not allowed. 3. If a nurse is assigned a shift on day D but wasn't assigned a shift on the preceding day (D-1), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,1,D)} > MAXDAYS, maxDays(MAXDAYS).
+Description:
+This rule ensures no nurse (N) is assigned more shifts than the maximum allowed days (MAXDAYS). If a nurse is assigned more shifts than this limit, specified by maxDays(MAXDAYS), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,1,D)} < MINDAYS, minDays(MINDAYS).
+Description:
+This rule ensures every nurse (N) is assigned at least the minimum required number of shifts. If a nurse is assigned fewer shifts than this minimum, specified by minDays(MINDAYS), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,2,D)} > MAXDAYS, maxDays(MAXDAYS).
+Description:
+This rule ensures no nurse (N) is assigned more double shifts than the maximum allowed days (MAXDAYS). If a nurse is assigned more double shifts than this limit, specified by maxDays(MAXDAYS), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,2,D)} < MINDAYS, minDays(MINDAYS).
+Description:
+This rule ensures every nurse (N) is assigned at least the minimum required number of double shifts. If a nurse is assigned fewer double shifts than this minimum, specified by minDays(MINDAYS), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,3,D)} > MAXNIGHTS, maxNights(MAXNIGHTS).
+Description:
+This rule ensures no nurse (N) works more night shifts than the maximum allowed nights (MAXNIGHTS). If a nurse works more night shifts than this limit, specified by maxNights(MAXNIGHTS), it's not allowed.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,3,D)} < MINNIGHTS, minNights(MINNIGHTS).
+Description:
+This rule ensures every nurse (N) is assigned at least the minimum required number of night shifts. If a nurse is assigned fewer night shifts than this minimum, specified by minNights(MINNIGHTS), it's not allowed.

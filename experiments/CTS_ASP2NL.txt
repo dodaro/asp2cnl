@@ -1,0 +1,65 @@
+ASP Rule:
+{x(RID,DAY,TS,PH4,0,S) : 10_minutes_timeslot(TS), day(DAY)} = 1 :- registration(RID,0,_,PH4,PH3,PH2,PH1,S).
+Description:
+When a patient registers with specific details, including preferences and durations for each phase, then there will be exactly one registration for that patient on a particular day and time slot, matching the given criteria.
+
+ASP Rule:
+{x(RID,DAY+DAY2,TS,PH4,ORDER,S) : 10_minutes_timeslot(TS)} = 1 :- x(RID,DAY,_,_,N,_), ORDER=N+1, day(DAY+DAY2),registration(RID,ORDER,DAY2,PH4,PH3,PH2,PH1,S).
+Description:
+Whenever a patient registers with certain details and order N, and there's another registration the next day (DAY+DAY2) with order N+1, we can schedule exactly one appointment for the patient the following day (DAY+DAY2) with specific criteria, including preference and duration, ensuring there's a suitable time slot available.
+
+ASP Rule:
+:- x(RID,DAY,TS,PH4,_,_), PH4 > 50, TS < 24.
+Description:
+Patients cannot schedule appointments on a certain day and time slot if the duration of the fourth phase exceeds 50 minutes or if the time slot is less than 24 minutes.
+
+ASP Rule:
+:- x(RID,DAY,TS,_,ORDER,_), registration(RID,ORDER,DAY2,PH4,PH3,PH2,PH1,S), TS-PH3-PH2-PH1<1.
+Description:
+It's not allowed for the time difference between the time slot (TS) and the durations of phases in a registration to be less than 1 minute. This applies when scheduling appointments and considering waiting times, patient preferences, and order.
+
+ASP Rule:
+1 <= {bed_with_registration_and_day(ID,RID,DAY) : bed(ID); chair_with_registration_and_day(ID,RID,DAY) : chair(ID)} <= 1 :- x(RID,DAY,_,_,_,_).
+Description:
+If a patient registers on a certain day, then there will be exactly one bed or chair available for that patient on the same day.
+
+ASP Rule:
+res(RID,DAY,T) :- 10_minutes_timeslot(T), x(RID,DAY,TS,PH4,_,_), PH4 > 0, TS <= T, T < TS+PH4.
+chair_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- chair_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+bed_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- bed_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+:- #count{RID: chair_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_minutes_timeslot(TS), chair(ID). 
+:- #count{RID: bed_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_minutes_timeslot(TS), bed(ID).
+Description:
+If a time slot is available before the end of a certain phase, and a patient is registered for that day and time, they must have a reservation for that time slot. If there's a chair or bed reserved for a patient, there must be a corresponding reservation entry. Also, it's not allowed for more than one patient to have a reservation for the same chair or bed at the same time.
+
+ASP Rule:
+support(RID,DAY,TS) :- x(RID,DAY,PH4,_,_,_), registration(RID,ORDER,_,_,PH3,PH2,_,_), PH2 > 0, TS=PH4-PH3-PH2, day(DAY), 5_minutes_timeslot(TS).
+Description:
+If a patient registers on a certain day and time slot, and another registration follows with specific phase durations and order, and if a certain time slot is calculated based on these durations, then there must be support available for that patient at that calculated time slot on that day.
+
+ASP Rule:
+numbReg(DAY,N,TS) :- N = #count{RID: support(RID,DAY,TS)}, day(DAY), 5_minutes_timeslot(TS).
+numMax(DAY,T) :- T = #max{N: numbReg(DAY,N,_)}, day(DAY).
+numMin(DAY,T) :- T = #min{N: numbReg(DAY,N,_), N != 0}, day(DAY). 
+Description:
+If there are N supports scheduled at a specific time slot on a certain day, there must be a record indicating this number. If the highest number of such records on a day is T, there must be a record reflecting this maximum number. Similarly, if the lowest non-zero number on a day is T, there must be a record showing this minimum number.
+
+ASP Rule:
+numbDay(DAY,N) :- N = #count{RID: support(RID,DAY,_)}, day(DAY).
+numMaxDay(T) :- T = #max{N: numbDay(DAY, N)}.
+Description:
+If there are N registrations with support on a certain day, there must be a record indicating this. If the highest number of registrations with support on any given day is T, then there must be a record reflecting this maximum number.
+
+ASP Rule:
+:~ x(RID,DAY,_,_,_,"chair"), bed_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+:~ x(RID,DAY,_,_,_,"bed"), chair_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+Description:
+Preference is given to minimize instances of patients preferring chairs (priority 7) when beds are available on their registered day. Similarly, minimizing instances of patients preferring beds (priority 7) when chairs are available on their registered day is preferred.
+
+ASP Rule:
+:~ numMax(DAY,T). [T@6, DAY]
+:~ numMax(DAY,MAX), numMin(DAY,MIN). [MAX-MIN@5,DAY]
+:~ numMaxDay(N). [N@4]
+Description:
+Priority 6 is to minimize the time slot (T) whenever there's a maximum number recorded for a day (DAY). Priority 5 is to minimize the difference between the maximum and minimum time slots when both maximum and minimum numbers are recorded for a day. Priority 4 is to minimize the number (N) whenever there's a maximum number recorded for a day.
+

@@ -1,0 +1,96 @@
+ASP Rule:
+1 <= {assign(N, T, D) : workshift(T,_,_)} <= 1 :- day(D), nurse(N).
+Description:
+On any day marked as D, if there's a nurse numbered N, we can assign that nurse once to a work shift labeled T, on day D, only if there's a work shift labeled T available.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,1,D)} > K, maxNurseMorning(K).
+Description:
+It's not allowed for the number of nurses assigned to work shift 1 on day D to exceed K, whenever there's a day marked as D and a maximum limit of K nurses for the morning shift is set.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,1,D)} < K, minNurseMorning(K).
+Description:
+It's not allowed for the number of nurses assigned to work shift 1 on day D to be fewer than K, whenever there's a day marked as D and a minimum requirement of K nurses for the morning shift is set.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,2,D)} > K, maxNurseAfternoon(K).
+Description:
+It's not allowed for the number of nurses assigned to work shift 2 on day D to exceed K, whenever there's a day marked as D and a maximum limit of K nurses for the afternoon shift is set.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,2,D)} < K, minNurseAfternoon(K).
+Description:
+Nurses must be assigned to at least K shifts of type 2 on day D, whenever D occurs, and there's a minimum requirement of K nurses for the afternoon shift.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,3,D)} > K, maxNurseNight(K).
+Description:
+Nurse assignments for shift 3 on day D must not exceed K nurses, whenever D occurs, and there's a maximum limit of K nurses for the night shift.
+
+ASP Rule:
+:- day(D), #count{N:assign(N,3,D)} < K, minNurseNight(K).
+Description:
+Nurses must be assigned to at least K shifts of type 3 on day D, whenever D occurs, and there's a minimum requirement of K nurses for the night shift.
+
+ASP Rule:
+:- nurse(N), maxHoursPerYear(MAX), #sum{H,D : assign(N,T,D), workshift(T,_,H)} > MAX.
+Description:
+It's not allowed for the total hours worked by nurse N on any day D to exceed MAX hours, whenever nurse N exists, and there's a maximum yearly hour limit set as MAX.
+
+ASP Rule:
+:- nurse(N), minHoursPerYear(MIN), #sum{H,D : assign(N,T,D), workshift(T,_,H)} < MIN.
+Description:
+Nurse N must work at least MIN hours on any day D, whenever nurse N exists, and there's a minimum yearly hour requirement set as MIN.
+
+ASP Rule:
+:- nurse(N), #count{D:assign(N,6,D)} != 30.
+Description:
+Nurse N must always be assigned to 30 days with workshift ID 6, whenever nurse N exists.
+
+ASP Rule:
+:- nurse(N), assign(N, T1, D), assign(N, T2, D+1), T2 < T1, T2 <= 3, T1 <= 3.
+Description:
+Nurse N can't work on day D if they worked a shift T1 (3 or fewer) on that day, followed by a shift T2 (also 3 or fewer) on the next day (D+1), where T2 is earlier than T1.
+
+ASP Rule:
+:- nurse(N), day(D), days(DAYS), D <= DAYS-13, #count{D1:assign(N,5,D1), D1>=D, D1 < D+14} < 2.
+Description:
+Nurse N must work at least 2 days with shift 5, with each day (D1) falling within 14 days before day D, given that D is within 13 days from the end of the schedule.
+
+ASP Rule:
+:- not assign(N,4,D), assign(N,3,D-2), assign(N,3,D-1).
+:- assign(N,4,D), not assign(N,3,D-2).
+:- assign(N,4,D), not assign(N,3,D-1).
+Description:
+Nurse N can't miss shift 4 on day D if they worked shift 3 on D-2 or D-1. Conversely, if N missed shift 3 on D-2, they can't work shift 4 on D. Also, if N missed shift 3 on D-1, they can't work shift 4 on D.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,1,D)} > MAXDAYS, maxDays(MAXDAYS).
+Description:
+Nurse N can't work more than MAXDAYS days on shift 1, given that MAXDAYS is the maximum allowed days set for N's schedule.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,1,D)} < MINDAYS, minDays(MINDAYS).
+Description:
+Nurse N must work at least MINDAYS days on shift 1, as long as MINDAYS is the minimum required days set for N's schedule.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,2,D)} > MAXDAYS, maxDays(MAXDAYS).
+Description:
+Nurse N can't work more than MAXDAYS days on shift 2, given that MAXDAYS is the maximum allowed days set for N's schedule.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,2,D)} < MINDAYS, minDays(MINDAYS).
+Description:
+Nurse N must work at least MINDAYS days on shift 2, as long as MINDAYS is the minimum required days set for N's schedule.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,3,D)} > MAXNIGHTS, maxNights(MAXNIGHTS).
+Description:
+Nurse N can't work more than MAXNIGHTS nights on shift 3, given that MAXNIGHTS is the maximum allowed nights set for N's schedule.
+
+ASP Rule:
+:- nurse(N), #count{D : assign(N,3,D)} < MINNIGHTS, minNights(MINNIGHTS).
+Description:
+Nurse N must work at least MINNIGHTS nights on shift 3, as long as MINNIGHTS is the minimum required nights set for N's schedule.

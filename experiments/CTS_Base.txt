@@ -1,0 +1,65 @@
+ASP Rule:
+{x(RID,DAY,TS,PH4,0,S) : 10_minutes_timeslot(TS), day(DAY)} = 1 :- registration(RID,0,_,PH4,PH3,PH2,PH1,S).
+Description:
+This rule ensures that each registration (RID) occurs only once on a specific day (DAY) and timeslot (TS). It checks if a 10-minute timeslot is valid on that day, then assigns a value of 1 if the registration's participant (RID) is available at that timeslot (TS) and location (PH4).
+
+ASP Rule:
+{x(RID,DAY+DAY2,TS,PH4,ORDER,S) : 10_minutes_timeslot(TS)} = 1 :- x(RID,DAY,_,_,N,_), ORDER=N+1, day(DAY+DAY2),registration(RID,ORDER,DAY2,PH4,PH3,PH2,PH1,S).
+Description:
+This rule ensures that for each participant (RID) and each consecutive day (DAY+DAY2), there's only one registration (x) for a specific timeslot (TS) and location (PH4), following a consecutive order. It checks if the timeslot is valid and if the registration is in sequential order for the participant over the specified days.
+
+ASP Rule:
+:- x(RID,DAY,TS,PH4,_,_), PH4 > 50, TS < 24.
+Description:
+This rule says: If there exists a registration (x) for a participant (RID) on a certain day (DAY), at a specific timeslot (TS), and location (PH4), but the temperature at that location (PH4) is greater than 50 and the timeslot (TS) is before 24, then there should be no such registration allowed.
+
+ASP Rule:
+:- x(RID,DAY,TS,_,ORDER,_), registration(RID,ORDER,DAY2,PH4,PH3,PH2,PH1,S), TS-PH3-PH2-PH1<1.
+Description:
+This rule says: If there exists a registration (x) for a participant (RID) on a certain day (DAY) at a specific timeslot (TS) with a certain order, and there's a registration for the same participant on a different day (DAY2) with certain conditions, such that the difference between the timeslots and temperatures is less than 1, then this condition should not be allowed.
+
+ASP Rule:
+1 <= {bed_with_registration_and_day(ID,RID,DAY) : bed(ID); chair_with_registration_and_day(ID,RID,DAY) : chair(ID)} <= 1 :- x(RID,DAY,_,_,_,_).
+Description:
+This rule ensures that for each participant (RID) and day (DAY), there's only one type of furniture (either bed or chair) assigned to them. It checks if there's a registration (x) for that participant on that day, and then ensures that only one type of furniture is associated with them, either a bed or a chair, but not both.
+
+ASP Rule:
+res(RID,DAY,T) :- 10_minutes_timeslot(T), x(RID,DAY,TS,PH4,_,_), PH4 > 0, TS <= T, T < TS+PH4.
+chair_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- chair_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+bed_with_registration_day_and_timeslot(ID,RID,DAY,TS) :- bed_with_registration_and_day(ID,RID,DAY), res(RID,DAY,TS). 
+:- #count{RID: chair_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_minutes_timeslot(TS), chair(ID). 
+:- #count{RID: bed_with_registration_day_and_timeslot(ID,RID,DAY,TS)} > 1, day(DAY), 10_minutes_timeslot(TS), bed(ID).
+Description:
+1. **res Rule**: Participants (RID) reserve a timeslot (T) on a specific day (DAY) if certain conditions are met: the timeslot is valid, the participant has a registration (x) on that day with a positive temperature (PH4), and the timeslot is within the allowed range of start and end times. 2. **chair_with_registration_day_and_timeslot Rule**: Identifies chairs assigned to participants (RID) on a particular day (DAY) and timeslot (TS), given they have a registration and there's a reservation (res) for that participant on that day. 3. **bed_with_registration_day_and_timeslot Rule**: Similar to the chair rule, but for beds. 4. **Constraint on Chair Overbooking**: Ensures no more than one participant (RID) is assigned to a chair on a given day (DAY) and timeslot (TS). 5. **Constraint on Bed Overbooking**: Similar to the chair constraint, but for beds.
+
+ASP Rule:
+support(RID,DAY,TS) :- x(RID,DAY,PH4,_,_,_), registration(RID,ORDER,_,_,PH3,PH2,_,_), PH2 > 0, TS=PH4-PH3-PH2, day(DAY), 5_minutes_timeslot(TS).
+Description:
+This rule states: A participant (RID) is supported (assigned a timeslot) on a certain day (DAY) and timeslot (TS) if they have a registration on that day and their arrival time (PH2) is positive, with the timeslot calculated based on their registration details. It ensures the timeslot is valid and follows a specific duration criterion.
+
+ASP Rule:
+numbReg(DAY,N,TS) :- N = #count{RID: support(RID,DAY,TS)}, day(DAY), 5_minutes_timeslot(TS).
+numMax(DAY,T) :- T = #max{N: numbReg(DAY,N,_)}, day(DAY).
+numMin(DAY,T) :- T = #min{N: numbReg(DAY,N,_), N != 0}, day(DAY). 
+Description:
+These rules determine the number of registrations on a certain day and timeslot. 1. **numbReg**: Calculates the total registrations (N) for a specific day (DAY) and timeslot (TS) based on the count of participants supported on that day and timeslot. 2. **numMax**: Finds the maximum number of registrations (T) on a given day (DAY), considering all available timeslots. 3. **numMin**: Determines the minimum number of registrations (T) on a certain day (DAY), excluding cases where there are no registrations (N != 0), and accounting for all available timeslots.
+
+ASP Rule:
+numbDay(DAY,N) :- N = #count{RID: support(RID,DAY,_)}, day(DAY).
+numMaxDay(T) :- T = #max{N: numbDay(DAY, N)}.
+Description:
+These rules analyze the number of registrations per day: 1. **numbDay**: Calculates the total registrations (N) for a specific day (DAY) by counting the participants supported on that day across all available timeslots. 2. **numMaxDay**: Determines the maximum number of registrations (T) across all days by finding the maximum count of registrations (N) achieved on any single day.
+
+ASP Rule:
+:~ x(RID,DAY,_,_,_,"chair"), bed_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+:~ x(RID,DAY,_,_,_,"bed"), chair_with_registration_day_and_timeslot(ID,RID,DAY,_). [1@7,RID]
+Description:
+These rules penalize conflicting assignments of furniture: 1. If a participant (RID) is assigned a "chair" for a certain day (DAY), but there's also a registration for a bed for the same participant on the same day, it incurs a penalty. 2. Similarly, if a participant is assigned a "bed" for a day, but there's also a registration for a chair for the same participant on the same day, it incurs a penalty.
+
+ASP Rule:
+:~ numMax(DAY,T). [T@6, DAY]
+:~ numMax(DAY,MAX), numMin(DAY,MIN). [MAX-MIN@5,DAY]
+:~ numMaxDay(N). [N@4]
+Description:
+These rules define constraints and preferences in the program: 1. If the maximum number of registrations for a day exceeds the limit (T), it incurs a penalty. 2. If there's a difference between the maximum and minimum number of registrations on a day (MAX-MIN), it incurs a penalty. 3. If the maximum number of registrations across all days exceeds the limit (N), it incurs a penalty.
+

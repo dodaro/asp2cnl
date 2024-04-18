@@ -1,0 +1,25 @@
+ASP RUle:
+{path_to(X,Y): node(Y), connected_to(Y,X)} :- node(X).
+Description:
+If there's a node identified as X, then there exists a path from node X to another node Y, where Y is connected to X.
+
+ASP RUle:
+:- node(X), #count{Y: path_to(X,Y), node(Y)} != 1.
+:- node(Y), #count{X: path_to(X,Y), node(X)} != 1.
+Description:
+Whenever there's a node identified as X, it must have exactly one path leading to any other node Y. Similarly, for any node identified as Y, there must be exactly one path originating from any node X.
+
+ASP RUle:
+reachable(start) :- node(start).
+Description:
+If there's a node labeled "start," there must be a way to reach it from another node also labeled "start."
+
+ASP RUle:
+reachable(Y) :- reachable(X), node(X), path_to(X,Y), node(Y).
+Description:
+If there's a way to reach a node labeled X and there's a node labeled X, and there's a path from node X to node Y, where Y is another node, then there must be a way to reach node Y.
+
+ASP RUle:
+:- node(RCHBL_D), not reachable(RCHBL_D).
+Description:
+A node with ID RCHBL_D cannot exist unless there is a reachable node with the same ID.

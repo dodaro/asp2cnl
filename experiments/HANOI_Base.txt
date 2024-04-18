@@ -1,0 +1,87 @@
+ASP Rule:
+on(0,N1,N) :- on0(N,N1).
+Description:
+This rule says: "If something is on block N at time 0 and block N1 is on top of it, then block N1 will still be on block N at time N."
+
+ASP Rule:
+onG(K,N1,N) :- ongoal(N,N1), step(K).
+Description:
+This rule says: "If block N1 is supposed to be on top of block N at some goal state, and we're at step K in the process, then block N1 is indeed on top of block N at that step."
+
+ASP Rule:
+:- time(T), on(T,N1,N), N1>=N.
+Description:
+This rule says: "If at any time T, block N1 is on top of block N, and N1 is greater than or equal to N, then this situation is not allowed."
+
+ASP Rule:
+move(T,N) | nomove(T,N) :- disk(N), time(T), step(K), T< K.
+Description:
+This rule says: "For each time T and each disk N, either the disk is moved at time T or it stays in place, given that T is less than the current step."
+
+ASP Rule:
+:- move(T,N1), move(T,N2), N1 != N2.
+Description:
+This rule says: "If two different disks are attempted to be moved at the same time, then this situation is not allowed."
+
+ASP Rule:
+:- time(T), step(K), T< K, not diskmoved(T).
+Description:
+This rule says: "If at a certain time T, which is before the current step K, there is no movement of any disk, then this situation is not allowed."
+
+ASP Rule:
+diskmoved(T) :- move(T,FV).
+Description:
+This rule says: "If a disk is moved at a specific time T, then we consider that disk to have been moved at that time."
+
+ASP Rule:
+dwhere(T,N) | noWhere(T,N) :- disk(N), time(T), step(K), T< K.
+Description:
+This rule says: "For each disk N and each time T before the current step, either we know where the disk is at that time or we don't."
+
+ASP Rule:
+:- dwhere(T,N1), dwhere(T,N2), N1 != N2.
+Description:
+This rule says: "If we know where two different disks are at the same time, then this situation is not allowed."
+
+ASP Rule:
+:- time(T), step(K), T< K, not diskWhere(T).
+diskWhere(T) :- dwhere(T,FV).
+Description:
+These rules say: "If at a time T before the current step K, there's no information about where any disk is, that's not allowed. But if we do know where a disk is at time T, then we consider that disk to have a location at that time."
+
+ASP Rule:
+:- move(T,N), N < 5.
+Description:
+This rule says: "If a move involving a disk numbered less than 5 is attempted, then this situation is not allowed."
+
+ASP Rule:
+:- on(T,N,N1), move(T,N).
+Description:
+This rule says: "If at a certain time T, a block N is on top of block N1 and there's an attempt to move block N at that time, then this situation is not allowed."
+
+ASP Rule:
+:- on(T,N,N1), dwhere(T,N).
+Description:
+This rule says: "If at a certain time T, a block N is on top of block N1 and we know where block N is at that time, then this situation is not allowed."
+
+ASP Rule:
+:- move(T,N), move(TM1,N), TM1=T-1.
+Description:
+This rule says: "If there's an attempt to move block N at time T, and there's also an attempt to move it at the previous time (T-1), then this situation is not allowed."
+
+ASP Rule:
+on(TP1,N1,N) :- move(T,N), dwhere(T,N1), TP1=T+1.
+on(TP1,N,N1) :- time(T), step(K), T< K, on(T,N,N1), not move(T,N1), TP1=T+1.
+Description:
+These rules say: 1. "If a block N is moved at time T, and we know where block N1 is at that time, then at the next time step (T+1), block N1 will be on top of block N." 2. "If at a time T before the current step K, block N is on top of block N1 and there's no move involving block N1 at time T, then at the next time step (T+1), block N will be on top of block N1."
+
+ASP Rule:
+:- not on(K,N,N1), onG(K,N,N1), step(K).
+:- on(K,N,N1), not onG(K,N,N1), step(K).
+Description:
+These rules say: 1. "If a block N is not on top of block N1 at step K according to the goal, but it's supposed to be, then this situation is not allowed." 2. "If at step K, a block N is on top of block N1 according to the goal, but it's not actually the case, then this situation is not allowed."
+
+ASP Rule:
+put(T,M,N) :- move(T,N), dwhere(T,M), step(K), T< K.
+Description:
+This rule says: "At a time T before the current step K, if a block N is moved and we know where block M is at that time, then we consider block N to be placed on top of block M."

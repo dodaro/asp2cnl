@@ -1,0 +1,9 @@
+ASP Rule:
+1 <= {assigned_to(ND_D,CLR_D): color(CLR_D)} <= 1 :- node(ND_D).
+Description:
+If there's a node labeled ND_D, it can have only one assigned_to property also labeled ND_D, with a color identified as CLR_D, provided CLR_D exists.
+
+ASP Rule:
+:- connected_to(X,Y), assigned_to(X,C), assigned_to(Y,C).
+Description:
+It's not allowed for a connection between nodes X and Y if there's an assignment of color C to node X and another assignment of color C to node Y.
