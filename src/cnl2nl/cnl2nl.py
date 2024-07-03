@@ -66,7 +66,7 @@ if __name__ == '__main__':
     print(o['nl'])
 
     try:
-        with open(output_file, 'w') as f:
+        with open(args.output_file, 'w') as f:
             json.dump(o, f)
     except Exception as e:
         print("Error in writing output", str(e))
