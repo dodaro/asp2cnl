@@ -1,9 +1,15 @@
+from textwrap import dedent
+
 from setuptools import setup, find_packages
 
 setup(
     name='asp2cnl',
     version='1.0.0',
     description='A tool for converting Answer Set Programming into a Controlled Natural Language based on English',
+    long_description=dedent('''\
+                            A tool for converting Answer Set Programming into a Controlled Natural Language based on English
+
+                            '''),
     url='https://github.com/dodaro/asp2cnl',
     license='Apache License',
     author='Carmine Dodaro',
