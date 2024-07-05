@@ -1,11 +1,11 @@
 import argparse
 import os
-import sys
 
 import requests
 import json
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
+
 
 def compile_prompt(prefix="Explain in everyday language what the following sentence says, improving the writing "
                           "style:\n", suffix="\nLimit your answer to 500 characters."):
@@ -51,22 +51,33 @@ def contact_llm_service(model='openchat', prompt=None):
         return contact_ollama_service(model=model, prompt=prompt)
 
 
-if __name__ == '__main__':
+def run_cnl2nl():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-f", '--cnl_file', required=False, default='examples/cnl_example.json')
-    parser.add_argument("-m", "--llm_model", type=str, required=False, default='openchat')
-    parser.add_argument('--output_file', type=str, required=False, default='cnl2nl.json')
+    parser.add_argument('--cnl2nl', action='store_true')
+    parser.add_argument("-m", "--llm_model", type=str, default='openchat')
+    parser.add_argument('cnl_file')
+    parser.add_argument('output_file', type=str, nargs='?', default='')
     args = parser.parse_args()
+
+    cnl_file = args.cnl_file
+    llm_model = args.llm_model
+    output_file = args.output_file
+
+
     prompt_compiler = compile_prompt()
 
-    with open(args.cnl_file, "r") as f:
+    with open(cnl_file, "r") as f:
         o = json.load(f)
-    #print(o)
-    o['nl'] = [contact_llm_service(model=args.llm_model, prompt=prompt_compiler(cnl)) for cnl in o['cnl']]
-    print(o['nl'])
+    o['nl'] = []
+    for cnl in o['cnl']:
+        print(f'Processing rule: {cnl}')
+        o['nl'].append(contact_llm_service(model=llm_model, prompt=prompt_compiler(cnl)))
+
+    print("\n** NL:")
+    print('\n'.join(o['nl']))
 
     try:
-        with open(args.output_file, 'w') as f:
+        with open(output_file, 'w') as f:
             json.dump(o, f)
     except Exception as e:
         print("Error in writing output", str(e))

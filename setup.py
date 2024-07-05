@@ -13,6 +13,11 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src', exclude=['test*']),
     package_data={'': ['asp_core_2_grammar/asp_grammar.lark']},
-    install_requires=['lark'],
+    entry_points={
+        'console_scripts': ['asp2cnl = asp2cnl.asp2cnl:run_asp2cnl',
+                            'asp2nl = asp2nl.asp2nl:run_asp2nl',
+                            'cnl2nl = cnl2nl.cnl2nl:run_cnl2nl'],
+    },
+    install_requires=['lark', 'inflect', 'multipledispatch', 'cnl2asp'],
     python_requires=">=3.10"
 )
