@@ -126,7 +126,7 @@ Alternatively, you can run asp2cnl from source using the following command:
 python src/main.py --asp2nl <ASP PROGRAM FILE> <DEFINITION FILE> [-m <LLM MODEL NAME>] [<OUTPUT JSON FILE>]
 ```
 
-For example, in order to convert the Maximal Clique ASP program into NL, we use the following command::
+For example, in order to convert the Maximal Clique ASP program into NL, we use the following command:
 ```
 asp2nl examples/maxclique/maxclique.asp examples/maxclique/schema.cnl examples/maxclique/maxclique_nl.json
 ```
