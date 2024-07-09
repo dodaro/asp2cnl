@@ -81,6 +81,12 @@ Alternatively, you can run asp2cnl from source using the following command:
 python src/main.py --asp2cnl <ASP PROGRAM FILE> <DEFINITION FILE> [<OUTPUT JSON FILE>]
 ```
 
+For example, in order to convert the Maximal Clique ASP program into CNL, we use the following command:
+```
+asp2cnl examples/maxclique/maxclique.asp examples/maxclique/schema.cnl examples/maxclique/maxclique_cnl.json
+```
+The generated output will be saved into file maxclique_cnl.json in the JSON format.
+
 #### CNL2NL
 
 Syntax to convert a list of CNL sentences into natural language using a LLM
@@ -97,6 +103,13 @@ Alternatively, you can run asp2cnl from source using the following command:
 python src/main.py --cnl2nl <CNL JSON FILE> [-m <LLM MODEL NAME>] [<OUTPUT JSON FILE>]
 ```
 
+For example, in order to convert the Maximal Clique program into NL starting from the CNL output of the previous execution, 
+we use the following command:
+```
+cnl2nl examples/maxclique/maxclique_cnl.json examples/maxclique/maxclique_nl.json
+```
+The generated output will be saved into file maxclique_nl.json in the JSON format.
+
 #### ASP2NL
 
 Syntax to convert an asp program into natural language via CNL
@@ -112,3 +125,9 @@ Alternatively, you can run asp2cnl from source using the following command:
 ```
 python src/main.py --asp2nl <ASP PROGRAM FILE> <DEFINITION FILE> [-m <LLM MODEL NAME>] [<OUTPUT JSON FILE>]
 ```
+
+For example, in order to convert the Maximal Clique ASP program into NL, we use the following command::
+```
+asp2nl examples/maxclique/maxclique.asp examples/maxclique/schema.cnl examples/maxclique/maxclique_nl.json
+```
+The generated output will be saved into file maxclique_nl.json in the JSON format.
