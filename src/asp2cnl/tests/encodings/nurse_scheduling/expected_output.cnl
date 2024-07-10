@@ -1,0 +1,28 @@
+There is a total_days with day value equal to 365.
+There is a workshift with id equal to 1, with name equal to 1_morning, with number_of_hours equal to 7.
+There is a workshift with id equal to 2, with name equal to 2_afternoon, with number_of_hours equal to 7.
+There is a workshift with id equal to 3, with name equal to 3_night, with number_of_hours equal to 10.
+There is a workshift with id equal to 4, with name equal to 4_restafternights, with number_of_hours equal to 0.
+There is a workshift with id equal to 5, with name equal to 5_rest, with number_of_hours equal to 0.
+There is a workshift with id equal to 6, with name equal to 6_holiday, with number_of_hours equal to 0.
+Whenever there is a day with value D, whenever there is a nurse with id N then we can have exactly 1 assign with nurse id N, with workshift id T, with day value D such that there is a workshift with id T.
+It is prohibited that the total number_of_hours, for each day value, that have a workshift with id T assign N with nurse id N, with workshift id T, with day value D is greater than MAX whenever  there is a nurse with id N, whenever there is a maxHoursPerYear with value MAX.
+It is prohibited that the total number_of_hours, for each day value, that have a workshift with id T assign N with nurse id N, with workshift id T, with day value D is less than MIN whenever  there is a nurse with id N, whenever there is a minHoursPerYear with value MIN.
+It is prohibited that there is a nurse with id N, whenever there is a assign with nurse id N, with workshift id T1 less than or equal to 3, with day value D, whenever there is a assign with nurse id N, with workshift id T2 less than T1, with day value D+1, where T2 is less than or equal to 3.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 6 is different from 30 whenever  there is a nurse with id N.
+It is prohibited that there is not a assign with nurse id N, with workshift id equal to 4, with day value D, whenever there is a assign with nurse id N, with workshift id equal to 3, with day value D-2, whenever there is a assign with nurse id N, with workshift id equal to 3, with day value D-1.
+It is prohibited that there is a assign with nurse id N, with workshift id equal to 4, with day value D, whenever there is not a assign with nurse id N, with workshift id equal to 3, with day value D-2.
+It is prohibited that there is a assign with nurse id N, with workshift id equal to 4, with day value D, whenever there is not a assign with nurse id N, with workshift id equal to 3, with day value D-1.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 5, with day value D1 greater than or equal to D  is less than 2, where D1 is less than D+14 whenever  there is a nurse with id N, whenever there is a day with value D less than or equal to DAYS-13, whenever there is a total_days with day value DAYS.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 1, with day value D is greater than K whenever  there is a day with value D, whenever there is a maxNurseMorning with value K.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 1, with day value D is less than K whenever  there is a day with value D, whenever there is a minNurseMorning with value K.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 2, with day value D is greater than K whenever  there is a day with value D, whenever there is a maxNurseAfternoon with value K.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 2, with day value D is less than K whenever  there is a day with value D, whenever there is a minNurseAfternoon with value K.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 3, with day value D is greater than K whenever  there is a day with value D, whenever there is a maxNurseNight with value K.
+It is prohibited that the number of nurse id that have a assign with workshift id equal to 3, with day value D is less than K whenever  there is a day with value D, whenever there is a minNurseNight with value K.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 1 is greater than MAXDAYS whenever  there is a nurse with id N, whenever there is a maxDays with value MAXDAYS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 1 is less than MINDAYS whenever  there is a nurse with id N, whenever there is a minDays with value MINDAYS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 2 is greater than MAXDAYS whenever  there is a nurse with id N, whenever there is a maxDays with value MAXDAYS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 2 is less than MINDAYS whenever  there is a nurse with id N, whenever there is a minDays with value MINDAYS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 3 is greater than MAXNIGHTS whenever  there is a nurse with id N, whenever there is a maxNights with value MAXNIGHTS.
+It is prohibited that the number of day value that have a assign with nurse id N, with workshift id equal to 3 is less than MINNIGHTS whenever  there is a nurse with id N, whenever there is a minNights with value MINNIGHTS.

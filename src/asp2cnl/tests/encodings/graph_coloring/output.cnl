@@ -1,0 +1,5 @@
+A node is identified by an id.
+A color is identified by an id.
+A connected_to is identified by a first node, and by a second node.
+An assigned_to is identified by a node, and by a color.
+It is prohibited that there is a connected_to with first_node X, with second_node Y, whenever there is a assigned_to with node id X, with color id C, whenever there is a assigned_to with node id Y, with color id C.

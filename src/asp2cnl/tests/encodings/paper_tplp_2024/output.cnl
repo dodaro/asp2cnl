@@ -1,0 +1,6 @@
+A topmovie is identified by a score.
+A movie is identified by a score.
+
+A bestmovie is identified by a score.
+An assignment is identified by a value, and by a target.
+An edge is identified by a value, and by a target.It is preferred, with priority 3, that the number of score that have a movie , whenever there is a topMovie with score K, X is maximized.

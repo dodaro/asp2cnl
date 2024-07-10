@@ -1,0 +1,20 @@
+Whenever there is a on0 with firstdisk N, with seconddisk N1 then we must have a on with stepvalue equal to 0, with firstdisk N1, with seconddisk N.
+Whenever there is a ongoal with firstdisk N, with seconddisk N1, whenever there is a step with value K then we must have a onG with stepvalue K, with firstdisk N1, with seconddisk N.
+It is prohibited that there is a time with value T, whenever there is a on with stepvalue T, with firstdisk N1 greater than or equal to N, with seconddisk N.
+Whenever there is a disk with id N, whenever there is a time with value T less than K, whenever there is a step with value K then we can have a move with timevalue T, with diskvalue N or a nomove with timevalue T, with diskvalue N.
+It is prohibited that there is a move with timevalue T, with diskvalue N1 different from N2, whenever there is a move with timevalue T, with diskvalue N2.
+It is prohibited that there is a time with value T less than K, whenever there is a step with value K, whenever there is not a diskmoved with timevalue T.
+Whenever there is a move with timevalue T, with diskvalue FV then we must have a diskmoved with timevalue T.
+Whenever there is a disk with id N, whenever there is a time with value T less than K, whenever there is a step with value K then we can have a dwhere with timevalue T, with diskvalue N or a noWhere with timevalue T, with diskvalue N.
+It is prohibited that there is a dwhere with timevalue T, with diskvalue N1 different from N2, whenever there is a dwhere with timevalue T, with diskvalue N2.
+It is prohibited that there is a time with value T less than K, whenever there is a step with value K, whenever there is not a diskWhere with timevalue T.
+Whenever there is a dwhere with timevalue T, with diskvalue FV then we must have a diskWhere with timevalue T.
+It is prohibited that there is a move with timevalue T, with diskvalue N less than 5.
+It is prohibited that there is a on with stepvalue T, with firstdisk N, with seconddisk N1, whenever there is a move with timevalue T, with diskvalue N.
+It is prohibited that there is a on with stepvalue T, with firstdisk N, with seconddisk N1, whenever there is a dwhere with timevalue T, with diskvalue N.
+It is prohibited that there is a move with timevalue T, with diskvalue N, whenever there is a move with timevalue TM1 equal to T-1, with diskvalue N.
+Whenever there is a move with timevalue T, with diskvalue N, whenever there is a dwhere with timevalue T, with diskvalue N1 then we must have a on with stepvalue TP1, with firstdisk N1, with seconddisk N, where TP1 is equal to T+1.
+Whenever there is a time with value T less than K, whenever there is a step with value K, whenever there is a on with stepvalue T, with firstdisk N, with seconddisk N1, whenever there is not a move with timevalue T, with diskvalue N1 then we must have a on with stepvalue TP1, with firstdisk N, with seconddisk N1, where TP1 is equal to T+1.
+It is prohibited that there is not a on with stepvalue K, with firstdisk N, with seconddisk N1, whenever there is a onG with stepvalue K, with firstdisk N, with seconddisk N1, whenever there is a step with value K.
+It is prohibited that there is a on with stepvalue K, with firstdisk N, with seconddisk N1, whenever there is not a onG with stepvalue K, with firstdisk N, with seconddisk N1, whenever there is a step with value K.
+Whenever there is a move with timevalue T less than K, with diskvalue N, whenever there is a dwhere with timevalue T, with diskvalue M, whenever there is a step with value K then we must have a put with timevalue T, with firstdisk M, with seconddisk N.

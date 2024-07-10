@@ -1,0 +1,22 @@
+A day is identified by a value. // ranging from 1 to 365.
+A total_days is identified by a day.
+A workshift is identified by an id, and has a name, and a number_of_hours.
+A nurse is identified by an id.
+An assign is identified by a nurse, by a workshift, and by a day.
+//An assign is identified by a nurse, and has a workshift, and a day.
+
+A maxHoursPerYear is identified by a value.
+A minHoursPerYear is identified by a value.
+A maxNurseMorning is identified by a value.
+A minNurseMorning is identified by a value.
+A maxNurseAfternoon is identified by a value.
+A minNurseAfternoon is identified by a value.
+A maxNurseNight is identified by a value.
+A minNurseNight is identified by a value.
+A minDays is identified by a value.
+A maxDays is identified by a value.
+A minNights is identified by a value.
+A maxNights is identified by a value.
+
+
+

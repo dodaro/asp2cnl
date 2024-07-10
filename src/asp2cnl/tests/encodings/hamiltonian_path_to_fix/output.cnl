@@ -1,0 +1,7 @@
+A node is identified by an id.
+A reachable is identified by an id.
+A path_to is identified by a source node, and by a target node.
+A connected_to is identified by a source node, and by a target node.
+
+
+It is prohibited that the number of target_node Y that have a path_to with source_node X node Y with id Y is different from 1 whenever  there is a node with id X.
