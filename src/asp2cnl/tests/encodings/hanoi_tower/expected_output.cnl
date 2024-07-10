@@ -4,7 +4,7 @@ It is prohibited that there is a time with value T, whenever there is a on with 
 Whenever there is a disk with id N, whenever there is a time with value T less than K, whenever there is a step with value K then we can have a move with timevalue T, with diskvalue N or a nomove with timevalue T, with diskvalue N.
 It is prohibited that there is a move with timevalue T, with diskvalue N1 different from N2, whenever there is a move with timevalue T, with diskvalue N2.
 It is prohibited that there is a time with value T less than K, whenever there is a step with value K, whenever there is not a diskmoved with timevalue T.
-Whenever there is a move with timevalue T, with diskvalue FV then we must have a diskmoved with timevalue T.
+Whenver there is a move with timevalue T, with diskvalue FV then we must have a diskmoved with timevalue T.
 Whenever there is a disk with id N, whenever there is a time with value T less than K, whenever there is a step with value K then we can have a dwhere with timevalue T, with diskvalue N or a noWhere with timevalue T, with diskvalue N.
 It is prohibited that there is a dwhere with timevalue T, with diskvalue N1 different from N2, whenever there is a dwhere with timevalue T, with diskvalue N2.
 It is prohibited that there is a time with value T less than K, whenever there is a step with value K, whenever there is not a diskWhere with timevalue T.

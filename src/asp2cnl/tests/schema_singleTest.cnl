@@ -1,4 +1,2 @@
-A node is identified by an id, and by a weight.
-A set is identified by an id.
-An edge is identified by a sourcenode, and by a targetnode.
-An assigned_to is identified by a sourcenode, by a targetnode, and by a weight.
+A chosen is identified by an id.
+A test is identified by an id.
