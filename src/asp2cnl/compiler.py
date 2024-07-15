@@ -744,12 +744,15 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
                     if len(foundAggrs) > 0:
                         tmpWheneverResults.write(", ")
                         tmpWheneverResults.write("whenever")
+                        #results.write(", ")
+                        #results.write("whenever")
                     elif costWeakTerm is not None:
                         if type(rule.weight_at_level.beforeAt) == ArithmeticAtom or rule.weight_at_level.beforeAt.isVariable():
                             tmpWheneverResults.write(" ")
                             tmpWheneverResults.write("whenever")
                     else:
                         tmpWheneverResults.write("Whenever")
+                        #results.write("Whenever")
                 else:
                     if len(foundAggrs) > 0 or hasSumInBuiltin:
                         tmpWheneverResults.write(" ")
@@ -780,6 +783,11 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
             # tmpWheneverResults.write(" ")
         elif type(lit) == AggregateLiteral:
             if not isStrongConstraint and costWeakTerm is None:
+                if startedLits and len(foundAggrs) == 0:
+                    results.write(tmpWheneverResults.getvalue())
+                    tmpWheneverResults = StringIO()
+                    results.write(",")
+
                 if len(foundAggrs) > 0 or startedLits:
                     results.write(" ")
                     results.write("whenever")
@@ -813,7 +821,6 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
 
     if tmpWheneverResults is not None:
         if costWeakTerm is not None and needVariable:
-
             if type(costWeakTerm) == ArithmeticAtom or len(foundAggrs) > 0:
                 if type(costWeakTerm) == ArithmeticAtom:
                     results.write(" ")

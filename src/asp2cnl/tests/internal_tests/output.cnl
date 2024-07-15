@@ -1,0 +1,2 @@
+A node is identified by an id.
+Whenever there is a node with id X, whenever we have that the number of id that have a node  is equal to Z then we must have a node with id Z.

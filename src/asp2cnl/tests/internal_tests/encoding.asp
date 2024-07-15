@@ -1,0 +1,1 @@
+node(Z) :- node(X), #count{Y: node(Y)} = Z.
