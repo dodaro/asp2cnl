@@ -24,6 +24,6 @@ setup(
                             'asp2nl = asp2nl.asp2nl:run_asp2nl',
                             'cnl2nl = cnl2nl.cnl2nl:run_cnl2nl'],
     },
-    install_requires=['lark', 'inflect', 'multipledispatch', 'cnl2asp'],
+    install_requires=['lark', 'inflect', 'multipledispatch', 'cnl2asp', 'requests'],
     python_requires=">=3.10"
 )

@@ -28,6 +28,7 @@ that transforms a given ASP program into a set of sentences expressed in a natur
 - multipledispatch
 - cnl2asp
 - openai (optional, only if you plan to use it)
+- requests
 
 ### Access to a LLM  is required
 
