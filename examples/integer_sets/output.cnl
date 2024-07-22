@@ -1,0 +1,6 @@
+Whenever there is a set with id equal to set1, with value X, whenever there is a set with id equal to set2, with value Y then we can have a match with first X, with second Y.
+Whenever there is a match with first X, with second Y less than X then we must have a positive_match with first X, with second Y.
+Whenever there is a match with first X, with second Y greater than X then we must have a negative_match with first X, with second Y.
+It is prohibited that the number of first, for each second, that have a match with second MTCH_SCND is different from 1 whenever there is a set with id equal to set1, with value E.
+It is prohibited that the number of first, for each second, that have a match with second E is different from 1 whenever there is a set with id equal to set2, with value E.
+It is prohibited that the number of first, for each second Y, that have a positive_match with second Y negative_match T with first T, with second Y is equal to Z, whenever we have that the number of first, for each second, that have a negative_match with second V is equal to K.

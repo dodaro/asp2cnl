@@ -1,0 +1,22 @@
+There is a node with id equal to 1.
+There is a node with id equal to 2.
+There is a node with id equal to 3.
+There is a node with id equal to 4.
+There is a node with id equal to 5.
+There is a connected_to with source_node equal to 1, with target_node equal to 2.
+Whenever there is a node with id equal to 1, whenever there is a node with id X equal to 2 then we must have a connected_to with source_node equal to 1, with target_node X.
+Whenever there is a node with id equal to 1, whenever there is a node with id X equal to 3 then we must have a connected_to with source_node equal to 1, with target_node X.
+Whenever there is a node with id equal to 2, whenever there is a node with id X equal to 1 then we must have a connected_to with source_node equal to 2, with target_node X.
+Whenever there is a node with id equal to 2, whenever there is a node with id X equal to 4 then we must have a connected_to with source_node equal to 2, with target_node X.
+Whenever there is a node with id equal to 3, whenever there is a node with id X equal to 1 then we must have a connected_to with source_node equal to 3, with target_node X.
+Whenever there is a node with id equal to 3, whenever there is a node with id X equal to 4 then we must have a connected_to with source_node equal to 3, with target_node X.
+Whenever there is a node with id equal to 4, whenever there is a node with id X equal to 3 then we must have a connected_to with source_node equal to 4, with target_node X.
+Whenever there is a node with id equal to 4, whenever there is a node with id X equal to 5 then we must have a connected_to with source_node equal to 4, with target_node X.
+Whenever there is a node with id equal to 5, whenever there is a node with id X equal to 3 then we must have a connected_to with source_node equal to 5, with target_node X.
+Whenever there is a node with id equal to 5, whenever there is a node with id X equal to 4 then we must have a connected_to with source_node equal to 5, with target_node X.
+Whenever there is a node with id X then we can have a path_to with source_node X, with target_node Y such that there is a node with id Y, a connected_to with source_node Y, with target_node X.
+It is prohibited that the number of target_node Y that have a path_to with source_node X node Y with id Y is different from 1 whenever  there is a node with id X.
+It is prohibited that the number of source_node X that have a path_to with target_node Y node X with id X is different from 1 whenever  there is a node with id Y.
+Whenever there is a node with id equal to start then we must have a reachable with id equal to start.
+Whenever there is a reachable with id X, whenever there is a node with id X, whenever there is a path_to with source_node X, with target_node Y, whenever there is a node with id Y then we must have a reachable with id Y.
+It is prohibited that there is a node with id RCHBL_D, whenever there is not a reachable with id RCHBL_D.

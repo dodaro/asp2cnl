@@ -1,0 +1,3 @@
+Whenever there is a node with id ND_D then we can have a chosen with id ND_D.
+It is prohibited that there is not a connected_to with sourcenode X different from Y, with targetnode Y, whenever there is a node with id X, whenever there is a chosen with id X, whenever there is a node with id Y, whenever there is a chosen with id Y.
+It is preferred, with priority 3, that the number of id that have a chosen is maximized.

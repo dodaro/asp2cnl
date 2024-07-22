@@ -16,7 +16,7 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
                 
-        program = open(os.path.join(os.path.dirname(__file__), "maxclique.asp"), "r").read()        
+        program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
         definitions = ASPParser(program).parse()
 
         expectedCnl = open(os.path.join(os.path.dirname(__file__), "expected_output.cnl"), 'r').readlines()

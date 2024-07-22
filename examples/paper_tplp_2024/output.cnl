@@ -1,0 +1,15 @@
+It is prohibited that the difference between SCORE, and 5 is greater than or equal to 0, whenever there is a topMovie with score SCORE.
+It is prohibited that the difference between the score SCORE of the topMovie TOPMOVIE1, and the score SCORE2 of the topMovie TOPMOVIE2 is greater than or equal to 0, whenever there is a topMovie with score SCORE, whenever there is a topMovie with score SCORE2.
+It is prohibited that the difference between the score SCORE of the topMovie TOPMOVIE1, and the score SCORE2 of the topMovie TOPMOVIE2 is greater than or equal to 0, whenever we have that the difference between the score SCORE3 of the movie MOVIE1, and the score SCORE4 of the movie MOVIE2 is equal to SCORE5, whenever there is a topMovie with score SCORE, whenever there is a topMovie with score SCORE2, whenever there is a movie with score SCORE3, whenever there is a movie with score SCORE4, whenever there is a bestMovie with score SCORE5.
+It is prohibited that there is a movie with score SCORE greater than or equal to 0, whenever there is a bestmovie with score SCORE2 greater than or equal to 0, where SCORE is less than SCORE2.
+It is prohibited that there is a movie with score SCORE, whenever there is a movie with score SCORE2 greater than or equal to SCORE, where 0 is less than or equal to SCORE.
+It is prohibited that the sum between SCORE, SCORE2, and 1 is greater than 0, whenever there is a movie with score SCORE, whenever there is a bestMovie with score SCORE2.
+It is prohibited that the sum between SCORE, and 2, and 1 is greater than 0, whenever there is a movie with score SCORE, whenever there is a bestMovie with score SCORE2.
+It is prohibited that there is a movie with score SCORE, whenever there is a bestMovie with score SCORE2, where 0 is less than SCORE+2+1.
+It is prohibited that the sum between 0, and 1, and the score SCORE of the movie MOVIE1 is less than or equal to SCORE2, whenever there is a movie with score SCORE greater than or equal to SCORE2, whenever there is a movie with score SCORE2, where 1 is greater than SCORE.
+It is prohibited that there is a assignment with value X, with target C1 equal to C2, whenever there is a assignment with value Y, with target C2, whenever there is a edge with value X, with target Y.
+It is preferred, with priority 5, that the difference between VALUE, and TARGET is minimized whenever there is a assignment with value VALUE, with target TARGET.
+It is preferred, with priority 5, that the difference between the value VALUE of the assignment ASSIGNMENT1, and the value TARGET of the assignment ASSIGNMENT2 is minimized whenever there is a assignment ASSIGNMENT1 with value VALUE, with target equal to 1, whenever there is a assignment ASSIGNMENT2 with value TARGET, with target equal to 2.
+It is preferred, with priority 3, that whenever there is a movie with score D, whenever there is a topMovie with score D1, D is maximized.
+It is preferred, with priority 3, that the number of score that have a movie is maximized.
+It is preferred, with priority 3, that the number of score that have a movie is maximized, whenever there is a topMovie with score K.
