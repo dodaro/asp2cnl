@@ -58,7 +58,7 @@ def compile_rule(rule, symbols):
     results = StringIO()
     if type(rule) == Directive:
         results.write(generate_directive(rule, symbols))
-        results.write("\n")
+        #results.write("\n")
     else:
         if rule.isFact():
             # Facts
@@ -74,28 +74,28 @@ def compile_rule(rule, symbols):
                         else:
                             results.write(generate_there_is(atom, symb, {}, True))
                     results.write(".")
-                    results.write("\n")
+                    #results.write("\n")
 
                 elif len(atom.terms) >= 2:
                     if symb is not None:
                         results.write(generate_there_is(atom, symb, {}, True))
                         results.write(".")
-                        results.write("\n")
+                        #results.write("\n")
                         # else:
                     #    results.write(generate_relation(atom))
                     #    results.write("\n")
         elif rule.isClassical():
             results.write(generate_classical_statement(rule, symbols))
-            results.write("\n")
+            #results.write("\n")
         elif rule.isStrongConstraint():
             results.write(generate_strong_constraint(rule, symbols))
-            results.write("\n")
+            #results.write("\n")
         elif rule.isDisjunctive() or rule.isChoice():
             results.write(generate_disjunctive_or_choice_statement(rule, symbols))
-            results.write("\n")
+            #results.write("\n")
         elif rule.isWeakConstraint():
             results.write(generate_weak_constraint(rule, symbols))
-            results.write("\n")
+            #results.write("\n")
 
     return results.getvalue()
 
