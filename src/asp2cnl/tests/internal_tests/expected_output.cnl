@@ -1,1 +1,6 @@
 Whenever there is a node with id X, whenever we have that the number of id that have a node  is equal to Z then we must have a node with id Z.
+It is prohibited that the sum between N1, and N2 is greater than 1, whenever we have that the number of second_cell that have a stitch with first_cell C is equal to N1, whenever we have that the number of first_cell that have a stitch with second_cell C is equal to N2, whenever there is a hole with cell C.
+It is prohibited that the sum between N1, and N2 is greater than 1, whenever we have that the number of first_cell that have a stitch with second_cell C is equal to N2, whenever there is a hole with cell N1.
+Whenever there is a hole with cell N1, whenever we have that the number of first_cell that have a stitch with second_cell C is equal to N2 then we must have a hole with cell N1+N2, where N1+N2 is greater than 1.
+Whenever there is a hole with cell N1, whenever there is a hole with cell N2 then we must have a hole with cell N1+N2, where 1 is equal to N1+N2.
+It is prohibited that there is a hole with cell N1, whenever there is a hole with cell N2, where 1 is equal to N1+N2.

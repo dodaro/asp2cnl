@@ -1,2 +1,2 @@
-A chosen is identified by an id.
-A test is identified by an id.
+A stitch is identified by a first cell, by a second cell.
+A hole is identified by a cell.

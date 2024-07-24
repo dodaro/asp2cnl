@@ -1,2 +1,4 @@
 A node is identified by an id.
-Whenever there is a node with id X, whenever we have that the number of id that have a node  is equal to Z then we must have a node with id Z.
+A stitch is identified by a first cell, by a second cell.
+A hole is identified by a cell.
+It is prohibited that there is a hole with cell N1, whenever there is a hole with cell N, where 1 is equal to N1+N.

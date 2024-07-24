@@ -213,6 +213,27 @@ def generate_vars_symbols(body, symbols, arithAtom):
                                 p[2] = lit
                                 #                                foundLitNames.append(lit.literal.name)
                                 matchedVars[ip] = tuple(p)
+        elif type(lit) == AggregateLiteral:
+            operator = getAggregateOperator(lit)
+            assignmentVar = None
+            if operator == "=":
+                if (lit.lowerOp == "=" and lit.upperGuard is None) or (
+                        lit.upperOp == "=" and lit.lowerGuard is None):
+                    if lit.upperGuard is not None and lit.upperGuard.isVariable():
+                        assignmentVar = lit.upperGuard
+                    elif lit.lowerGuard is not None and lit.lowerGuard.isVariable():
+                        assignmentVar = lit.lowerGuard
+            if assignmentVar is not None:
+                for ip in range(len(matchedVars)):
+                    if type(matchedVars[ip]) == tuple:
+                        if matchedVars[ip][0] == assignmentVar:
+                            p = list(matchedVars[ip])
+                            #p[1] = symbLit.attributes[i]
+                            p[2] = lit
+                            #                                foundLitNames.append(lit.literal.name)
+                            matchedVars[ip] = tuple(p)
+
+
 
     started = False
     for builtVars in matchedVars:
@@ -224,7 +245,10 @@ def generate_vars_symbols(body, symbols, arithAtom):
         else:
             started = True
         if not isConstant:
-            if foundLitNames.count(builtVars[2].literal.name) == 1:
+            #print(builtVars)
+            if type(builtVars[2]) == AggregateLiteral:
+                results.write(builtVars[0].name)
+            elif foundLitNames.count(builtVars[2].literal.name) == 1:
                 results.write(builtVars[0].name)
             else:
                 results.write("the")
@@ -655,20 +679,20 @@ def generateWhereForBuiltins(builtinAtoms):
     if len(builtinAtoms) > 0:
         # started = False
         for builtinAtom in builtinAtoms:
-            if type(builtinAtom.terms[0]) != ArithmeticAtom:
-                # if started:
-                results.write(", ")
-                # else:
-                #    started = True
-                results.write("where")
-                results.write(" ")
-                results.write(builtinAtom.terms[0].toString())
-                results.write(" ")
-                results.write("is")
-                results.write(" ")
-                results.write(generate_compare_operator_sentence(builtinAtom.op))
-                results.write(" ")
-                results.write(builtinAtom.terms[1].toString())
+            #if type(builtinAtom.terms[0]) != ArithmeticAtom:
+            # if started:
+            results.write(", ")
+            # else:
+            #    started = True
+            results.write("where")
+            results.write(" ")
+            results.write(builtinAtom.terms[0].toString())
+            results.write(" ")
+            results.write("is")
+            results.write(" ")
+            results.write(generate_compare_operator_sentence(builtinAtom.op))
+            results.write(" ")
+            results.write(builtinAtom.terms[1].toString())
     return results.getvalue()
 
 
@@ -701,6 +725,7 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
     startedLits = False
     # builtinAtoms = []
     hasSumInBuiltin = False
+    builtinSumSetInConstraint = False
 
     for builtinA in builtinAtoms:
         if type(builtinA.terms[0]) == ArithmeticAtom:
@@ -714,10 +739,12 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
                 if startedLits:
                     results.write(", whenever we have that")
                 else:
+                    builtinSumSetInConstraint = True
                     startedLits = True
                 results.write(" ")
                 results.write(generate_operation_between(body, symbols, builtinAtom.terms[0]))
                 results.write(generate_compare_of_arithmetic_builtin(builtinAtom.op, builtinAtom.terms[1]))
+                builtinAtoms.remove(builtinAtom)
 
     tmpWheneverResults = None
     tmpAggrResults = None
@@ -796,7 +823,7 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
                 results.write(" ")
                 results.write("we have that")
             else:
-                if len(foundAggrs) > 0:  # or startedLits:
+                if len(foundAggrs) > 0 or builtinSumSetInConstraint:  # or startedLits:
                     results.write(",")
                     results.write(" ")
                     results.write("whenever")

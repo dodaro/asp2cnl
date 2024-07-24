@@ -1,28 +1,5 @@
-There is a node with id equal to 1.
-
-There is a node with id equal to 2.
-
-There is a node with id equal to 3.
-
-There is a color with id equal to red.
-
-There is a color with id equal to green.
-
-There is a color with id equal to blue.
-
-Whenever there is a node with id equal to 1, whenever there is a node with id X equal to 2 then we must have a connected_to with first_node equal to 1, with second_node X.
-
-Whenever there is a node with id equal to 1, whenever there is a node with id X equal to 3 then we must have a connected_to with first_node equal to 1, with second_node X.
-
-Whenever there is a node with id equal to 2, whenever there is a node with id X equal to 1 then we must have a connected_to with first_node equal to 2, with second_node X.
-
-Whenever there is a node with id equal to 2, whenever there is a node with id X equal to 3 then we must have a connected_to with first_node equal to 2, with second_node X.
-
-Whenever there is a node with id equal to 3, whenever there is a node with id X equal to 1 then we must have a connected_to with first_node equal to 3, with second_node X.
-
-Whenever there is a node with id equal to 3, whenever there is a node with id X equal to 2 then we must have a connected_to with first_node equal to 3, with second_node X.
-
-Whenever there is a node with id ND_D then we can have exactly 1 assigned_to with node id ND_D, with color id CLR_D such that there is a color with id CLR_D.
-
+A node is identified by an id.
+A color is identified by an id.
+A connected_to is identified by a first node, and by a second node.
+An assigned_to is identified by a node, and by a color.
 It is prohibited that there is a connected_to with first_node X, with second_node Y, whenever there is a assigned_to with node id X, with color id C, whenever there is a assigned_to with node id Y, with color id C.
-
