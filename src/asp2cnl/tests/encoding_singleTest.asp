@@ -1,5 +1,6 @@
-:- hole(C), #count{C1: stitch(C,C1)} = N1, #count{C1: stitch(C1,C)} = N2, N1+N2>1.
-:- hole(N1), #count{C1: stitch(C1,C)} = N2, N1+N2>1.
-hole(N1+N2):- hole(N1), #count{C1: stitch(C1,C)} = N2, N1+N2>1.
-hole(N1+N2):- hole(N1), hole(N2), 1=N1+N2.
-:- 1=N1+N2,hole(N1), hole(N2).
+% affected(J1,AN,AC,T) :- changeAngle(J2,_,A,AP,T), hasAngle(J1,AC,T),J1>J2, angle(AN), AN=(A-AP+B), time(T).
+% affected(J1,AN,AC,T) :- changeAngle(J2,_,A,AP,T), hasAngle(J1,AC,T),J1>J2, angle(AN), AN=C + (A-AP) - (E * (F + KL) ), time(T).
+% affected(J1,AN,AC,T) :- changeAngle(J2,_,A,AP,T), hasAngle(J1,AC,T),J1>J2, angle(AN), AN=(AC + (A-AP)) + 360, time(T).
+affected(J1,AN,AC,T) :- changeAngle(J2,_,A,AP,T), hasAngle(J1,AC,T),J1>J2, angle(AN), AN=|(AC + (A-AP)) + 360|, time(T).
+
+% affected(J1,AN,AC,T) :- changeAngle(J2,_,A,AP,T), hasAngle(J1,AC,T),J1>J2, angle(AN), AN=|(AC + (A-AP)) + 360|\\360, time(T).

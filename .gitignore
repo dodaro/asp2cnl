@@ -11,3 +11,4 @@ changes.txt
 *.egg-info
 build
 dist
+/examples/outputs/

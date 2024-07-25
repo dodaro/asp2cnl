@@ -117,7 +117,7 @@ naf_literal : classical_literal
 |             builtin_atom
 
 
-builtin_atom : b term | b classical_literal
+builtin_atom : b term | b classical_literal | b OR term OR (BACK_DIV BACK_DIV NUMBER)?
 
 binop : EQUAL | UNEQUAL | LESS | GREATER | LESS_OR_EQ | GREATER_OR_EQ
 
@@ -176,6 +176,7 @@ PLUS: "+"
 MINUS: "-"
 TIMES: "*"
 DIV: "/"
+BACK_DIV: "\\"
 AT: "@"
 PAREN_OPEN: "("
 PAREN_CLOSE: ")"

@@ -1,4 +1,4 @@
 A node is identified by an id.
 A stitch is identified by a first cell, by a second cell.
 A hole is identified by a cell.
-It is prohibited that there is a hole with cell N1, whenever there is a hole with cell N, where 1 is equal to N1+N.
+It is prohibited that there is a hole with cell N1, whenever there is a hole with cell N2, where 1 is equal to N1+N2.
