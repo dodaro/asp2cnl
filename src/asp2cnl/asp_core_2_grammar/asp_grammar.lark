@@ -117,7 +117,7 @@ naf_literal : classical_literal
 |             builtin_atom
 
 
-builtin_atom : b term | b classical_literal | b OR term OR (BACK_DIV BACK_DIV NUMBER)?
+builtin_atom : b term | b classical_literal
 
 binop : EQUAL | UNEQUAL | LESS | GREATER | LESS_OR_EQ | GREATER_OR_EQ
 
@@ -135,6 +135,9 @@ term : NUMBER
 |      termdue term
 |      termdue termdue
 |      term DOTDOT term
+|      OR term OR
+
+
 
 termdue: NUMBER arithop
 |      STRING arithop
@@ -142,9 +145,10 @@ termdue: NUMBER arithop
 |      ANONYMOUS_VARIABLE arithop
 |      PAREN_OPEN termdue PAREN_CLOSE arithop
 |      PAREN_OPEN term PAREN_CLOSE arithop
+|      OR term OR arithop
 |      ID PAREN_OPEN terms PAREN_CLOSE arithop
 
-arithop : PLUS | MINUS | TIMES | DIV
+arithop : PLUS | MINUS | TIMES | DIV | BACK_DIV BACK_DIV
 
 classical_literal : ID
 |   ID PAREN_OPEN PAREN_CLOSE

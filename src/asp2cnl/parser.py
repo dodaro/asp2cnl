@@ -2,7 +2,6 @@ from lark.lexer import Token
 
 from lark import Transformer, Lark
 from dataclasses import dataclass
-from typing import TextIO
 
 from io import StringIO
 import os
@@ -17,10 +16,10 @@ class ASPParser:
 
     def parse(self):
         parsed = self.__aspCoreParser.parse(self.__programFile)
-        #print(parsed)
+        print(parsed)
         content_tree: ASPContentTree = ASPTransformer().transform(parsed)
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
-        #print(content_tree)
+        print(content_tree)
         return definitions
 
 
@@ -161,11 +160,6 @@ class ASPTransformer(Transformer):
         return elem.value
 
     def builtin_atom(self, elem):
-        #print("BB")
-        #print(elem)
-        if len(elem) > 2 and type(elem[1]) == Token:
-            if elem[1].value == "|" and elem[3].value == "|":
-                return BuiltinAtom(elem[0][1], [elem[0][0], elem[2]], True)
         return BuiltinAtom(elem[0][1], [elem[0][0], elem[1]])
 
     def b(self, elem):
@@ -183,8 +177,18 @@ class ASPTransformer(Transformer):
         return terms
 
     def term(self, elem):
+        print("BB")
+        print(elem)
+        #if len(elem) > 2 and type(elem[0]) == Token and type(elem[-1]) == Token:
+        #    if elem[0].value == "|" and elem[-1].value == "|":
+        #        elem = elem[1:-1]
+        #        isModule = True
+        #        return BuiltinAtom(elem[0][1], [elem[0][0], elem[2]], True)
         if len(elem) == 1:
+            #if type(elem[0]) == Token:
             return Term(elem[0].value)
+            #else:
+            #    return elem[0]
         elif len(elem) == 2:
             #if type(elem[1]) == ArithmeticAtom:
             #    operators = [elem[0][1]]
@@ -193,10 +197,12 @@ class ASPTransformer(Transformer):
             #    terms += elem[1].terms
             #    return ArithmeticAtom(operators, terms)
             #else:
-            if elem[0][0].value == "(":
+            if elem[0][0].value == "(" or elem[0][0].value == "|":
+                isParenthesis = elem[0][0].value == "("
+                isModule = elem[0][0].value == "|"
                 #return elem[0][1]
-                elem[0][1] = ArithmeticAtom(elem[0][1].ops, elem[0][1].terms, True)
-                if type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis:
+                elem[0][1] = ArithmeticAtom(elem[0][1].ops, elem[0][1].terms, isParenthesis, isModule=isModule)
+                if type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis and not elem[1].isModule:
                     operators = [elem[0][3]]
                     operators += elem[1].ops
                     terms = [elem[0][1]]
@@ -204,7 +210,7 @@ class ASPTransformer(Transformer):
                     return ArithmeticAtom(operators, terms)
                 else:
                     return ArithmeticAtom(elem[0][3], [elem[0][1], elem[1]])
-            elif type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis:
+            elif type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis and not elem[1].isModule:
                 operators = [elem[0][1]]
                 operators += elem[1].ops
                 terms = [Term(elem[0][0].value)]
@@ -219,10 +225,16 @@ class ASPTransformer(Transformer):
                 #terms = elem[1].terms
                 #return ArithmeticAtom(operators, terms)
         elif len(elem) == 3:
-            if elem[0].value == "(":
-                return ArithmeticAtom(elem[1].ops, elem[1].terms, True)
-            elif elem[1].value == "..":
-                return Term(elem[0].toString(), elem[2].toString())
+            if type(elem[1]) == ArithmeticAtom:
+                if elem[0].value == "(":
+                    return ArithmeticAtom(elem[1].ops, elem[1].terms, True)
+                if elem[0].value == "|" and elem[2].value == "|":
+                    return ArithmeticAtom(elem[1].ops, elem[1].terms, True, True)
+            else:
+                if elem[0].value == "|" and elem[2].value == "|":
+                    return Term(elem[1].toString(), isModule=True)
+                elif elem[1].value == "..":
+                    return Term(elem[0].toString(), elem[2].toString())
 
     def termdue(self, elem):
         return elem
@@ -304,8 +316,13 @@ class ASPTransformer(Transformer):
         return ChoiceElement(left_part, right_part)
 
     def arithop(self, elem):
+        print("OP")
+        print(elem)
+        if len(elem) == 2:
+            return elem[0].value + elem[1].value
         if (elem[0] == "_MINUS_"):
             return "-"
+
         return elem[0].value
 
     def weight_at_level(self, elem):
@@ -393,6 +410,7 @@ class ASPTransformer(Transformer):
 class Term:
     name: str
     afterDotDot: str = None
+    isModule: bool = False
 
     def isVariable(self):
         return not self.name.isnumeric() and self.name[0].isupper() and self.afterDotDot is None
@@ -405,7 +423,13 @@ class Term:
 
     def toString(self):
         if self.afterDotDot is None:
-            return self.name
+            text = StringIO()
+            if self.isModule:
+                text.write("|")
+            text.write(self.name)
+            if self.isModule:
+                text.write("|")
+            return text.getvalue()
         else:
             return self.name + ".." + self.afterDotDot
 
@@ -415,6 +439,7 @@ class ArithmeticAtom:
     ops: list[str]
     terms: list[Term]
     __inParenthesis:bool = False
+    isModule: bool = False
 
     def containsVar(self, term):
         for t in self.terms:
@@ -425,18 +450,26 @@ class ArithmeticAtom:
     def toString(self):
         text = StringIO()
 
+        if self.isModule:
+            text.write("|")
+        print(len(self.ops))
         for i in range(len(self.ops)):
-            if type(self.terms[i]) == ArithmeticAtom:
+            if type(self.terms[i]) == ArithmeticAtom and not self.terms[i].isModule:
                 text.write("(")
             text.write(self.terms[i].toString())
-            if type(self.terms[i]) == ArithmeticAtom:
+            if type(self.terms[i]) == ArithmeticAtom and not self.terms[i].isModule:
                 text.write(")")
-            text.write(self.ops[i])
-        if type(self.terms[len(self.terms) - 1]) == ArithmeticAtom:
+            if self.ops[i] == "\\":
+                text.write(self.ops[i] + self.ops[i])
+            else:
+                text.write(self.ops[i])
+        if type(self.terms[len(self.terms) - 1]) == ArithmeticAtom and not self.terms[len(self.terms) - 1].isModule:
             text.write("(")
         text.write(self.terms[len(self.terms) - 1].toString())
-        if type(self.terms[len(self.terms) - 1]) == ArithmeticAtom:
+        if type(self.terms[len(self.terms) - 1]) == ArithmeticAtom and not self.terms[len(self.terms) - 1].isModule:
             text.write(")")
+        if self.isModule:
+            text.write("|")
         return text.getvalue()
         # return self.terms[0].toString() + self.ops[0] + self.terms[1].toString()
 
@@ -445,7 +478,6 @@ class ArithmeticAtom:
 class BuiltinAtom:
     op: str
     terms: list[Term | ArithmeticAtom]
-    isModule: bool = False
 
     def containsVar(self, term):
         for t in self.terms:
@@ -461,11 +493,11 @@ class BuiltinAtom:
         #if type(self.terms[0]) == Token and type(self.terms[-1]) == Token and self.terms[0].value == "|" and self.terms[-1].value == "|":
         #    return self.terms[1].toString() + " " + self.op + " " + self.terms[2].toString()
         text = StringIO()
-        if self.isModule:
-            text.write("|")
+        #if self.isModule:
+        #    text.write("|")
         text.write(self.terms[0].toString() + " " + self.op + " " + self.terms[1].toString())
-        if self.isModule:
-            text.write("|")
+        #if self.isModule:
+        #    text.write("|")
         return text.getvalue()
 
 

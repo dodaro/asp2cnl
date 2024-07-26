@@ -8,4 +8,3 @@ A hasAngle is identified by a joint, by an angle, and by a time.
 A changeAngle is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time.
 A ok is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time.
 //timemax is a constant equal to 90.
-Whenever there is a changeAngle with first_joint J2, with first_angle A, with second_angle AP, with time T, whenever there is a hasAngle with joint id J1 greater than J2, with angle value AC, with time T, whenever there is a angle with value AN equal to (AC+(A-AP))+360, whenever there is a time with time T then we must have a affected with joint id J1, with first_angle AN, with second_angle AC, with time T.
