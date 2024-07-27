@@ -16,10 +16,10 @@ class ASPParser:
 
     def parse(self):
         parsed = self.__aspCoreParser.parse(self.__programFile)
-        print(parsed)
+        #print(parsed)
         content_tree: ASPContentTree = ASPTransformer().transform(parsed)
         definitions = [content_tree.rules[i] for i in range(len(content_tree.rules))]
-        print(content_tree)
+        #print(content_tree)
         return definitions
 
 
@@ -177,18 +177,8 @@ class ASPTransformer(Transformer):
         return terms
 
     def term(self, elem):
-        print("BB")
-        print(elem)
-        #if len(elem) > 2 and type(elem[0]) == Token and type(elem[-1]) == Token:
-        #    if elem[0].value == "|" and elem[-1].value == "|":
-        #        elem = elem[1:-1]
-        #        isModule = True
-        #        return BuiltinAtom(elem[0][1], [elem[0][0], elem[2]], True)
         if len(elem) == 1:
-            #if type(elem[0]) == Token:
             return Term(elem[0].value)
-            #else:
-            #    return elem[0]
         elif len(elem) == 2:
             #if type(elem[1]) == ArithmeticAtom:
             #    operators = [elem[0][1]]
@@ -316,13 +306,8 @@ class ASPTransformer(Transformer):
         return ChoiceElement(left_part, right_part)
 
     def arithop(self, elem):
-        print("OP")
-        print(elem)
-        if len(elem) == 2:
-            return elem[0].value + elem[1].value
         if (elem[0] == "_MINUS_"):
             return "-"
-
         return elem[0].value
 
     def weight_at_level(self, elem):
@@ -452,17 +437,13 @@ class ArithmeticAtom:
 
         if self.isModule:
             text.write("|")
-        print(len(self.ops))
         for i in range(len(self.ops)):
             if type(self.terms[i]) == ArithmeticAtom and not self.terms[i].isModule:
                 text.write("(")
             text.write(self.terms[i].toString())
             if type(self.terms[i]) == ArithmeticAtom and not self.terms[i].isModule:
                 text.write(")")
-            if self.ops[i] == "\\":
-                text.write(self.ops[i] + self.ops[i])
-            else:
-                text.write(self.ops[i])
+            text.write(self.ops[i])
         if type(self.terms[len(self.terms) - 1]) == ArithmeticAtom and not self.terms[len(self.terms) - 1].isModule:
             text.write("(")
         text.write(self.terms[len(self.terms) - 1].toString())

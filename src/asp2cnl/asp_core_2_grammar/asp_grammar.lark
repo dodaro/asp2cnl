@@ -148,7 +148,7 @@ termdue: NUMBER arithop
 |      OR term OR arithop
 |      ID PAREN_OPEN terms PAREN_CLOSE arithop
 
-arithop : PLUS | MINUS | TIMES | DIV | BACK_DIV BACK_DIV
+arithop : PLUS | MINUS | TIMES | DIV | BACK_DIV
 
 classical_literal : ID
 |   ID PAREN_OPEN PAREN_CLOSE
