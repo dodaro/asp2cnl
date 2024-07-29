@@ -199,7 +199,7 @@ class ASPTransformer(Transformer):
                     terms += elem[1].terms
                     return ArithmeticAtom(operators, terms)
                 else:
-                    return ArithmeticAtom(elem[0][3], [elem[0][1], elem[1]])
+                    return ArithmeticAtom([elem[0][3]], [elem[0][1], elem[1]])
             elif type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis and not elem[1].isModule:
                 operators = [elem[0][1]]
                 operators += elem[1].ops

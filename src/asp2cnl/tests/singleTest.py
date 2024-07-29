@@ -30,7 +30,7 @@ class TestRules(unittest.TestCase):
                 results.write("RULE: ")
                 results.write("\n")
                 results.write(rule.toString())
-                #print(rule.toString())
+                print(rule.toString())
                 results.write("\n")
                 results.write("\n")
                 results.write("TRANSLATED IN: ")

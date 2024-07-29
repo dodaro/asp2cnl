@@ -306,6 +306,15 @@ def generate_with(atom, symbol, builtinAtoms=[]):
                                 results.write(generate_compare_operator_sentence(builtinAtom.op))
                                 results.write(" ")
 
+                                # Angle management
+                                if type(builtinAtom.terms[1]) == ArithmeticAtom:
+                                    if ( (atom.name == "angle" or symbol.attributes[i] == "angle value")
+                                            and builtinAtom.terms[1].terms[-1].name == "360"
+                                            and (builtinAtom.terms[1].ops[-1] == "\\"
+                                                 or builtinAtom.terms[1].ops[-1] == "/")):
+                                        builtinAtom.terms[1].terms.pop()
+                                        builtinAtom.terms[1].ops.pop()
+
                                 results.write(builtinAtom.terms[1].toString())
 
                                 builtinAtoms.remove(builtinAtom)
@@ -468,6 +477,7 @@ def getBuiltinAtoms(rule):
     builtinAtoms = []
     for lit in rule.body.literals:
         if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:
+            # Angle Management
             builtinAtoms.append(lit.literal)
     return builtinAtoms
 
@@ -938,7 +948,19 @@ def generate_operation_between(body, symbols, arithAtom):
         isSub = True
     if arithAtom.ops[0] == "*":
         isMult = True
-    if arithAtom.ops[0] == "/":
+    if arithAtom.ops[0] == "/" or arithAtom.ops[0] == "\\":
+        '''if arithAtom.terms[1].name == "360":
+            results.write(generate_vars_symbols(body, symbols, arithAtom))
+            for symb in symbols:
+                for attr in symb.attributes:
+                    
+            if ((symbol.attributes[i] == "angle value")
+                        and builtinAtom.terms[1].terms[-1].name == "360"
+                        and (builtinAtom.terms[1].ops[-1] == "\\"
+                             or builtinAtom.terms[1].ops[-1] == "/")):
+                    builtinAtom.terms[1].terms.pop()
+                    builtinAtom.terms[1].ops.pop()
+        '''
         isDiv = True
 
     for op in arithAtom.ops:
@@ -954,7 +976,7 @@ def generate_operation_between(body, symbols, arithAtom):
             isSum = False
             isSub = False
             isDiv = False
-        if op == "/":
+        if op == "/" or op == "\\":
             isSum = False
             isSub = False
             isMult = False
