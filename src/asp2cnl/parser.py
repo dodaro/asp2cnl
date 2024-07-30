@@ -432,6 +432,9 @@ class ArithmeticAtom:
                 return True
         return False
 
+    def isVariable(self):
+        return False
+
     def toString(self):
         text = StringIO()
 

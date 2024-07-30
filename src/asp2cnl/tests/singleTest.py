@@ -36,6 +36,7 @@ class TestRules(unittest.TestCase):
                 results.write("TRANSLATED IN: ")
                 results.write("\n")
                 compiled = compile_rule(rule, symbols)
+                print(compiled)
                 #compiled = ""
                 results.write(compiled)
                 results.write("\n")

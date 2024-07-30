@@ -305,7 +305,7 @@ def generate_with(atom, symbol, builtinAtoms=[]):
                                 # builtinAtom = builtinAtoms[atom.terms[i]]
                                 results.write(generate_compare_operator_sentence(builtinAtom.op))
                                 results.write(" ")
-
+                                '''
                                 # Angle management
                                 if type(builtinAtom.terms[1]) == ArithmeticAtom:
                                     if ( (atom.name == "angle" or symbol.attributes[i] == "angle value")
@@ -314,6 +314,7 @@ def generate_with(atom, symbol, builtinAtoms=[]):
                                                  or builtinAtom.terms[1].ops[-1] == "/")):
                                         builtinAtom.terms[1].terms.pop()
                                         builtinAtom.terms[1].ops.pop()
+                                '''
 
                                 results.write(builtinAtom.terms[1].toString())
 
@@ -451,7 +452,7 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
     #           and with id I.
     results = StringIO()
 
-    builtinAtoms = getBuiltinAtoms(rule)
+    builtinAtoms = getBuiltinAtoms(rule, symbols)
     results.write(generate_body(rule, symbols, builtinAtoms))
     results.write(" ")
     results.write("then")
@@ -473,12 +474,66 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
     return results.getvalue()
 
 
-def getBuiltinAtoms(rule):
+def getBuiltinAtoms(rule, symbols):
     builtinAtoms = []
     for lit in rule.body.literals:
         if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:
             # Angle Management
             builtinAtoms.append(lit.literal)
+
+    # Angle Management
+    for builtinAtom in builtinAtoms:
+        checkNumber = 1
+        while checkNumber < 3:
+            leftPart = None
+            rithPart = None
+            if checkNumber == 1:
+                leftPart = builtinAtom.terms[0]
+                rithPart = builtinAtom.terms[1]
+            elif checkNumber == 2:
+                leftPart = builtinAtom.terms[1]
+                rithPart = builtinAtom.terms[0]
+            if isinstance(rithPart, ArithmeticAtom):
+                arithAtom = rithPart
+                removedFromVariable = False
+                if isinstance(leftPart, ArithmeticAtom):
+                    if len(leftPart.ops) == 1:
+                        if isinstance(leftPart.terms[1], Term):
+                            if ( (leftPart.ops[0] == "/" or leftPart.ops[0] == "\\")
+                                            and leftPart.terms[1].name == "360" ) :
+                                leftPart = leftPart.terms[0]
+                                removedFromVariable = True
+
+                if arithAtom.terms[-1].name == "360" and leftPart.isVariable():
+                    checkingVar = leftPart
+                    for lit in rule.body.literals:
+                        if type(lit) == NafLiteral and type(lit.literal) == ClassicalLiteral:
+                            symbLit = get_symbol(symbols, lit.literal)
+                            atom = lit.literal
+                            isAngle = False
+                            if atom.name == "angle":
+                                isAngle = True
+                            else:
+                                for i in range(len(atom.terms)):
+                                    if checkingVar == atom.terms[i]:
+                                        if symbLit.attributes[i] == "angle value":
+                                            isAngle = True
+                            if isAngle:
+                                if len(arithAtom.terms) == 2:
+                                    if checkNumber == 1:
+                                        builtinAtom.terms[1] = arithAtom.terms[0]
+                                        if removedFromVariable:
+                                            builtinAtom.terms[0] = leftPart
+                                    else:
+                                        builtinAtom.terms[1] = arithAtom.terms[1]
+                                        if removedFromVariable:
+                                            builtinAtom.terms[0] = leftPart
+                                else:
+                                    arithAtom.terms.pop()
+                                    arithAtom.ops.pop()
+                                checkNumber = 3
+            checkNumber = checkNumber + 1
+
     return builtinAtoms
 
 
@@ -488,7 +543,7 @@ def generate_classical_statement(rule, symbols):
     # Whenever there is a movie with id X, with director equal to spielberg
     # then we must have a topmovie with id X.
     results = StringIO()
-    builtinAtoms = getBuiltinAtoms(rule)
+    builtinAtoms = getBuiltinAtoms(rule, symbols)
     results.write(generate_body(rule, symbols, builtinAtoms))
     results.write(" ")
     results.write("then")
@@ -513,7 +568,7 @@ def generate_strong_constraint(rule, symbols):
     # with id X, and with year equal to 1964, whenever there is a topMovie with id Y.
     results = StringIO()
     results.write("It is prohibited that")
-    builtinAtoms = getBuiltinAtoms(rule)
+    builtinAtoms = getBuiltinAtoms(rule, symbols)
     results.write(generate_body(rule, symbols, builtinAtoms, True))
     results.write(generateWhereForBuiltins(builtinAtoms))
     results.write(".")
@@ -548,7 +603,7 @@ def generate_weak_constraint(rule, symbols):
     results.write("that")
     # results.write(" ")
 
-    builtinAtoms = getBuiltinAtoms(rule)
+    builtinAtoms = getBuiltinAtoms(rule, symbols)
     results.write(generate_body(rule, symbols, builtinAtoms, False, rule.weight_at_level.beforeAt))
 
     # results.write(", ")
@@ -949,18 +1004,6 @@ def generate_operation_between(body, symbols, arithAtom):
     if arithAtom.ops[0] == "*":
         isMult = True
     if arithAtom.ops[0] == "/" or arithAtom.ops[0] == "\\":
-        '''if arithAtom.terms[1].name == "360":
-            results.write(generate_vars_symbols(body, symbols, arithAtom))
-            for symb in symbols:
-                for attr in symb.attributes:
-                    
-            if ((symbol.attributes[i] == "angle value")
-                        and builtinAtom.terms[1].terms[-1].name == "360"
-                        and (builtinAtom.terms[1].ops[-1] == "\\"
-                             or builtinAtom.terms[1].ops[-1] == "/")):
-                    builtinAtom.terms[1].terms.pop()
-                    builtinAtom.terms[1].ops.pop()
-        '''
         isDiv = True
 
     for op in arithAtom.ops:
