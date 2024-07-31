@@ -1,0 +1,15 @@
+A vGUESS is identified by a value.
+A date is a temporal concept expressed in days ranging from 03/12/2019 to 03/12/2019.
+A time is a temporal concept expressed in minutes ranging from 12:00 AM to 11:00 PM with a length of 60 minutes.
+A vC_P is identified by a date, by a time, and has a value.
+A vC_M is identified by a date, by a time, and has a value.
+A vP is identified by a date, by a time, and has a value.
+A vQ is identified by a date, by a time, and has a value.
+A vE_P1 is identified by a date, by a time, and has a value.
+A vE_M1 is identified by a date, by a time, and has a value.
+A vS_P1 is identified by a date, by a time, and has a value.
+A vS_M1 is identified by a date, by a time, and has a value.
+A vCREG_MINUS is identified by a date, by a time, and has a value.
+A vPUN is identified by a date, by a time, and has a value.
+A vPZ is identified by a date, by a time, and has a value.
+

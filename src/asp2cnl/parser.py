@@ -221,7 +221,7 @@ class ASPTransformer(Transformer):
                 if elem[0].value == "|" and elem[2].value == "|":
                     return ArithmeticAtom(elem[1].ops, elem[1].terms, True, True)
             else:
-                if elem[0].value == "|" and elem[2].value == "|":
+                if isinstance(elem[0], Token) and elem[0].value == "|" and elem[2].value == "|":
                     return Term(elem[1].toString(), isModule=True)
                 elif elem[1].value == "..":
                     return Term(elem[0].toString(), elem[2].toString())
