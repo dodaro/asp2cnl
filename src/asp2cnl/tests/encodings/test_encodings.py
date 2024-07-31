@@ -7,7 +7,8 @@ from hanoi_tower.test import TestRules as Test4
 #from integer_sets.test import TestRules as Test5
 from maxclique.test import TestRules as Test6
 from nurse_scheduling.test import TestRules as Test7
-#from undirected_graph.test import TestRules as Test8
+from robot_arm.test import TestRules as Test8
+#from undirected_graph.test import TestRules as Test9
 
 class TestEncodings(unittest.TestCase):
     test_suite = unittest.TestSuite()
@@ -18,7 +19,8 @@ class TestEncodings(unittest.TestCase):
     #test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test5))
     test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test6))
     test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test7))
-    #test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test8))
+    test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test8))
+    #test_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test9))
 
 
     runner=unittest.TextTestRunner()

@@ -1,16 +1,10 @@
 A joint is identified by an id.
-An angle is identified by an angle value.
+An angle is identified by a angle value.
 A goal is identified by a joint, and by an angle.
 A isLinked is identified by a first joint, and by a second joint.
 A time is a temporal concept expressed in steps ranging from 0 to 10.
 An affected is identified by a joint, by a first angle, by a second angle, and by a time.
 A hasAngle is identified by a joint, by an angle, and by a time.
-A changeAngle is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time.
+A changeAngle is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time. 
 A ok is identified by a first joint, by a second joint, by a first angle, by a second angle, and by a time.
 //timemax is a constant equal to 90.
-
-A position is identified by a joint, by an angle, and by a time.
-A link is identified by a first joint, and by a second joint.
-A rotation is identified by a first joint, by a second joint, by a desired angle, by a current angle, and by a time.
-granularity is a constant equal to 90.
-

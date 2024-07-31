@@ -305,16 +305,6 @@ def generate_with(atom, symbol, builtinAtoms=[]):
                                 # builtinAtom = builtinAtoms[atom.terms[i]]
                                 results.write(generate_compare_operator_sentence(builtinAtom.op))
                                 results.write(" ")
-                                '''
-                                # Angle management
-                                if type(builtinAtom.terms[1]) == ArithmeticAtom:
-                                    if ( (atom.name == "angle" or symbol.attributes[i] == "angle value")
-                                            and builtinAtom.terms[1].terms[-1].name == "360"
-                                            and (builtinAtom.terms[1].ops[-1] == "\\"
-                                                 or builtinAtom.terms[1].ops[-1] == "/")):
-                                        builtinAtom.terms[1].terms.pop()
-                                        builtinAtom.terms[1].ops.pop()
-                                '''
 
                                 results.write(builtinAtom.terms[1].toString())
 
@@ -476,9 +466,15 @@ def generate_disjunctive_or_choice_statement(rule, symbols):
 
 def getBuiltinAtoms(rule, symbols):
     builtinAtoms = []
+    if rule.isChoice():
+        for choice_element in rule.head.elements:
+            if choice_element.right_part is not None:
+                for nafLit in choice_element.right_part:
+                    if isinstance(nafLit.literal, BuiltinAtom):
+                        builtinAtoms.append(nafLit.literal)
+
     for lit in rule.body.literals:
         if type(lit) == NafLiteral and type(lit.literal) == BuiltinAtom:
-            # Angle Management
             builtinAtoms.append(lit.literal)
 
     # Angle Management
@@ -708,13 +704,14 @@ def generate_head_choice(head, symbols):
 
             started = False
             for nafLit in headElem.right_part:
-                # if type(nafLit.literal) != BuiltinAtom:
-                if started:
-                    results.write(",")
-                    results.write(" ")
-                symb = get_symbol(symbols, nafLit.literal)
-                results.write(generate_there_is(nafLit, symb, {}, False, started))
-                started = True
+                if type(nafLit.literal) != BuiltinAtom:
+                    if started:
+                        results.write(",")
+                        results.write(" ")
+                    symb = get_symbol(symbols, nafLit.literal)
+                    results.write(generate_there_is(nafLit, symb, {}, False, started))
+                    started = True
+    #results.write(", where J1 is less than J2 ")
 
     return results.getvalue()
 
