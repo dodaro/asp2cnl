@@ -1,0 +1,9 @@
+A time is a temporal concept expressed in steps ranging from 0 to 10.
+A joint is identified by an id.
+An angle is identified by a value.
+A position is identified by a joint, by an angle, and by a time.
+A link is identified by a first joint, and by a second joint.
+A rotation is identified by a first joint, by a second joint, by a desired angle, by a current angle, and by a time.
+A goal is identified by a joint, and by an angle.
+granularity is a constant equal to 90.
+timemax is a constant equal to 90.

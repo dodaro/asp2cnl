@@ -191,7 +191,8 @@ class ASPTransformer(Transformer):
                 isParenthesis = elem[0][0].value == "("
                 isModule = elem[0][0].value == "|"
                 #return elem[0][1]
-                elem[0][1] = ArithmeticAtom(elem[0][1].ops, elem[0][1].terms, isParenthesis, isModule=isModule)
+                if isinstance(elem[0][1], ArithmeticAtom):
+                    elem[0][1] = ArithmeticAtom(elem[0][1].ops, elem[0][1].terms, isParenthesis, isModule=isModule)
                 if type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis and not elem[1].isModule:
                     operators = [elem[0][3]]
                     operators += elem[1].ops
@@ -396,6 +397,7 @@ class Term:
     name: str
     afterDotDot: str = None
     isModule: bool = False
+
 
     def isVariable(self):
         return not self.name.isnumeric() and self.name[0].isupper() and self.afterDotDot is None

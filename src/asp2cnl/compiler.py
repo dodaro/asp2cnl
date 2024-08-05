@@ -265,7 +265,7 @@ def generate_vars_symbols(body, symbols, arithAtom):
                 results.write(get_literal_identifier(body, builtVars[2]))
                 # results.write(builtVars[2].upper())
         else:
-            results.write(builtVars.name)
+            results.write(builtVars.toString())
 
     return results.getvalue()
 
@@ -512,7 +512,12 @@ def getBuiltinAtoms(rule, symbols):
                             else:
                                 for i in range(len(atom.terms)):
                                     if checkingVar == atom.terms[i]:
-                                        if symbLit.attributes[i] == "angle value":
+                                        if symbLit.attributes[i] == "angle value" \
+                                                or symbLit.attributes[i] == "angle_value" \
+                                                or symbLit.attributes[i].endswith(" angle_value") \
+                                                or symbLit.attributes[i].endswith(" angle value") \
+                                                or symbLit.attributes[i].endswith("_angle") \
+                                                or symbLit.attributes[i].endswith(" angle"):
                                             isAngle = True
                             if isAngle:
                                 if len(arithAtom.terms) == 2:
@@ -521,9 +526,9 @@ def getBuiltinAtoms(rule, symbols):
                                         if removedFromVariable:
                                             builtinAtom.terms[0] = leftPart
                                     else:
-                                        builtinAtom.terms[1] = arithAtom.terms[1]
+                                        builtinAtom.terms[0] = arithAtom.terms[0]
                                         if removedFromVariable:
-                                            builtinAtom.terms[0] = leftPart
+                                            builtinAtom.terms[1] = leftPart
                                 else:
                                     arithAtom.terms.pop()
                                     arithAtom.ops.pop()
