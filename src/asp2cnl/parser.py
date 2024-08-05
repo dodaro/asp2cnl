@@ -192,6 +192,7 @@ class ASPTransformer(Transformer):
                 isModule = elem[0][0].value == "|"
                 #return elem[0][1]
                 if isinstance(elem[0][1], ArithmeticAtom):
+                    isModule = isModule or elem[0][1].isModule
                     elem[0][1] = ArithmeticAtom(elem[0][1].ops, elem[0][1].terms, isParenthesis, isModule=isModule)
                 if type(elem[1]) == ArithmeticAtom and not elem[1]._ArithmeticAtom__inParenthesis and not elem[1].isModule:
                     operators = [elem[0][3]]

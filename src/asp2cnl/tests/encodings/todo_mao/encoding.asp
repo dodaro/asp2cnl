@@ -1,5 +1,5 @@
-#const granularity = 90.
-#const timemax = 90.
+%#const granularity = 90.
+%#const timemax = 90.
 link(J2,J1) :- link(J1,J2).
 {rotation(J1,J2,A,AI,T): joint(J1), joint(J2), angle(A), link(J1,J2), position(J1,AI,T)} <= 1 :- T > 0, time(T).
 :- T >= timemax, rotation(_,_,_,_,T).

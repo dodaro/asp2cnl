@@ -38,9 +38,10 @@ class TestRules(unittest.TestCase):
                 compiled = compile_rule(rule, symbols)
                 results.write(compiled)
                 results.write("\n")
+                #print("RULE")
                 #print(rule.toString())
-                print("COMPILED RULE")
-                print(compiled)
+                #print("COMPILED RULE")
+                #print(compiled)
                 outFileDisk = os.path.join(os.path.dirname(__file__), "output.cnl")
                 with open(outFileDisk, "w") as out_file:
                     f.seek(0)
