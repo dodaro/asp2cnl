@@ -9,8 +9,15 @@ A vE_P1 is identified by a date, by a time, and has a value.
 A vE_M1 is identified by a date, by a time, and has a value.
 A vS_P1 is identified by a date, by a time, and has a value.
 A vS_M1 is identified by a date, by a time, and has a value.
+A vCREG_PLUS is identified by a date, by a time, and has a value.
 A vCREG_MINUS is identified by a date, by a time, and has a value.
 A vPUN is identified by a date, by a time, and has a value.
 A vPZ is identified by a date, by a time, and has a value.
+A vPOFF_PLUS is identified by a date, by a time, and has a value.
+A vPOFF_MINUS is identified by a date, by a time, and has a value.
+A vCostCharge1 has a value.
+A vCostDischarge1 has a value.
+A vPAP has a value.
+A vPVP has a value.
 
-It is preferred, with priority 1, that whenever there is a vC_M with date D, with time I, with value C_IM, whenever there is a vPZ with date D, with time I, with value PZ_I, A is maximized, where A is equal to (PZ_I*C_IM)/1000.
+It is prohibited that the total value that have a vS_P1 with date D, with time I is different from P_I-Q_I+CREG_IM-CREG_IP whenever there is a vCREG_MINUS with date D, with time I, with value CREG_IM, whenever there is a vCREG_PLUS with date D, with time I, with value CREG_IP, whenever there is a vQ with date D, with time I, with value Q_I, whenever there is a vP with date D, with time I, with value P_I.

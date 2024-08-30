@@ -1,4 +1,6 @@
-:- (360 - granularity)/360 != (AI)/360, rotation(_,_,A,AI,_), (A)/360 = (0)/360.
+% :- (360 - granularity)/360 != (AI)/360, rotation(_,_,A,AI,_), (A)/360 = (0)/360.
+
+:- (360 - granularity)/360 != (AI)/360, rotation(_,_,A,AI,_), rotation(_,_,AA,AII,_), (A)/360 = (0)/360, AA/360 != AII/360.
 
 % It is prohibited that the difference between 360, and granularity is different from AI, whenever there is a rotation with desired_angle A equal to 0, with current_angle AI.
 % --> Non funziona

@@ -18,8 +18,8 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
 
-        #program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
-        program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
+        #program = open(os.path.join(os.path.dirname(__file__), "singleTest.asp"), "r").read()
         definitions = ASPParser(program).parse()
 
         expectedCnl = open(os.path.join(os.path.dirname(__file__), "expected_output.cnl"), 'r').readlines()

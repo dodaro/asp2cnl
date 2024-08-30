@@ -9,7 +9,14 @@ A vE_P1 is identified by a date, by a time, and has a value.
 A vE_M1 is identified by a date, by a time, and has a value.
 A vS_P1 is identified by a date, by a time, and has a value.
 A vS_M1 is identified by a date, by a time, and has a value.
+A vCREG_PLUS is identified by a date, by a time, and has a value.
 A vCREG_MINUS is identified by a date, by a time, and has a value.
 A vPUN is identified by a date, by a time, and has a value.
 A vPZ is identified by a date, by a time, and has a value.
+A vPOFF_PLUS is identified by a date, by a time, and has a value.
+A vPOFF_MINUS is identified by a date, by a time, and has a value.
+A vCostCharge1 has a value.
+A vCostDischarge1 has a value.
+A vPAP has a value.
+A vPVP has a value.
 

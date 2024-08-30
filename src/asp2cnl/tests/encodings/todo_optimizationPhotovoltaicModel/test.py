@@ -18,8 +18,8 @@ class TestRules(unittest.TestCase):
     def test_simple(self):
         results = StringIO()
 
-        program = open(os.path.join(os.path.dirname(__file__), "single_test.asp"), "r").read()
-        #program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
+        #program = open(os.path.join(os.path.dirname(__file__), "single_test.asp"), "r").read()
+        program = open(os.path.join(os.path.dirname(__file__), "encoding.asp"), "r").read()
         definitions = ASPParser(program).parse()
 
         expectedCnl = open(os.path.join(os.path.dirname(__file__), "expected_output.cnl"), 'r').readlines()
@@ -38,9 +38,10 @@ class TestRules(unittest.TestCase):
                 compiled = compile_rule(rule, symbols)
                 results.write(compiled)
                 results.write("\n")
-                #print(rule.toString())
-                #print("COMPILED RULE")
-                #print(compiled)
+                print("RULE")
+                print(rule.toString())
+                print("COMPILED RULE")
+                print(compiled)
                 outFileDisk = os.path.join(os.path.dirname(__file__), "output.cnl")
                 with open(outFileDisk, "w") as out_file:
                     f.seek(0)

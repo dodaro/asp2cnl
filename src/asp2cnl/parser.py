@@ -86,7 +86,7 @@ class ASPTransformer(Transformer):
                 foundCurlyClose = True
             elif type(e) == str and foundCurlyClose:
                 upperOp = e
-            elif type(e) == Term and foundCurlyClose:
+            elif (type(e) == Term or type(e) == ArithmeticAtom) and foundCurlyClose:
                 upperGuard = e
 
         return AggregateLiteral(lowerGuard, upperGuard, lowerOp, upperOp, aggregateFunction, aggregateElements)
@@ -501,6 +501,8 @@ class ClassicalLiteral:
             if term.isVariable():
                 return True
 
+    def __hash__(self):
+        return hash(repr(self))
     def toString(self):
         text = StringIO()
         text.write(self.name)
@@ -522,12 +524,17 @@ class NafLiteral:
     isNot: bool
     literal: ClassicalLiteral | BuiltinAtom
 
+    def __hash__(self):
+        return hash(repr(self))
+
     def toString(self):
         text = ""
         if self.isNot:
             text = "not "
         text = text + self.literal.toString()
         return text
+
+
 
 
 @dataclass(frozen=True)

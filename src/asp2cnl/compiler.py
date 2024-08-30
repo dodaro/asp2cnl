@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from io import StringIO
 
 import sys
@@ -8,6 +9,23 @@ import os
 from cnl2asp.cnl2asp import Symbol, SymbolType
 
 from asp2cnl.parser import Directive, ClassicalLiteral, BuiltinAtom, NafLiteral, AggregateLiteral, Term, ArithmeticAtom
+
+
+class TermDecorator(Term):
+    sentenceBefore:str = None
+    sentenceAfter: str = None
+    literal = None
+    literalVariable: str = None
+    def toString(self):
+        sentence = super().toString()
+        if self.sentenceBefore is not None:
+            sentence = self.sentenceBefore + " " + sentence
+        if self.sentenceAfter is not None:
+            sentence = sentence + " " + self.sentenceAfter
+        if self.literalVariable is not None:
+            sentence = sentence + " " + self.literalVariable
+
+        return sentence
 
 
 def extract_name(name):
@@ -248,22 +266,26 @@ def generate_vars_symbols(body, symbols, arithAtom):
             #print(builtVars)
             if type(builtVars[2]) == AggregateLiteral:
                 results.write(builtVars[0].name)
-            elif foundLitNames.count(builtVars[2].literal.name) == 1:
-                results.write(builtVars[0].name)
             else:
-                results.write("the")
-                results.write(" ")
-                results.write(builtVars[1])
+                if builtVars[2] is not None:
+                    if foundLitNames.count(builtVars[2].literal.name) == 1:
+                        results.write(builtVars[0].name)
+                    else:
+                        results.write("the")
+                        results.write(" ")
+                        results.write(builtVars[1])
 
-                results.write(" ")
-                results.write(builtVars[0].name)
+                        results.write(" ")
+                        results.write(builtVars[0].name)
 
-                results.write(" ")
-                results.write("of the ")
-                results.write(builtVars[2].literal.name)
-                results.write(" ")
-                results.write(get_literal_identifier(body, builtVars[2]))
-                # results.write(builtVars[2].upper())
+                        results.write(" ")
+                        results.write("of the ")
+                        results.write(builtVars[2].literal.name)
+                        results.write(" ")
+                        results.write(get_literal_identifier(body, builtVars[2]))
+                        # results.write(builtVars[2].upper())
+                else:
+                    results.write(builtVars[0].name)
         else:
             results.write(builtVars.toString())
 
@@ -478,6 +500,7 @@ def getBuiltinAtoms(rule, symbols):
             builtinAtoms.append(lit.literal)
 
     # Angle Management
+    foundAngleAtoms = set()
     for builtinAtom in builtinAtoms:
         checkNumber = 1
         while checkNumber < 3:
@@ -507,8 +530,10 @@ def getBuiltinAtoms(rule, symbols):
                             symbLit = get_symbol(symbols, lit.literal)
                             atom = lit.literal
                             isAngle = False
+                            angleDescription = None
                             if atom.name == "angle":
                                 isAngle = True
+                                angleDescription = "angle"
                             else:
                                 for i in range(len(atom.terms)):
                                     if checkingVar == atom.terms[i]:
@@ -519,16 +544,33 @@ def getBuiltinAtoms(rule, symbols):
                                                 or symbLit.attributes[i].endswith("_angle") \
                                                 or symbLit.attributes[i].endswith(" angle"):
                                             isAngle = True
+                                            foundAngleAtoms.add(lit)
+                                            angleDescriptionBefore = "the " + symbLit.attributes[i]
+                                            angleDescriptionAfter = "of the " + symbLit.predicate
+                                            angleLiteral = lit
+                                            angleLiteralVariable = atom.name.upper() + "_WITH_ANGLE_A" + str(len(foundAngleAtoms))
+
                             if isAngle:
                                 if len(arithAtom.terms) == 2:
                                     if checkNumber == 1:
+                                        #builtinAtom.terms[1] = TermDecorator(arithAtom.terms[0].name, arithAtom.terms[0].afterDotDot, arithAtom.terms[0].isModule, angleDescription)
                                         builtinAtom.terms[1] = arithAtom.terms[0]
                                         if removedFromVariable:
-                                            builtinAtom.terms[0] = leftPart
+                                            #builtinAtom.terms[0] = leftPart
+                                            builtinAtom.terms[0] = TermDecorator(leftPart.name, leftPart.afterDotDot, leftPart.isModule)
+                                            builtinAtom.terms[0].sentenceBefore = angleDescriptionBefore
+                                            builtinAtom.terms[0].sentenceAfter = angleDescriptionAfter
+                                            builtinAtom.terms[0].literal = angleLiteral
+                                            builtinAtom.terms[0].literalVariable = angleLiteralVariable
                                     else:
                                         builtinAtom.terms[0] = arithAtom.terms[0]
                                         if removedFromVariable:
-                                            builtinAtom.terms[1] = leftPart
+                                            #builtinAtom.terms[1] = leftPart
+                                            builtinAtom.terms[1] = TermDecorator(leftPart.name, leftPart.afterDotDot, leftPart.isModule)
+                                            builtinAtom.terms[1].sentenceBefore = angleDescriptionBefore
+                                            builtinAtom.terms[1].sentenceAfter = angleDescriptionAfter
+                                            builtinAtom.terms[1].literal = angleLiteral
+                                            builtinAtom.terms[1].literalVariable = angleLiteralVariable
                                 else:
                                     arithAtom.terms.pop()
                                     arithAtom.ops.pop()
@@ -868,7 +910,15 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
                 if type(costWeakTerm) == ArithmeticAtom:
                     hasSum = True
                     if foundLitNames.count(lit.literal.name) > 1:
+                        # Using literal indentifier for multiple atoms with same name
                         literalVariable = get_literal_identifier(body, lit)
+
+                for builtinAtom in builtinAtoms:
+                    for term in builtinAtom.terms:
+                        if isinstance(term, TermDecorator):
+                            if term.literal == lit:
+                                literalVariable = term.literalVariable
+
                 tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, literalVariable=literalVariable))
             else:
                 specialConstraintTranslationForLiteral = False
@@ -1088,53 +1138,55 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm=None, isStro
                 results.write("we have that")
                 results.write(" ")
 
-    aggrTerm = aggregate.aggregateElement[0].leftTerms[0]
-    forEachTerms = aggregate.aggregateElement[0].leftTerms[1:]
-    forEachSubsentences = None
-    if len(aggregate.aggregateElement[0].leftTerms) > 1:
-        forEachSubsentences = [None] * (len(aggregate.aggregateElement[0].leftTerms) - 1)
-    foundClassicalLiteral = None
-    foundVarOfLiteral = None
-    positionOfFoundVar = -1
-    foundMultipleUseOfAggrTerm = False
-    aggrVarsWithMultipleUse = []
-    builtinAtoms = []
-    removeAggrTerm = True
+    for aggregateElement in aggregate.aggregateElement:
+        aggrTerm = aggregateElement.leftTerms[0]
+        forEachTerms = aggregateElement.leftTerms[1:]
+        forEachSubsentences = None
 
-    # Search builtins
-    for naf_literal in aggregate.aggregateElement[0].body.literals:
-        if type(naf_literal) == NafLiteral and type(naf_literal.literal) == BuiltinAtom:
-            # if type(lit.literal.terms[0]) == ArithmeticAtom:
-            #    hasSumInBuiltin = True
-            builtinAtoms.append(naf_literal.literal)
-            if naf_literal.literal.containsVar(aggrTerm):
-                removeAggrTerm = False
+        if len(aggregateElement.leftTerms) > 1:
+            forEachSubsentences = [None] * (len(aggregateElement.leftTerms) - 1)
+        foundClassicalLiteral = None
+        foundVarOfLiteral = None
+        positionOfFoundVar = -1
+        foundMultipleUseOfAggrTerm = False
+        aggrVarsWithMultipleUse = []
+        builtinAtoms = []
+        removeAggrTerm = True
 
-    for naf_literal in aggregate.aggregateElement[0].body.literals:
-        # if foundClassicalLiteral is None:
-        if type(naf_literal) == NafLiteral:
-            if type(naf_literal.literal) == ClassicalLiteral:
-                p = 0
-                for t in naf_literal.literal.terms:
-                    if t.name == aggrTerm.name:
-                        if foundClassicalLiteral:
-                            foundMultipleUseOfAggrTerm = True
-                        else:
-                            foundClassicalLiteral = naf_literal.literal
-                            foundVarOfLiteral = t
-                            positionOfFoundVar = p
-                        foundAMatchWithAggregateTerm = True
-                    if t in forEachTerms:
-                        subEach = StringIO()
-                        subEach.write("for each")
-                        subEach.write(" ")
-                        symbLit = get_symbol(symbols, naf_literal.literal)
-                        subEach.write(symbLit.attributes[p])
-                        if forEachSubsentences[forEachTerms.index(t)] != None:
+        # Search builtins
+        for naf_literal in aggregateElement.body.literals:
+            if type(naf_literal) == NafLiteral and type(naf_literal.literal) == BuiltinAtom:
+                # if type(lit.literal.terms[0]) == ArithmeticAtom:
+                #    hasSumInBuiltin = True
+                builtinAtoms.append(naf_literal.literal)
+                if naf_literal.literal.containsVar(aggrTerm):
+                    removeAggrTerm = False
+
+        for naf_literal in aggregateElement.body.literals:
+            # if foundClassicalLiteral is None:
+            if type(naf_literal) == NafLiteral:
+                if type(naf_literal.literal) == ClassicalLiteral:
+                    p = 0
+                    for t in naf_literal.literal.terms:
+                        if t.name == aggrTerm.name:
+                            if foundClassicalLiteral:
+                                foundMultipleUseOfAggrTerm = True
+                            else:
+                                foundClassicalLiteral = naf_literal.literal
+                                foundVarOfLiteral = t
+                                positionOfFoundVar = p
+                            foundAMatchWithAggregateTerm = True
+                        if t in forEachTerms:
+                            subEach = StringIO()
+                            subEach.write("for each")
                             subEach.write(" ")
-                            subEach.write(t.name)
-                        forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
-                    p = p + 1
+                            symbLit = get_symbol(symbols, naf_literal.literal)
+                            subEach.write(symbLit.attributes[p])
+                            if forEachSubsentences[forEachTerms.index(t)] != None:
+                                subEach.write(" ")
+                                subEach.write(t.name)
+                            forEachSubsentences[forEachTerms.index(t)] = subEach.getvalue()
+                        p = p + 1
 
     connective = None
     if foundClassicalLiteral is not None:
@@ -1191,11 +1243,11 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm=None, isStro
             foundClassicalLiteral.terms.insert(positionOfFoundVar, tmpLitTerm)
             symbLit.attributes.insert(positionOfFoundVar, tmpSymbTerm)
 
-        if len(aggregate.aggregateElement[0].body.literals) > 1:
+        if len(aggregateElement.body.literals) > 1:
             # results.write("in")
             results.write(" ")
             startedIn = False
-            for nafLit in aggregate.aggregateElement[0].body.literals:
+            for nafLit in aggregateElement.body.literals:
                 if nafLit.literal != foundClassicalLiteral:
                     if type(nafLit) == NafLiteral and type(nafLit.literal) == ClassicalLiteral:
                         if startedIn:
@@ -1221,16 +1273,16 @@ def generate_aggregate_subsentence(aggregate, symbols, costWeakTerm=None, isStro
                 results.write(generate_compare_operator_sentence(operator))
                 results.write(" ")
                 if operator == "between":
-                    results.write(aggregate.lowerGuard.name)
+                    results.write(aggregate.lowerGuard.toString())
                     results.write(" ")
                     results.write("and")
                     results.write(" ")
-                    results.write(aggregate.upperGuard.name)
+                    results.write(aggregate.upperGuard.toString())
                 else:
                     if aggregate.lowerGuard is not None:
-                        results.write(aggregate.lowerGuard.name)
+                        results.write(aggregate.lowerGuard.toString())
                     else:
-                        results.write(aggregate.upperGuard.name)
+                        results.write(aggregate.upperGuard.toString())
     results.write(generateWhereForBuiltins(builtinAtoms))
     return results.getvalue()
 
