@@ -48,8 +48,8 @@ class TestRules(unittest.TestCase):
                     out_file.write(f.read())
                 with open(outFileDisk, "a") as out_file:
                     out_file.write(compiled)
-                    #self.assertEqual(compiled.rstrip(), expectedCnl[counterLine].rstrip(),
-                    #                 "Expected CNL sentence '" + expectedCnl[counterLine] + "'; got '" + compiled + "'")
+                    self.assertEqual(compiled.rstrip(), expectedCnl[counterLine].rstrip(),
+                                     "Expected CNL sentence '" + expectedCnl[counterLine] + "'; got '" + compiled + "'")
                 # print("Translating: " + compiled)
 
                 with open(outFileDisk, "r") as in_file:

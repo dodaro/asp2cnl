@@ -90,13 +90,13 @@ def compile_rule(rule, symbols):
                         if atom.terms[0].isWithDotDot():
                             results.write(generate_goes(atom))
                         else:
-                            results.write(generate_there_is(atom, symb, {}, True))
+                            results.write(generate_there_is(None, atom, symb, {}, True))
                     results.write(".")
                     #results.write("\n")
 
                 elif len(atom.terms) >= 2:
                     if symb is not None:
-                        results.write(generate_there_is(atom, symb, {}, True))
+                        results.write(generate_there_is(None, atom, symb, {}, True))
                         results.write(".")
                         #results.write("\n")
                         # else:
@@ -158,7 +158,7 @@ def generate_goes(atom):
     return results.getvalue()
 
 
-def generate_there_is(atom, symbol, builtinAtoms, start=False, noThereIs=False, literalVariable=None):
+def generate_there_is(body, atom, symbol, builtinAtoms, start=False, noThereIs=False, literalVariables=None):
     # Eg. movie(1,"jurassicPark","spielberg",1993).
     # -->
     # There is a movie with id equal to 1, with director equal to spielberg, with title equal to jurassicPark, with year equal to 1993.
@@ -182,10 +182,25 @@ def generate_there_is(atom, symbol, builtinAtoms, start=False, noThereIs=False, 
     results.write(" ")
     results.write(atom.name)
     results.write(" ")
+    doneOfTheIdentifierTerms = []
+    if body is not None:
+        for builtin in builtinAtoms:
+            #if builtin not in doneOfTheIdentifier:
+                for term in builtin.terms:
+                    if isinstance(term, TermDecorator):
+                        if term.literal.literal == atom and term.literalVariable not in doneOfTheIdentifierTerms:
+                            #results.write(get_literal_identifier(body, term.literal))
+                            results.write(term.literalVariable)
+                            results.write(" ")
+                            #doneOfTheIdentifier = True
+                            doneOfTheIdentifierTerms.append(term.literalVariable)
 
-    if literalVariable is not None:
-        results.write(literalVariable)
-        results.write(" ")
+    #if literalVariables is not None and not doneOfTheIdentifier:
+    if literalVariables is not None:
+        for literalVariable in literalVariables:
+            if literalVariable not in doneOfTheIdentifierTerms:
+                results.write(literalVariable)
+                results.write(" ")
 
     results.write(generate_with(atom, symbol, builtinAtoms))
     return results.getvalue()
@@ -756,7 +771,7 @@ def generate_head_choice(head, symbols):
                         results.write(",")
                         results.write(" ")
                     symb = get_symbol(symbols, nafLit.literal)
-                    results.write(generate_there_is(nafLit, symb, {}, False, started))
+                    results.write(generate_there_is(None, nafLit, symb, {}, False, started))
                     started = True
     #results.write(", where J1 is less than J2 ")
 
@@ -836,9 +851,15 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
     hasSumInBuiltin = False
     builtinSumSetInConstraint = False
 
+    literalVariables = []
     for builtinA in builtinAtoms:
         if type(builtinA.terms[0]) == ArithmeticAtom:
             hasSumInBuiltin = True
+            for term in builtinA.terms:
+                if isinstance(term, TermDecorator):
+                    for lit in body.literals:
+                        if term.literal == lit:
+                            literalVariables.append(term.literalVariable)
 
     if hasSumInBuiltin and isStrongConstraint:
         # results.write(" ")
@@ -906,24 +927,24 @@ def generate_body(rule, symbols, builtinAtoms, isStrongConstraint=False, costWea
             if not specialConstraintTranslationForLiteral:
                 tmpWheneverResults.write(" ")
                 hasSum = hasSumInBuiltin
-                literalVariable = None
+                #literalVariable = None
                 if type(costWeakTerm) == ArithmeticAtom:
                     hasSum = True
                     if foundLitNames.count(lit.literal.name) > 1:
                         # Using literal indentifier for multiple atoms with same name
-                        literalVariable = get_literal_identifier(body, lit)
+                        literalVariables.append(get_literal_identifier(body, lit))
 
-                for builtinAtom in builtinAtoms:
-                    for term in builtinAtom.terms:
-                        if isinstance(term, TermDecorator):
-                            if term.literal == lit:
-                                literalVariable = term.literalVariable
+                #for builtinAtom in builtinAtoms:
+                #    for term in builtinAtom.terms:
+                #        if isinstance(term, TermDecorator):
+                #            if term.literal == lit:
+                #                literalVariable = term.literalVariable
 
-                tmpWheneverResults.write(generate_there_is(lit, symbLit, builtinAtoms, literalVariable=literalVariable))
+                tmpWheneverResults.write(generate_there_is(body, lit, symbLit, builtinAtoms, literalVariables=literalVariables))
             else:
                 specialConstraintTranslationForLiteral = False
                 if not hasSumInBuiltin:
-                    firstConstraintLiteralInSentence = " " + generate_there_is(lit, symbLit, builtinAtoms)
+                    firstConstraintLiteralInSentence = " " + generate_there_is(body, lit, symbLit, builtinAtoms)
             # tmpWheneverResults.write(" ")
         elif type(lit) == AggregateLiteral:
             if not isStrongConstraint and costWeakTerm is None:
