@@ -1,0 +1,1 @@
+:- SUM_E_IP1 = #sum{E_IP1: vE_P1(D, I, E_IP1)}, SUM_E_IM1 = #sum{E_IM1: vE_M1(D, I, E_IM1)}, SUM_ALL = SUM_E_IP1 - SUM_E_IM1, SUM_ALL > CAP_TOT_MAX_S1 - SOC_SI, vSOC_S(D, 0, SOC_SI), vCapTotMax_S1(CAP_TOT_MAX_S1).

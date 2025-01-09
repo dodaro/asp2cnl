@@ -19,4 +19,17 @@ A vCostCharge1 has a value.
 A vCostDischarge1 has a value.
 A vPAP has a value.
 A vPVP has a value.
+A vPercentage_Ps1 has a value.
+A vPercentage_Ms1 has a value.
+A vOVER_I is identified by a date, by a time, and has a value.
+A vUNDER_I is identified by a date, by a time, and has a value.
+A vEMin1 has a value.
+A vEMax1 has a value.
+A vCapTotMax_1 has a value.
+A vCapTotMax_S1 has a value.
+A vSOC is identified by a date, by a time, and has a value.
+A vSOC_S is identified by a date, by a time, and has a value.
+A vEMinS1 has a value.
+A vEMaxS1 has a value.
 
+Whenever there is a vP with date D, with time I, with value P_I greater than Q_I, whenever there is a vQ with date D, with time I, with value Q_I then we must have a vUNDER_I with date D, with time I, with value equal to 0.

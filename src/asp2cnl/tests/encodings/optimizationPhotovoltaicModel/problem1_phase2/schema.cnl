@@ -1,0 +1,14 @@
+A vGUESS is identified by a value.
+A date is a temporal concept expressed in days ranging from 03/12/2019 to 03/12/2019.
+A time is a temporal concept expressed in minutes ranging from 12:00 AM to 11:00 PM with a length of 60 minutes.
+A user is identified by a id.
+A vS_P_i_j is identified by a date, by a time, by a user, and has a value.
+A vS_M_i_j is identified by a date, by a time, by a user, and has a value.
+A vC_P_i_j is identified by a date, by a time, by a user, and has a value.
+A vC_M_i_j is identified by a date, by a time, by a user, and has a value.
+A vRE_j is identified by a date, by a time, by a user, and has a value.
+A vCHARGING_i is identified by a date, by a time, and has a value.
+A vCapTot_j is identified by a date, by a time, and has a value.
+A vEMax_j is identified by a date, by a time, and has a value.
+A vP_i_j is identified by a date, by a time, by a user, and has a value.
+A vQ_i_j is identified by a date, by a time, by a user, and has a value.

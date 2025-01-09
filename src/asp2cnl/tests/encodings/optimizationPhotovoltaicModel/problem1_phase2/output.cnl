@@ -1,0 +1,15 @@
+A vGUESS is identified by a value.
+A date is a temporal concept expressed in days ranging from 03/12/2019 to 03/12/2019.
+A time is a temporal concept expressed in minutes ranging from 12:00 AM to 11:00 PM with a length of 60 minutes.
+A user is identified by a id.
+A vS_P_i_j is identified by a date, by a time, by a user, and has a value.
+A vS_M_i_j is identified by a date, by a time, by a user, and has a value.
+A vC_P_i_j is identified by a date, by a time, by a user, and has a value.
+A vC_M_i_j is identified by a date, by a time, by a user, and has a value.
+A vRE_j is identified by a date, by a time, by a user, and has a value.
+A vCHARGING_i is identified by a date, by a time, and has a value.
+A vCapTot_j is identified by a date, by a time, and has a value.
+A vEMax_j is identified by a date, by a time, and has a value.
+A vP_i_j is identified by a date, by a time, by a user, and has a value.
+A vQ_i_j is identified by a date, by a time, by a user, and has a value.
+It is prohibited that the total value, for each time, that have a vS_P_i_j with date D, with time I, with user id J is equal to SUM_S_P_I_J, whenever we have that the total value, for each time, that have a vS_M_i_j with date D, with time I, with user id J is equal to SUM_S_M_I_J whenever there is a user with id J, whenever there is a vCapTot_j with date D, with time J, with value CAPTOP_J, whenever there is a vRE_j with date D, with time equal to 0, with user id J, with value RE_J, where SUM_ALL is equal to SUM_S_P_I_J-SUM_S_M_I_J, where SUM_ALL is greater than CAPTOP_J-RE_J.

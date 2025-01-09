@@ -19,5 +19,16 @@ A vCostCharge1 has a value.
 A vCostDischarge1 has a value.
 A vPAP has a value.
 A vPVP has a value.
+A vPercentage_Ps1 has a value.
+A vPercentage_Ms1 has a value.
+A vOVER_I is identified by a date, by a time, and has a value.
+A vUNDER_I is identified by a date, by a time, and has a value.
+A vEMin1 has a value.
+A vEMax1 has a value.
+A vCapTotMax_1 has a value.
+A vCapTotMax_S1 has a value.
+A vSOC is identified by a date, by a time, and has a value.
+A vSOC_S is identified by a date, by a time, and has a value.
+A vEMinS1 has a value.
+A vEMaxS1 has a value.
 
-It is prohibited that the total value that have a vS_P1 with date D, with time I is different from P_I-Q_I+CREG_IM-CREG_IP whenever there is a vCREG_MINUS with date D, with time I, with value CREG_IM, whenever there is a vCREG_PLUS with date D, with time I, with value CREG_IP, whenever there is a vQ with date D, with time I, with value Q_I, whenever there is a vP with date D, with time I, with value P_I.

@@ -1108,6 +1108,9 @@ def generate_operation_between(body, symbols, arithAtom):
         elif isSub:
             results.write("difference")
             results.write(" ")
+        elif isMult:
+            results.write("product")
+            results.write(" ")
 
         results.write("between")
         results.write(" ")
