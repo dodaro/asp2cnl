@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='asp2cnl',
-    version='1.0.1',
+    version='1.0.2',
     description='A tool for converting Answer Set Programming into a Controlled Natural Language based on English',
     long_description=dedent('''\
                             A tool for converting Answer Set Programming into a Controlled Natural Language based on English
