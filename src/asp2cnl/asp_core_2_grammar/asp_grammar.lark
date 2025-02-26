@@ -1,3 +1,5 @@
+%import common.SIGNED_INT
+
 start : program | "^"
 
 program : statements
@@ -163,7 +165,7 @@ b: term binop
 ID: /[a-z0-9][A-Za-z0-9_]*/
 VARIABLE: /[A-Z][A-Za-z0-9_]*/
 STRING: "\"" ("\\\""|/[^"]/)* "\""
-NUMBER: "0"|/[1-9][0-9]*/
+NUMBER: SIGNED_INT
 ANONYMOUS_VARIABLE: "_"
 DOT: "."
 DOTDOT: ".."
